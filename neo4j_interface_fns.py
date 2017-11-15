@@ -14,7 +14,7 @@ def getSubGraphPaths(root_id, end_id):
     :param root_id: The database Id of the root node
     :param end_id: The database Id of the end node
     :return: A BoltStatementResult object describing all paths between root node
-    specified by uuid1, and end node specified by uuid2.
+    specified by root_id, and end node specified by end_id.
     """
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "neo4j"))
     session = driver.session()
