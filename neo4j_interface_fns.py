@@ -8,6 +8,7 @@ import numpy as np
 
 VERSION_TYPES = ['GLOB_OBJ_PREV', 'META_PREV', 'PROC_OBJ_PREV']
 
+
 class AdjacencyMatrix:
     """Wrapper class to represent an Adjacency Matrix"""
     def __init__(self, matrix, id_to_index):
@@ -20,7 +21,8 @@ class AdjacencyMatrix:
         self.matrix = matrix
         self.id_to_index = id_to_index
 
-def getSubGraphPaths(root_id, end_id):
+
+def get_subgraph_paths(root_id, end_id):
     """
     Queries the neo4j database for all paths starting from a root node and ending
     at an end node
@@ -38,11 +40,12 @@ def getSubGraphPaths(root_id, end_id):
     WHERE Id(n) = $id1 AND Id(m) = $id2
     RETURN path
     """
-    results = session.run(query, {"id1" : root_id, "id2" : end_id})
+    results = session.run(query, {"id1": root_id, "id2": end_id})
     session.close()
     return results
 
-def buildAdjacencyMatrix(results):
+
+def build_adjacency_matrix(results):
     """
     Builds an adjacency matrix based on a given graph, represented as a BoltStatementResult
 
@@ -69,13 +72,14 @@ def buildAdjacencyMatrix(results):
         idx += 1
 
     for edge_id in edges.keys():
-        startIdx = id_to_index[edges[edge_id].start]
-        endIdx = id_to_index[edges[edge_id].end]
-        adjacency_matrix[startIdx, endIdx] = 1
+        start_idx = id_to_index[edges[edge_id].start]
+        end_idx = id_to_index[edges[edge_id].end]
+        adjacency_matrix[start_idx, end_idx] = 1
 
     return AdjacencyMatrix(adjacency_matrix, id_to_index)
 
-def removeOldNodeVersions(nodes, edges):
+
+def consolidate_node_versions(nodes, edges):
     """
     Given a Dictionary of node_id -> node and a Dictionary of edge_id -> edge,
     for all adjacent edges and nodes (node1)-[edge]->(node2) where
