@@ -62,6 +62,8 @@ def build_adjacency_matrix(results):
         for edge in result['path'].relationships:
             edges[edge.id] = edge
 
+    nodes, edges = consolidate_node_versions(nodes, edges)
+
     node_count = len(nodes)
     adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
     id_to_index = {}
