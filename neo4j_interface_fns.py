@@ -11,15 +11,21 @@ VERSION_TYPES = ['GLOB_OBJ_PREV', 'META_PREV', 'PROC_OBJ_PREV']
 
 class AdjacencyMatrix:
     """Wrapper class to represent an Adjacency Matrix"""
-    def __init__(self, matrix, id_to_index):
+    def __init__(self, matrix, id_to_index, nodes, edges):
         """
-        Initialises the matrix and dictionary containing ids
+        Initialises wrapper object with all the data it needs to usefully
+        represent a graph.
 
-        self.matrix: A 2-dimensional numpy matrix
-        self.labels: A dictionary of node id -> matrix index
+        :param matrix: Adjacency matrix as a NumPy matrix. All edge weights are '1'.
+        :param id_to_index: Dictionary of Node id -> row/column index in matrix.
+        :param nodes: Dictionary of Node id -> Node
+        :param edges: Dictionary of Edge id -> Edge
         """
+
         self.matrix = matrix
         self.id_to_index = id_to_index
+        self.nodes = nodes
+        self.edges = edges
 
 
 def get_subgraph_paths(root_id, end_id):
@@ -78,7 +84,7 @@ def build_adjacency_matrix(results):
         end_idx = id_to_index[edges[edge_id].end]
         adjacency_matrix[start_idx, end_idx] = 1
 
-    return AdjacencyMatrix(adjacency_matrix, id_to_index)
+    return AdjacencyMatrix(adjacency_matrix, id_to_index, nodes, edges)
 
 
 def consolidate_node_versions(nodes, edges):
