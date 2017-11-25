@@ -69,8 +69,8 @@ def build_adjacency_matrix(results):
             edges[edge.id] = edge
 
     incoming_edges, outgoing_edges = build_in_out_edges(edges)
-    nodes, edges = consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
-    nodes, edges = remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
+    consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
+    remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
 
     node_count = len(nodes)
     adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
@@ -133,8 +133,6 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
             nodes.pop(removed_node_id)
             edges.pop(edge_id)
 
-    return nodes, edges
-
 
 def build_in_out_edges(edges):
     """
@@ -182,8 +180,6 @@ def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
             pop_related_edges(incoming_edges, edges, node_id)
             pop_related_edges(outgoing_edges, edges, node_id)
             nodes.pop(node_id)
-
-    return nodes, edges
 
 
 def pop_related_edges(node_edge_dict, edges, node_id):
