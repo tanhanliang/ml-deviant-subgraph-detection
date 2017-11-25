@@ -68,7 +68,8 @@ def build_adjacency_matrix(results):
         for edge in result['path'].relationships:
             edges[edge.id] = edge
 
-    nodes, edges = consolidate_node_versions(nodes, edges)
+    incoming_edges, outgoing_edges = build_in_out_edges(edges)
+    nodes, edges = consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
 
     node_count = len(nodes)
     adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
@@ -87,7 +88,7 @@ def build_adjacency_matrix(results):
     return AdjacencyMatrix(adjacency_matrix, id_to_index, nodes, edges)
 
 
-def consolidate_node_versions(nodes, edges):
+def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
     """
     Given a Dictionary of node_id -> node and a Dictionary of edge_id -> edge,
     for all adjacent edges and nodes (node1)-[edge]->(node2) where
@@ -100,11 +101,11 @@ def consolidate_node_versions(nodes, edges):
 
     :param nodes: A Dictionary of node_id to Neo4j Nodes
     :param edges: A Dictionary of edge_id to edges
+    :param incoming_edges: A Dictionary of node_id -> edge (incoming edges to that node)
+    :param outgoing_edges: A Dictionary of node_id -> edge (outgoing edges from that node)
     :return: (nodes, edges), a tuple containing a Dictionary of node_id to Neo4j Nodes
     and a Dictionary of edge_id to edges
     """
-
-    incoming_edges, outgoing_edges = build_in_out_edges(nodes, edges)
 
     # Glue incoming and outgoing edges from the old node to the master node
     for edge_id in list(edges.keys()):
@@ -134,12 +135,11 @@ def consolidate_node_versions(nodes, edges):
     return nodes, edges
 
 
-def build_in_out_edges(nodes, edges):
+def build_in_out_edges(edges):
     """
     Given a Dictionary of node_id -> node and a Dictionary of edge_id -> edge, builds two
     dictionaries of node_id -> edge (incoming or outgoing edges from that node).
 
-    :param nodes: A Dictionary of node_id -> node
     :param edges: A Dictionary of edge_id -> edge
     :return: (incoming_edges, outgoing_edges), a tuple of Dictionaries of node_id to
     incoming/outgoing edges to/from that node
