@@ -104,19 +104,7 @@ def consolidate_node_versions(nodes, edges):
     and a Dictionary of edge_id to edges
     """
 
-    incoming_edges = {}
-    outgoing_edges = {}
-
-    # Build maps which store all incoming and outgoing edges for every node
-    for edge_id in edges.keys():
-        edge = edges[edge_id]
-        if not incoming_edges.__contains__(edge.end):
-            incoming_edges[edge.end] = []
-        incoming_edges[edge.end] += [edge]
-
-        if not outgoing_edges.__contains__(edge.start):
-            outgoing_edges[edge.start] = []
-        outgoing_edges[edge.start] += [edge]
+    incoming_edges, outgoing_edges = build_in_out_edges(nodes, edges)
 
     # Glue incoming and outgoing edges from the old node to the master node
     for edge_id in list(edges.keys()):
@@ -144,3 +132,31 @@ def consolidate_node_versions(nodes, edges):
             edges.pop(edge_id)
 
     return nodes, edges
+
+
+def build_in_out_edges(nodes, edges):
+    """
+    Given a Dictionary of node_id -> node and a Dictionary of edge_id -> edge, builds two
+    dictionaries of node_id -> edge (incoming or outgoing edges from that node).
+
+    :param nodes: A Dictionary of node_id -> node
+    :param edges: A Dictionary of edge_id -> edge
+    :return: (incoming_edges, outgoing_edges), a tuple of Dictionaries of node_id to
+    incoming/outgoing edges to/from that node
+    """
+
+    incoming_edges = {}
+    outgoing_edges = {}
+
+    # Build maps which store all incoming and outgoing edges for every node
+    for edge_id in edges.keys():
+        edge = edges[edge_id]
+        if not incoming_edges.__contains__(edge.end):
+            incoming_edges[edge.end] = []
+        incoming_edges[edge.end] += [edge]
+
+        if not outgoing_edges.__contains__(edge.start):
+            outgoing_edges[edge.start] = []
+        outgoing_edges[edge.start] += [edge]
+
+    return incoming_edges, outgoing_edges
