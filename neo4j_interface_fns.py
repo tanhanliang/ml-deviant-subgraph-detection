@@ -102,8 +102,8 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
 
     :param nodes: A Dictionary of node_id to Neo4j Nodes
     :param edges: A Dictionary of edge_id to edges
-    :param incoming_edges: A Dictionary of node_id -> edge (incoming edges to that node)
-    :param outgoing_edges: A Dictionary of node_id -> edge (outgoing edges from that node)
+    :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
+    :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
     :return: (nodes, edges), a tuple containing a Dictionary of node_id to Neo4j Nodes
     and a Dictionary of edge_id to edges
     """
@@ -143,7 +143,7 @@ def build_in_out_edges(edges):
 
     :param edges: A Dictionary of edge_id -> edge
     :return: (incoming_edges, outgoing_edges), a tuple of Dictionaries of node_id to
-    incoming/outgoing edges to/from that node
+    list of incoming/outgoing edges to/from that node
     """
 
     incoming_edges = {}
@@ -171,8 +171,8 @@ def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
 
     :param nodes: A Dictionary of node_id -> node
     :param edges: A Dictionary of edge_id -> edge
-    :param incoming_edges: A Dictionary of node_id -> edge (incoming edges to that node)
-    :param outgoing_edges: A Dictionary of node_id -> edge (outgoing edges from that node)
+    :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
+    :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
     :return: (nodes, edges), A tuple of Dictionaries, node_id -> node and edge_id -> edge
     """
 
@@ -192,9 +192,9 @@ def pop_related_edges(node_edge_dict, edges, node_id):
     end of the edge has node_id. Also removes mapping from node_id -> edge from the given
     node_edge_dict if it exists.
 
-    :param node_edge_dict: A dictionary of node_id -> edge (incoming or outgoing edges from that node)
+    :param node_edge_dict: A Dictionary of node_id -> edge (incoming or outgoing edges from that node)
     :param edges: A Dictionary of edge_id -> edge
-    :param node_id: An id number of a node of which all related edges will be deleted
+    :param node_id: An Integer id number of a node of which all related edges will be deleted
     :return: nothing
     """
 
