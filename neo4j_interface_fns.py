@@ -70,6 +70,7 @@ def build_adjacency_matrix(results):
 
     incoming_edges, outgoing_edges = build_in_out_edges(edges)
     nodes, edges = consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
+    nodes, edges = remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
 
     node_count = len(nodes)
     adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
@@ -160,3 +161,45 @@ def build_in_out_edges(edges):
         outgoing_edges[edge.start] += [edge]
 
     return incoming_edges, outgoing_edges
+
+
+def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
+    """
+    Removes all nodes from the Dictionaries of node_id -> node and edge_id -> edge
+    where node.anomalous = true. This is an artefact of the provenance capture process
+    and should not be included.
+
+    :param nodes: A Dictionary of node_id -> node
+    :param edges: A Dictionary of edge_id -> edge
+    :param incoming_edges: A Dictionary of node_id -> edge (incoming edges to that node)
+    :param outgoing_edges: A Dictionary of node_id -> edge (outgoing edges from that node)
+    :return: (nodes, edges), A tuple of Dictionaries, node_id -> node and edge_id -> edge
+    """
+
+    for node_id in list(nodes.keys()):
+        node_prop = nodes[node_id].properties
+        if node_prop.__contains__('anomalous') and node_prop['anomalous']:
+            pop_related_edges(incoming_edges, edges, node_id)
+            pop_related_edges(outgoing_edges, edges, node_id)
+            nodes.pop(node_id)
+
+    return nodes, edges
+
+
+def pop_related_edges(node_edge_dict, edges, node_id):
+    """
+    Pops every edge_id -> edge mapping in a Dictionary where either the start or the
+    end of the edge has node_id. Also removes mapping from node_id -> edge from the given
+    node_edge_dict if it exists.
+
+    :param node_edge_dict: A dictionary of node_id -> edge (incoming or outgoing edges from that node)
+    :param edges: A Dictionary of edge_id -> edge
+    :param node_id: An id number of a node of which all related edges will be deleted
+    :return: nothing
+    """
+
+    if node_edge_dict.__contains__(node_id):
+        for edge in node_edge_dict[node_id]:
+            if edges.__contains__(edge.id):
+                edges.pop(edge.id)
+        node_edge_dict.pop(node_id)
