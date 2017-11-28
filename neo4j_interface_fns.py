@@ -51,12 +51,13 @@ def get_subgraph_paths(root_id, end_id):
     return results
 
 
-def build_adjacency_matrix(results):
+def get_nodes_edges(results):
     """
-    Builds an adjacency matrix based on a given graph, represented as a BoltStatementResult
+    Builds a Dictionary of node_id -> node and a Dictionary of edge_id -> edge from a
+    BoltStatementResult object which is the raw result of a neo4j query.
 
-    :param results: A BoltStatementResult describing all paths within the graph
-    :return: An adjacency matrix representation for the graph, using a np.matrix
+    :param results: A BoltStatementResult object describing all paths in the query
+    :return: A tuple of (Dictionary, Dictionary)
     """
 
     nodes = {}
@@ -67,6 +68,17 @@ def build_adjacency_matrix(results):
             nodes[node.id] = node
         for edge in result['path'].relationships:
             edges[edge.id] = edge
+    return nodes, edges
+
+def build_adjacency_matrix(results):
+    """
+    Builds an adjacency matrix based on a given graph, represented as a BoltStatementResult
+
+    :param results: A BoltStatementResult describing all paths within the graph
+    :return: An adjacency matrix representation for the graph, using a np.matrix
+    """
+
+    nodes, edges = get_nodes_edges(results)
 
     incoming_edges, outgoing_edges = build_in_out_edges(edges)
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
