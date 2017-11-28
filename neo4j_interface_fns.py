@@ -1,5 +1,5 @@
 """
-This module contains functions to extract and process data from a neo4j database.
+This module contains functions to extract data from a neo4j database.
 
 Dependencies: neo4j-driver
 """
