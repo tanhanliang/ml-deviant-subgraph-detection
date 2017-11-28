@@ -26,12 +26,3 @@ def get_neighborhood(start_id, k):
     results = session.run(query, {"id": start_id, "num": k})
     session.close()
     return results
-
-def build_normalised_adj_matrix(results):
-    """
-    Builds a normalised adjacency matrix using hashing of several properties for ordering.
-    The hash function used is
-    :param results: A BoltStatementResult matrix
-    :return:
-    """
-

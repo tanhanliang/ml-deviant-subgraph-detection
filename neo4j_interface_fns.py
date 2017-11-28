@@ -68,6 +68,7 @@ def get_nodes_edges(results):
             nodes[node.id] = node
         for edge in result['path'].relationships:
             edges[edge.id] = edge
+            
     return nodes, edges
 
 def build_adjacency_matrix(results):
