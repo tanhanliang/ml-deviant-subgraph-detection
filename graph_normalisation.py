@@ -3,6 +3,7 @@ Contains functions to normalise graph nodes in a linear ordering such that simil
 have nodes ordered similarly (relative ordering of nodes) after being normalised.
 """
 from neo4j_interface_fns import *
+import sys
 HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
 NODE_TYPE_HASH = {'Conn': 2, 'File': 4, 'Global': 8, 'Machine': 16, 'Meta': 32, 'Process': 64,
                   'Socket': 128}
@@ -52,7 +53,7 @@ def build_normalised_adj_matrix(results):
         node_hash = compute_hash(node)
         node_hash_list.append((node_hash, node))
 
-    sorted(node_hash_list, key=lambda x: x[0])
+    node_hash_list = sorted(node_hash_list, key=lambda x: x[0])
     node_count = len(nodes)
     adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
     id_to_index = {}
@@ -93,6 +94,6 @@ def compute_hash(node):
             else:
                 prop_hash = hash(properties[prop])
             # Take the 4 most significant digits
-            hash_value += int(str(prop_hash)[:4])
+            hash_value += abs(int(str(prop_hash)[:4]))
 
     return hash_value
