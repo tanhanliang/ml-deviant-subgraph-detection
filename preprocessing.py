@@ -3,6 +3,7 @@ This module contains functions to process graph data from Neo4j.
 """
 
 import numpy as np
+import sys
 from adj_matrices import AdjacencyMatrix
 
 VERSION_TYPES = ['GLOB_OBJ_PREV', 'META_PREV', 'PROC_OBJ_PREV']
@@ -170,3 +171,57 @@ def pop_related_edges(node_edge_dict, edges, node_id):
             if edges.__contains__(edge.id):
                 edges.pop(edge.id)
         node_edge_dict.pop(node_id)
+
+
+def group_nodes_by_uuid(nodes):
+    """
+    Creates a dictionary of uuid -> Set of nodes. The set contains all nodes with that uuid.
+    Nodes with no uuid are not included.
+
+    :param nodes: A Dictionary of node_id -> node
+    :return: A Dictionary of uuid -> Set of nodes
+    """
+
+    uuid_to_nodes = {}
+
+    for _,node in nodes.items():
+        node_prop = node.properties
+        if 'uuid' in node_prop:
+            uuid = node_prop['uuid']
+            if uuid not in uuid_to_nodes:
+                uuid_to_nodes[uuid] = set()
+            uuid_to_nodes[uuid].add(node)
+
+    return uuid_to_nodes
+
+
+def rename_symlinked_files_timestamp(nodes):
+    """
+    For all file nodes with the same uuid, renames them with the name of the node
+    with the smallest timestamp (oldest node). Nodes with no name are not renamed.
+    Nodes with no timestamp are still renamed (all nodes should have a timestamp).
+    If multiple nodes have the same timestamp, a name is selected arbitrarily.
+
+    :param nodes: A Dictionary of node_id -> node
+    :return: Nothing
+    """
+
+    uuid_to_nodes = group_nodes_by_uuid(nodes)
+
+    for uuid, nodes_set in uuid_to_nodes.items():
+        if len(nodes_set) > 1:
+            timestamp = sys.maxsize
+            smallest_ts_node = None
+
+            for node in nodes_set:
+                node_prop = node.properties
+                if 'timestamp' in node_prop and 'name' in node_prop \
+                    and node_prop['timestamp'] < timestamp:
+                    timestamp = node_prop['timestamp']
+                    smallest_ts_node = node
+
+            if smallest_ts_node is not None:
+                for node in nodes_set:
+                    if 'name' in node.properties:
+                        # TODO: Decide what to do for multiple names
+                        node.properties['name'] = smallest_ts_node.properties['name']
