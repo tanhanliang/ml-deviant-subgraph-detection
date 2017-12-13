@@ -50,9 +50,11 @@ def build_normalised_adj_matrix(results):
 
 def compute_hash(node, hash_fn):
     """
-    Given a Node, computes a hash value based on the Node type and several properties.
+    Given a Node, computes a hash value based on a given hash function,
+    the Node type and several properties.
 
     :param node: A neo4j Node
+    :param hash_fn: A given hash function
     :return: A hash value as a long integer
     """
     hash_value = 0
