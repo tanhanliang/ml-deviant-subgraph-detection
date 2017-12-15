@@ -27,7 +27,7 @@ def build_normalised_adj_matrix(results):
 
     for node_id in nodes.keys():
         node = nodes[node_id]
-        node_hash = compute_hash(node)
+        node_hash = compute_hash(node, hash)
         node_hash_list.append((node_hash, node))
 
     node_hash_list = sorted(node_hash_list, key=lambda x: x[0])
@@ -48,11 +48,13 @@ def build_normalised_adj_matrix(results):
     return AdjacencyMatrix(adjacency_matrix, id_to_index, nodes, edges)
 
 
-def compute_hash(node):
+def compute_hash(node, hash_fn):
     """
-    Given a Node, computes a hash value based on the Node type and several properties.
+    Given a Node, computes a hash value based on a given hash function,
+    the Node type and several properties.
 
     :param node: A neo4j Node
+    :param hash_fn: A given hash function
     :return: A hash value as a long integer
     """
     hash_value = 0
@@ -67,9 +69,9 @@ def compute_hash(node):
             if prop == 'name':
                 # A node may have multiple names, use only the first
                 # TODO: Update with better solution after meeting with supervisor
-                prop_hash = hash(properties[prop][0])
+                prop_hash = hash_fn(properties[prop][0])
             else:
-                prop_hash = hash(properties[prop])
+                prop_hash = hash_fn(properties[prop])
             # Take the 4 most significant digits
             hash_value += abs(int(str(prop_hash)[:4]))
 
