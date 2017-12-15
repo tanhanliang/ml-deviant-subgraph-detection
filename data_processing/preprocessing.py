@@ -4,7 +4,7 @@ This module contains functions to process graph data from Neo4j.
 
 import numpy as np
 import sys
-from adj_matrices import AdjacencyMatrix
+from data_processing.adj_matrices import AdjacencyMatrix
 
 VERSION_TYPES = ['GLOB_OBJ_PREV', 'META_PREV', 'PROC_OBJ_PREV']
 
