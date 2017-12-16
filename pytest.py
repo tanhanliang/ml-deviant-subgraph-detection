@@ -1,0 +1,10 @@
+"""
+Script to run all tests
+"""
+
+import unittest
+
+if __name__ == "__main__":
+    all_tests = unittest.TestLoader().discover(start_dir='.', pattern='test*.py')
+    unittest.TextTestRunner().run(all_tests)
+

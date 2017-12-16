@@ -4,7 +4,7 @@ This module contains functions to process graph data from Neo4j.
 
 import numpy as np
 import sys
-from adj_matrices import AdjacencyMatrix
+from data_processing.adj_matrices import AdjacencyMatrix
 
 VERSION_TYPES = ['GLOB_OBJ_PREV', 'META_PREV', 'PROC_OBJ_PREV']
 
@@ -108,7 +108,7 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
 
 def build_in_out_edges(edges):
     """
-    Given a Dictionary of node_id -> node and a Dictionary of edge_id -> edge, builds two
+    Given a Dictionary of edge_id -> edge, builds two
     dictionaries of node_id -> edge (incoming or outgoing edges from that node).
 
     :param edges: A Dictionary of edge_id -> edge
