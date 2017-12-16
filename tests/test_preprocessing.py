@@ -47,8 +47,8 @@ class TestPreprocessingFns(unittest.TestCase):
         nodes, edges = get_nodes_edges(data)
 
         for node_id in range(1, 4):
-            self.assertEquals(id, nodes[node_id].id)
-            self.assertEquals(id, edges[node_id].id)
+            self.assertEquals(node_id, nodes[node_id].id)
+            self.assertEquals(node_id, edges[node_id].id)
 
     def test_build_adjacency_matrix(self):
         nodes = [MockNode(1), MockNode(2), MockNode(3), MockNode(4)]
@@ -71,15 +71,15 @@ class TestPreprocessingFns(unittest.TestCase):
                     self.assertTrue(end_id-start_id == 1)
 
     def test_consolidate_node_versions(self):
-        nodes = [MockNode(1), MockNode(2), MockNode(3), MockNode(4)]
-        edges = [MockEdge(1, 1, 2, 'PROC_OBJ_PREV'),
-                 MockEdge(2, 2, 3, 'GLOB_OBJ_PREV'),
-                 MockEdge(3, 3, 4, 'META_PREV')]
+        nodes = {1: MockNode(1), 2: MockNode(2), 3: MockNode(3), 4: MockNode(4)}
+        edges = {1: MockEdge(1, 1, 2, 'PROC_OBJ_PREV'),
+                 2: MockEdge(2, 2, 3, 'GLOB_OBJ_PREV'),
+                 3: MockEdge(3, 3, 4, 'META_PREV')}
         incoming_edges, outgoing_edges = build_in_out_edges(edges)
         consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
 
         self.assertTrue(len(nodes) == 1)
-        self.assertTrue(nodes[0].id == 1)
+        self.assertTrue(nodes[1].id == 1)
         self.assertTrue(len(edges) == 0)
 
 def main():
