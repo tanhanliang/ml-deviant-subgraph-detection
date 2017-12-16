@@ -16,7 +16,7 @@ def build_normalised_adj_matrix(results, hash_fn):
 
     :param results: A BoltStatementResult matrix
     :param hash_fn: The hash function to use
-    :return:
+    :return:An adjacency matrix representation for the graph, using a np.matrix
     """
 
     nodes, edges = get_nodes_edges(results)
