@@ -3,18 +3,19 @@ Contains functions to normalise graph nodes in a linear ordering such that simil
 have nodes ordered similarly (relative ordering of nodes) after being normalised.
 """
 
-from preprocessing import *
+from data_processing.preprocessing import *
 
 HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
 NODE_TYPE_HASH = {'Conn': 2, 'File': 4, 'Global': 8, 'Machine': 16, 'Meta': 32, 'Process': 64,
                   'Socket': 128}
 
 
-def build_normalised_adj_matrix(results):
+def build_normalised_adj_matrix(results, hash_fn):
     """
     Builds a normalised adjacency matrix using hashing of several properties for ordering.
 
     :param results: A BoltStatementResult matrix
+    :param hash_fn: The hash function to use
     :return:
     """
 
@@ -27,7 +28,7 @@ def build_normalised_adj_matrix(results):
 
     for node_id in nodes.keys():
         node = nodes[node_id]
-        node_hash = compute_hash(node, hash)
+        node_hash = compute_hash(node, hash_fn)
         node_hash_list.append((node_hash, node))
 
     node_hash_list = sorted(node_hash_list, key=lambda x: x[0])

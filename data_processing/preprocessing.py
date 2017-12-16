@@ -108,7 +108,7 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
 
 def build_in_out_edges(edges):
     """
-    Given a Dictionary of node_id -> node and a Dictionary of edge_id -> edge, builds two
+    Given a Dictionary of edge_id -> edge, builds two
     dictionaries of node_id -> edge (incoming or outgoing edges from that node).
 
     :param edges: A Dictionary of edge_id -> edge
