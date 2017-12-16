@@ -70,7 +70,17 @@ class TestPreprocessingFns(unittest.TestCase):
                     end_id = index_to_id[col]
                     self.assertTrue(end_id-start_id == 1)
 
+    def test_consolidate_node_versions(self):
+        nodes = [MockNode(1), MockNode(2), MockNode(3), MockNode(4)]
+        edges = [MockEdge(1, 1, 2, 'PROC_OBJ_PREV'),
+                 MockEdge(2, 2, 3, 'GLOB_OBJ_PREV'),
+                 MockEdge(3, 3, 4, 'META_PREV')]
+        incoming_edges, outgoing_edges = build_in_out_edges(edges)
+        consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
 
+        self.assertTrue(len(nodes) == 1)
+        self.assertTrue(nodes[0].id == 1)
+        self.assertTrue(len(edges) == 0)
 
 def main():
     unittest.main()
