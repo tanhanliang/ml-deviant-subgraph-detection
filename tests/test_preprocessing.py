@@ -82,5 +82,28 @@ class TestPreprocessingFns(unittest.TestCase):
         self.assertTrue(nodes[1].id == 1)
         self.assertTrue(len(edges) == 0)
 
+    def test_build_in_out_edges(self):
+        edges = {1: MockEdge(1, 1, 2), 2: MockEdge(2, 1, 3), 3: MockEdge(3, 1, 4)}
+        incoming_edges, outgoing_edges = build_in_out_edges(edges)
+
+        self.assertTrue(len(outgoing_edges.keys()) == 1)
+        self.assertTrue(len(incoming_edges.keys()) == 3)
+        self.assertTrue(len(outgoing_edges[1]) == 3)
+        self.assertTrue(incoming_edges[2][0].id == 1)
+        self.assertTrue(incoming_edges[3][0].id == 2)
+        self.assertTrue(incoming_edges[4][0].id == 3)
+
+    def test_remove_anomalous_nodes(self):
+        nodes = {1: MockNode(1, {'anomalous': True}), 2: MockNode(2, {'anomalous': True}),
+                 3: MockNode(3, {'anomalous': False}), 4: MockNode(4, {'anomalous': False})}
+        edges = {1: MockEdge(1, 1, 2), 2: MockEdge(2, 2, 3), 3: MockEdge(3, 3, 4)}
+        incoming_edges, outgoing_edges = build_in_out_edges(edges)
+        remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
+
+        self.assertTrue(len(nodes) == 2)
+        self.assertTrue(len(edges) == 1)
+        self.assertTrue(edges[3].start == 3 and edges[3].end == 4)
+        self.assertTrue(nodes[3].id == 3 and nodes[4].id == 4)
+
 def main():
     unittest.main()
