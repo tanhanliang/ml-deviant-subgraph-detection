@@ -105,5 +105,16 @@ class TestPreprocessingFns(unittest.TestCase):
         self.assertTrue(edges[3].start == 3 and edges[3].end == 4)
         self.assertTrue(nodes[3].id == 3 and nodes[4].id == 4)
 
+    def test_rename_symlinked_files_timestamp(self):
+        nodes = {1: MockNode(1, {'uuid': 10, 'timestamp': 100, 'name': '/etc/lib.so.6'}),
+                 2: MockNode(2, {'uuid': 10, 'timestamp': 101, 'name': '/etc/lib.so.1234'}),
+                 3: MockNode(3, {'uuid': 11, 'timestamp': 99, 'name': '/var/test'})}
+        rename_symlinked_files_timestamp(nodes)
+
+        self.assertTrue(len(nodes) == 3)
+        self.assertTrue(nodes[1].properties['name'] == '/etc/lib.so.6')
+        self.assertTrue(nodes[2].properties['name'] == '/etc/lib.so.6')
+        self.assertTrue(nodes[3].properties['name'] == '/var/test')
+
 def main():
     unittest.main()
