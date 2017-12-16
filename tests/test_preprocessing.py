@@ -41,9 +41,9 @@ class MockBoltStatementResult:
 
 class TestPreprocessingFns(unittest.TestCase):
     def test_get_nodes_edges(self):
-        nodes = [MockNode(1), MockNode(2), MockNode(3)]
-        edges = [MockEdge(1), MockEdge(2), MockEdge(3)]
-        data = MockBoltStatementResult(nodes, edges)
+        node_list = [MockNode(1), MockNode(2), MockNode(3)]
+        edge_list = [MockEdge(1), MockEdge(2), MockEdge(3)]
+        data = MockBoltStatementResult(node_list, edge_list)
         nodes, edges = get_nodes_edges(data)
 
         for node_id in range(1, 4):
@@ -51,13 +51,13 @@ class TestPreprocessingFns(unittest.TestCase):
             self.assertEquals(node_id, edges[node_id].id)
 
     def test_build_adjacency_matrix(self):
-        nodes = [MockNode(1), MockNode(2), MockNode(3), MockNode(4)]
-        edges = [MockEdge(1, 1, 2), MockEdge(2, 2, 3), MockEdge(3, 3, 4)]
-        data = MockBoltStatementResult(nodes, edges)
+        node_list = [MockNode(1), MockNode(2), MockNode(3), MockNode(4)]
+        edge_list = [MockEdge(1, 1, 2), MockEdge(2, 2, 3), MockEdge(3, 3, 4)]
+        data = MockBoltStatementResult(node_list, edge_list)
         adj_matrix = build_adjacency_matrix(data)
         shape = adj_matrix.matrix.shape
 
-        self.assertEquals(shape, (len(nodes), len(nodes)))
+        self.assertEquals(shape, (len(node_list), len(node_list)))
 
         index_to_id = {}
         for node_id, index in adj_matrix.id_to_index.items():
