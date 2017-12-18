@@ -1,5 +1,5 @@
 """
-This module contains functions to process graph data from Neo4j.
+This module contains functions to pre-process(clean) graph data from Neo4j into a convenient form.
 """
 
 import numpy as np
