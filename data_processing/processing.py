@@ -2,6 +2,7 @@
 This module contains functions to process graph data into a form usable by the Patchy-San
 algorithm.
 """
+import queue
 
 
 def generate_node_list(node_cmp_fn, nodes):
@@ -47,3 +48,41 @@ def ts_ordering_asc(node1, node2):
         return 0
     else:
         return 1
+
+
+def get_receptive_field(root_id, nodes, outgoing_edges, size):
+    """
+    Given a root node, performs breadth-first search, adding explored nodes to a Set.
+    If number of reachable nodes is less than size, no padding is done.
+
+    :param root_id: The id of the start node
+    :param nodes: A Dictionary of node_id -> node
+    :param outgoing_edges: A Dictionary of node_id -> list of outgoing edges
+    :param size: The size of the neighborhood.
+    :return: A set of nodes with size nodes which is the neighborhood of the
+    node with id start_node_id.
+    """
+
+    nodes_set = set()
+    marked_set = set()
+    neighborhood_size = 0
+    nodes_q = queue.Queue()
+    nodes_q.put(nodes[root_id])
+    marked_set.add(nodes[root_id])
+
+    while neighborhood_size < size:
+        if nodes_q.empty():
+            break
+        else:
+            node = nodes_q.get(block=False)
+            nodes_set.add(node)
+            neighborhood_size += 1
+
+            if node.id in outgoing_edges.keys():
+                for edge in outgoing_edges[node.id]:
+                    neighbor_node = nodes[edge.end]
+                    if neighbor_node not in marked_set:
+                        nodes_q.put(neighbor_node)
+                        marked_set.add(neighbor_node)
+
+    return nodes_set
