@@ -10,6 +10,20 @@ NODE_TYPE_HASH = {'Conn': 2, 'File': 4, 'Global': 8, 'Machine': 16, 'Meta': 32, 
                   'Socket': 128}
 
 
+def build_node_list_hashing(nodes, hash_fn):
+    """
+    Builds a list of nodes and orders them in ascending order using the hash function
+    provided.
+
+    :param nodes: A Dictionary of node_id -> node
+    :param hash_fn: The hash function to use. E.g. SimHash, MD5
+    :return: A list of nodes ordered using the hash fn.
+    """
+
+    node_list = list(nodes.values())
+    return sorted(node_list, key=lambda node: compute_hash(node, hash_fn))
+
+
 def build_normalised_adj_matrix(results, hash_fn):
     """
     Builds a normalised adjacency matrix using hashing of several properties for ordering.
@@ -24,20 +38,14 @@ def build_normalised_adj_matrix(results, hash_fn):
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
     remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
 
-    node_hash_list = []
+    ordered_node_list = build_node_list_hashing(nodes, hash_fn)
 
-    for node_id in nodes.keys():
-        node = nodes[node_id]
-        node_hash = compute_hash(node, hash_fn)
-        node_hash_list.append((node_hash, node))
-
-    node_hash_list = sorted(node_hash_list, key=lambda x: x[0])
     node_count = len(nodes)
     adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
     id_to_index = {}
 
     idx = 0
-    for _, node in node_hash_list:
+    for _, node in ordered_node_list:
         id_to_index[node.id] = idx
         idx += 1
 
