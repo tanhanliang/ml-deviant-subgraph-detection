@@ -184,7 +184,7 @@ def group_nodes_by_uuid(nodes):
 
     uuid_to_nodes = {}
 
-    for _,node in nodes.items():
+    for _, node in nodes.items():
         node_prop = node.properties
         if 'uuid' in node_prop:
             uuid = node_prop['uuid']
@@ -216,7 +216,7 @@ def rename_symlinked_files_timestamp(nodes):
             for node in nodes_set:
                 node_prop = node.properties
                 if 'timestamp' in node_prop and 'name' in node_prop \
-                    and node_prop['timestamp'] < timestamp:
+                        and node_prop['timestamp'] < timestamp:
                     timestamp = node_prop['timestamp']
                     smallest_ts_node = node
 
