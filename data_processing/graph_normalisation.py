@@ -82,6 +82,6 @@ def compute_hash(node, hash_fn):
             else:
                 prop_hash = hash_fn(properties[prop])
             # Take the 4 most significant digits
-            hash_value += abs(int(str(prop_hash)[:4]))
+            hash_value += int(str(abs(prop_hash))[:4])
 
     return hash_value
