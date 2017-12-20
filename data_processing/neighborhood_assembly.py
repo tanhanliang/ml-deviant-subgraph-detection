@@ -54,35 +54,48 @@ def get_receptive_field(root_id, nodes, outgoing_edges, size):
     """
     Given a root node, performs breadth-first search, adding explored nodes to a Set.
     If number of reachable nodes is less than size, no padding is done.
+    Selects next node in the breadth-first search arbitrarily (among all nodes with
+    same distance from root).
+    TODO: Find way to implement ordering such that nodes will not be selected arbitrarily.
 
     :param root_id: The id of the start node
     :param nodes: A Dictionary of node_id -> node
     :param outgoing_edges: A Dictionary of node_id -> list of outgoing edges
     :param size: The size of the neighborhood.
-    :return: A set of nodes with size nodes which is the neighborhood of the
-    node with id start_node_id.
+    :return: A tuple of (node_id -> node, edge_id -> edge) which represents the
+    receptive field (which is a subgraph)
     """
 
-    nodes_set = set()
+    nodes_dict = {}
+    edges_dict = {}
     marked_set = set()
     neighborhood_size = 0
-    nodes_q = queue.Queue()
-    nodes_q.put(nodes[root_id])
+    # A queue that contains a tuple of (node, edge) where edge is the edge to the previous
+    # explored node
+    node_edge_q = queue.Queue()
+    node_edge_q.put((nodes[root_id], None))
     marked_set.add(nodes[root_id])
 
     while neighborhood_size < size:
-        if nodes_q.empty():
+        if node_edge_q.empty():
+            # No padding if size of graph smaller than desired receptive field
             break
         else:
-            node = nodes_q.get(block=False)
-            nodes_set.add(node)
+            item = node_edge_q.get(block=False)
+            node = item[0]
+            edge = item[1]
+            nodes_dict[node.id] = node
+            # Root node has no edge to predecessor
+            if edge is not None:
+                edges_dict[edge.id] = edge
+
             neighborhood_size += 1
 
             if node.id in outgoing_edges.keys():
                 for edge in outgoing_edges[node.id]:
                     neighbor_node = nodes[edge.end]
                     if neighbor_node not in marked_set:
-                        nodes_q.put(neighbor_node)
+                        node_edge_q.put((neighbor_node, edge))
                         marked_set.add(neighbor_node)
 
-    return nodes_set
+    return nodes_dict, edges_dict
