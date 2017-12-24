@@ -20,7 +20,7 @@ def generate_node_list(transform_fn, nodes):
     return nodes_list
 
 
-def ts_ordering(node):
+def get_ts(node):
     """
     Given a node, returns its timestamp if it exists, otherwise throws a RuntimeError.
     This fn will be used to sort a list of nodes by timestamp, using the built in sorted()
