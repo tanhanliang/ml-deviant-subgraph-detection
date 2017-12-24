@@ -5,6 +5,7 @@ Contains functions to generate input in the form of NumPy arrays for the CNN.
 import numpy as np
 from patchy_san.neighborhood_assembly import generate_node_list, get_receptive_field
 from data_processing.preprocessing import build_in_out_edges
+from patchy_san.graph_normalisation import HASH_PROPERTIES
 
 
 def iterate(iterator, n):
@@ -57,3 +58,40 @@ def build_node_receptive_fields(nodes, edges, labeling_fn, norm_field_fn, field_
         root_node = iterate(nodes_iter, stride)
 
     return norm_fields_list
+
+
+def build_tensor_naive_hashing(norm_fields_list, hash_fn, max_field_size):
+    """
+    From a list of receptive fields(list of lists of nodes), builds a 3d NumPy array, with
+    the extra dimension coming from the properties extracted from the nodes. This function
+    naively applies the same hash function to every string property, and is intended to just
+    be a way to help me get the CNN pipeline running.
+
+    This method should be replaced in the near future.
+
+    :param norm_fields_list: The list of lists of nodes containing the receptive fields
+    :param hash_fn: The hash function to use
+    :param max_field_size: The max receptive field size
+    :return:
+    """
+
+    field_count = len(norm_fields_list)
+    tensor = np.zeros((field_count, max_field_size, len(HASH_PROPERTIES)), dtype='int64')
+
+    for fields_idx in range(field_count):
+        field = norm_fields_list[fields_idx]
+        for field_idx in range(len(field)):
+            node_prop = field[field_idx].properties
+            for property_idx in range(len(HASH_PROPERTIES)):
+                prop = HASH_PROPERTIES[property_idx]
+                if prop in node_prop:
+                    # TODO: Ask supervisor about better way to do this
+                    if prop == 'name':
+                        val = hash_fn(node_prop[prop][0])
+                    else:
+                        val = hash_fn(node_prop[prop])
+                else:
+                    val = 0
+                tensor[fields_idx][field_idx][property_idx] = val
+
+    return tensor
