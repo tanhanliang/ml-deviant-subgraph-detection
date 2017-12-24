@@ -8,6 +8,8 @@ from data_processing.preprocessing import *
 HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
 NODE_TYPE_HASH = {'Conn': 2, 'File': 4, 'Global': 8, 'Machine': 16, 'Meta': 32, 'Process': 64,
                   'Socket': 128}
+PROPERTY_CARDINALITY = {'cmdline': int(1e19), 'name': int(1e19), 'ips': int(1e10),
+                        'client_port': int(1e5), 'meta_login': int(1e10)}
 
 
 def build_node_list_hashing(nodes, hash_fn):
@@ -73,7 +75,7 @@ def compute_hash(node, hash_fn):
     properties = node.properties
 
     for prop in HASH_PROPERTIES:
-        hash_value *= 10000
+        hash_value *= PROPERTY_CARDINALITY[prop]
         if properties.__contains__(prop):
             if prop == 'name':
                 # A node may have multiple names, use only the first
@@ -82,6 +84,6 @@ def compute_hash(node, hash_fn):
             else:
                 prop_hash = hash_fn(properties[prop])
             # Take the 4 most significant digits
-            hash_value += int(str(abs(prop_hash))[:4])
+            hash_value += int(str(abs(prop_hash))[:PROPERTY_CARDINALITY[prop]])
 
     return hash_value
