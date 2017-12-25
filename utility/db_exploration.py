@@ -106,3 +106,17 @@ def print_paths_by_freq(counts):
 
     for item in items:
         print(item)
+
+
+def print_properties(nodes, prop):
+    """
+    Prints the value of the property prop of each node that has that property.
+
+    :param nodes: A Dictionary of node_id -> node
+    :param prop: The property in question
+    :return: nothing
+    """
+
+    for node_id, node in nodes.items():
+        if prop in node.properties:
+            print(node.properties[prop])
