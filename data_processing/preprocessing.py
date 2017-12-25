@@ -76,8 +76,7 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
     :param edges: A Dictionary of edge_id to edges
     :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
     :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
-    :return: (nodes, edges), a tuple containing a Dictionary of node_id to Neo4j Nodes
-    and a Dictionary of edge_id to edges
+    :return: nothing
     """
 
     # Glue incoming and outgoing edges from the old node to the master node
@@ -143,7 +142,7 @@ def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
     :param edges: A Dictionary of edge_id -> edge
     :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
     :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
-    :return: (nodes, edges), A tuple of Dictionaries, node_id -> node and edge_id -> edge
+    :return: nothing
     """
 
     for node_id in list(nodes.keys()):
@@ -225,3 +224,23 @@ def rename_symlinked_files_timestamp(nodes):
                     if 'name' in node.properties:
                         # TODO: Decide what to do for multiple names
                         node.properties['name'] = smallest_ts_node.properties['name']
+
+
+def clean_data(results):
+    """
+    Given a BoltStatementResult object, cleans the data by removing anomalous nodes,
+    consolidating node versions and renaming symlinked files.
+
+    :param results: A BoltstatementResult object
+    :return: A tuple of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
+    is a Dictionary of edge_id -> edge
+    """
+
+    nodes, edges = get_nodes_edges(results)
+    incoming_edges, outgoing_edges = build_in_out_edges(edges)
+
+    consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
+    remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
+    rename_symlinked_files_timestamp(nodes)
+
+    return nodes, edges
