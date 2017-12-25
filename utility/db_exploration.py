@@ -4,6 +4,28 @@ This file contains functions to help me explore the Neo4j database.
 
 from neo4j.v1 import GraphDatabase, basic_auth
 from data_processing.preprocessing import clean_data
+# TODO: Put code creating and destroying sessions into separate functions
+
+
+def get_all_successor_nodes(root_id):
+    """
+    Returns all successor nodes given a root node.
+
+    :param root_id: The id of the root node
+    :return: A BoltStatementResult describing the raw result returned by Neo4j
+    """
+
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "neo4j"))
+    session = driver.session()
+
+    query = """
+    MATCH path=(n)-[r*]->(m) 
+    WHERE Id(m) = $root_id
+    RETURN path
+    """
+    results = session.run(query, {"root_id": root_id})
+    session.close()
+    return results
 
 
 def get_attack_nodes():
