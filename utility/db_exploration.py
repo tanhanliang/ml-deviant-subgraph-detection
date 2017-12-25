@@ -3,37 +3,36 @@ This file contains functions to help me explore the Neo4j database.
 """
 
 from neo4j.v1 import GraphDatabase, basic_auth
+from data_processing.preprocessing import clean_data
 
 
 def get_attack_nodes():
     """
     Searches the database for all nodes with 'attack' in their cmdline.
 
-    :return: A list of nodes
+    :return: A tuple of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
+    is a Dictionary of edge_id -> edge
     """
 
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "neo4j"))
     session = driver.session()
 
     query = """
-    MATCH (n) WHERE n.cmdline =~ '.*attack.*' RETURN n
+    MATCH path=(n) WHERE n.cmdline =~ '.*attack.*' RETURN path
     """
     results = session.run(query)
     session.close()
 
-    attack_nodes = []
-    for result in results:
-        attack_nodes.append(result['n'])
-
-    return attack_nodes
+    nodes, edges = clean_data(results)
+    return nodes, edges
 
 
-def get_attack_paths(attack_nodes):
+def get_attack_paths(nodes):
     """
     Given a list of nodes from which an attack is launched, returns a list of sets of paths
     accessed by each attack node.
 
-    :param attack_nodes: A list of nodes
+    :param nodes: A list of nodes
     :return: A list of sets of paths (String)
     """
 
@@ -41,7 +40,8 @@ def get_attack_paths(attack_nodes):
     session = driver.session()
 
     path_sets = []
-    for node in attack_nodes:
+    for node_id in nodes:
+        node = nodes[node_id]
         query = """
         MATCH (n)-[r*]->(m) 
         WHERE Id(m) = $node_id
