@@ -68,7 +68,7 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
     type(edge) is a previous version type, removes edge and node2.
     All outgoing and incoming edges to node2 are glued to node1.
 
-    Note: This may produce a graph where two edges of the same type may exist between
+    Note: This may produce a graph where more than one edge of the same type may exist between
     2 nodes. Currently this is not a problem because the adjacency matrix produced from
     the set of edges and nodes cannot contain duplicated edges.
 
@@ -91,15 +91,20 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
                 for outgoing_edge in outgoing_edges[removed_node_id]:
                     outgoing_edge.start = master_node_id
                     # The key master_node_id should definitely exist
+                    # This assumes that there are no nodes connected by two edges in
+                    # both directions
                     outgoing_edges[master_node_id] += [outgoing_edge]
+                outgoing_edges.pop(removed_node_id)
 
             if removed_node_id in incoming_edges.keys():
                 for incoming_edge in incoming_edges[removed_node_id]:
-                    incoming_edge.end = master_node_id
-                    # The key master_node_id may not exist
-                    if not incoming_edges.__contains__(master_node_id):
-                        incoming_edges[master_node_id] = []
-                    incoming_edges[master_node_id] += [incoming_edge]
+                    if incoming_edge.start is not master_node_id:
+                        incoming_edge.end = master_node_id
+                        # The key master_node_id may not exist
+                        if not master_node_id not in incoming_edges:
+                            incoming_edges[master_node_id] = []
+                        incoming_edges[master_node_id] += [incoming_edge]
+                incoming_edges.pop(removed_node_id)
 
             nodes.pop(removed_node_id)
             edges.pop(edge_id)
