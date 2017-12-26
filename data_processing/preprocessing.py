@@ -1,5 +1,5 @@
 """
-This module contains functions to process graph data from Neo4j.
+This module contains functions to pre-process(clean) graph data from Neo4j into a convenient form.
 """
 
 import numpy as np
@@ -68,7 +68,7 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
     type(edge) is a previous version type, removes edge and node2.
     All outgoing and incoming edges to node2 are glued to node1.
 
-    Note: This may produce a graph where two edges of the same type may exist between
+    Note: This may produce a graph where more than one edge of the same type may exist between
     2 nodes. Currently this is not a problem because the adjacency matrix produced from
     the set of edges and nodes cannot contain duplicated edges.
 
@@ -76,8 +76,7 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
     :param edges: A Dictionary of edge_id to edges
     :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
     :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
-    :return: (nodes, edges), a tuple containing a Dictionary of node_id to Neo4j Nodes
-    and a Dictionary of edge_id to edges
+    :return: nothing
     """
 
     # Glue incoming and outgoing edges from the old node to the master node
@@ -92,15 +91,20 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
                 for outgoing_edge in outgoing_edges[removed_node_id]:
                     outgoing_edge.start = master_node_id
                     # The key master_node_id should definitely exist
+                    # This assumes that there are no nodes connected by two edges in
+                    # both directions
                     outgoing_edges[master_node_id] += [outgoing_edge]
+                outgoing_edges.pop(removed_node_id)
 
             if removed_node_id in incoming_edges.keys():
                 for incoming_edge in incoming_edges[removed_node_id]:
-                    incoming_edge.end = master_node_id
-                    # The key master_node_id may not exist
-                    if not incoming_edges.__contains__(master_node_id):
-                        incoming_edges[master_node_id] = []
-                    incoming_edges[master_node_id] += [incoming_edge]
+                    if incoming_edge.start is not master_node_id:
+                        incoming_edge.end = master_node_id
+                        # The key master_node_id may not exist
+                        if not master_node_id not in incoming_edges:
+                            incoming_edges[master_node_id] = []
+                        incoming_edges[master_node_id] += [incoming_edge]
+                incoming_edges.pop(removed_node_id)
 
             nodes.pop(removed_node_id)
             edges.pop(edge_id)
@@ -143,7 +147,7 @@ def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
     :param edges: A Dictionary of edge_id -> edge
     :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
     :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
-    :return: (nodes, edges), A tuple of Dictionaries, node_id -> node and edge_id -> edge
+    :return: nothing
     """
 
     for node_id in list(nodes.keys()):
@@ -184,7 +188,7 @@ def group_nodes_by_uuid(nodes):
 
     uuid_to_nodes = {}
 
-    for _,node in nodes.items():
+    for _, node in nodes.items():
         node_prop = node.properties
         if 'uuid' in node_prop:
             uuid = node_prop['uuid']
@@ -216,7 +220,7 @@ def rename_symlinked_files_timestamp(nodes):
             for node in nodes_set:
                 node_prop = node.properties
                 if 'timestamp' in node_prop and 'name' in node_prop \
-                    and node_prop['timestamp'] < timestamp:
+                        and node_prop['timestamp'] < timestamp:
                     timestamp = node_prop['timestamp']
                     smallest_ts_node = node
 
@@ -225,3 +229,23 @@ def rename_symlinked_files_timestamp(nodes):
                     if 'name' in node.properties:
                         # TODO: Decide what to do for multiple names
                         node.properties['name'] = smallest_ts_node.properties['name']
+
+
+def clean_data(results):
+    """
+    Given a BoltStatementResult object, cleans the data by removing anomalous nodes,
+    consolidating node versions and renaming symlinked files.
+
+    :param results: A BoltstatementResult object
+    :return: A tuple of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
+    is a Dictionary of edge_id -> edge
+    """
+
+    nodes, edges = get_nodes_edges(results)
+    incoming_edges, outgoing_edges = build_in_out_edges(edges)
+
+    consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
+    remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
+    rename_symlinked_files_timestamp(nodes)
+
+    return nodes, edges
