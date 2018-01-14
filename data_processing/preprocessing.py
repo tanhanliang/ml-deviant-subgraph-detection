@@ -231,6 +231,34 @@ def rename_symlinked_files_timestamp(nodes):
                         node.properties['name'] = smallest_ts_node.properties['name']
 
 
+def remove_duplicate_edges(edges, incoming_edges, outgoing_edges):
+    """
+    Checks every node's incoming and outgoing edges, and if two edges have the same
+    start (for incoming edges) or end (for outgoing edges) nodes, they are removed.
+
+    This method assumes that two edges between the same 2 nodes will always be of the same type,
+    and therefore can be removed. I believe that this is a valid assumption due to the
+    nature of the provenance data. Edges between the same 2 nodes only exist because of
+    the node version consolidation step above, which deletes nodes representing past versions.
+    If nodes representing past versions have a common neighbor, then the edge type between them
+    and the neighbor are all the same.
+
+    :param edges: A Dictionary of edge_id -> edge
+    :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
+    :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
+    :return: nothing
+    """
+
+    for node_id in outgoing_edges.keys():
+        edge_end_ids = set()
+        for edge in outgoing_edges[node_id]:
+            if edge.end not in edge_end_ids:
+                edge_end_ids.add(edge.end)
+            else:
+                outgoing_edges[node_id].remove(edge)
+                edges.pop(edge.id)
+
+
 def clean_data(results):
     """
     Given a BoltStatementResult object, cleans the data by removing anomalous nodes,
@@ -245,6 +273,7 @@ def clean_data(results):
     incoming_edges, outgoing_edges = build_in_out_edges(edges)
 
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
+    # remove_duplicate_edges(edges, incoming_edges, outgoing_edges)
     remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
     rename_symlinked_files_timestamp(nodes)
 
