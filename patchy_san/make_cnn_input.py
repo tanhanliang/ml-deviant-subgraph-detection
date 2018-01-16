@@ -52,7 +52,7 @@ def build_groups_of_receptive_fields(nodes, edges, labeling_fn, norm_field_fn, f
     """
 
     nodes_list = generate_node_list(labeling_fn, nodes)
-    groups_of_receptive_fields = [[]]
+    groups_of_receptive_fields = []
     norm_fields_list = []
     nodes_iter = iter(nodes_list)
     root_node = next(nodes_iter, None)
@@ -65,7 +65,7 @@ def build_groups_of_receptive_fields(nodes, edges, labeling_fn, norm_field_fn, f
             norm_fields_list = []
             norm_fields_count = 0
 
-        r_field_nodes, r_field_edges = get_receptive_field(root_node.id, nodes, outgoing_edges, field_size)
+        r_field_nodes, r_field_edges = get_receptive_field(root_node.id, nodes, incoming_edges, field_size)
         r_field_nodes_list = norm_field_fn(r_field_nodes)
         norm_fields_list.append(r_field_nodes_list)
         root_node = iterate(nodes_iter, stride)
