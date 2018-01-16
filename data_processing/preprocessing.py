@@ -22,10 +22,11 @@ def get_nodes_edges(results):
     edges = {}
 
     for result in results.data():
-        for node in result['path'].nodes:
-            nodes[node.id] = node
-        for edge in result['path'].relationships:
-            edges[edge.id] = edge
+        for path_name in result:
+            for node in result[path_name].nodes:
+                nodes[node.id] = node
+            for edge in result[path_name].relationships:
+                edges[edge.id] = edge
 
     return nodes, edges
 
