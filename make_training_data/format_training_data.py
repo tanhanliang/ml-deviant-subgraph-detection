@@ -45,7 +45,7 @@ def get_all_training_data(labeling_fn, norm_field_fn, field_count, max_field_siz
                 x_data_list.append(training_example_tensor)
                 y_target_list.append(target_class)
 
-                target_class += 1
+            target_class += 1
 
     training_examples = len(x_data_list)
     node_properties = len(HASH_PROPERTIES)
