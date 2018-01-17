@@ -3,7 +3,6 @@ This module contains functions to fetch data from the database according to part
 (e.g. process downloaded a file from the internet, then executed it).
 Each function corresponds to one rule.
 """
-from neo4j.v1 import GraphDatabase, basic_auth
 from data_processing.neo4j_interface_fns import execute_query
 
 

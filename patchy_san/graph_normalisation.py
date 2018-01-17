@@ -4,34 +4,27 @@ have nodes ordered similarly (relative ordering of nodes) after being normalised
 """
 
 from data_processing.preprocessing import *
-
-HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
-NODE_TYPE_HASH = {'Conn': 2, 'File': 4, 'Global': 8, 'Machine': 16, 'Meta': 32, 'Process': 64,
-                  'Socket': 128}
-PROPERTY_CARDINALITY = {'cmdline': int(1e19), 'name': int(1e19), 'ips': int(1e10),
-                        'client_port': int(1e5), 'meta_login': int(1e10)}
+from patchy_san.parameters import HASH_PROPERTIES, NODE_TYPE_HASH, PROPERTY_CARDINALITY, HASH_FN
 
 
-def build_node_list_hashing(nodes, hash_fn):
+def build_node_list_hashing(nodes):
     """
     Builds a list of nodes and orders them in ascending order using the hash function
     provided.
 
     :param nodes: A Dictionary of node_id -> node
-    :param hash_fn: The hash function to use. E.g. SimHash, MD5
     :return: A list of nodes ordered using the hash fn.
     """
 
     node_list = list(nodes.values())
-    return sorted(node_list, key=lambda node: compute_hash(node, hash_fn))
+    return sorted(node_list, key=lambda node: compute_hash(node))
 
 
-def build_normalised_adj_matrix(results, hash_fn):
+def build_normalised_adj_matrix(results):
     """
     Builds a normalised adjacency matrix using hashing of several properties for ordering.
 
     :param results: A BoltStatementResult matrix
-    :param hash_fn: The hash function to use
     :return:An adjacency matrix representation for the graph, using a np.matrix
     """
 
@@ -40,7 +33,7 @@ def build_normalised_adj_matrix(results, hash_fn):
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
     remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
 
-    ordered_node_list = build_node_list_hashing(nodes, hash_fn)
+    ordered_node_list = build_node_list_hashing(nodes)
 
     node_count = len(nodes)
     adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
@@ -59,13 +52,12 @@ def build_normalised_adj_matrix(results, hash_fn):
     return AdjacencyMatrix(adjacency_matrix, id_to_index, nodes, edges)
 
 
-def compute_hash(node, hash_fn):
+def compute_hash(node):
     """
     Given a Node, computes a hash value based on a given hash function,
     the Node type and several properties.
 
     :param node: A neo4j Node
-    :param hash_fn: A given hash function
     :return: A hash value as a long integer
     """
     hash_value = 0
@@ -80,9 +72,9 @@ def compute_hash(node, hash_fn):
             if prop == 'name':
                 # A node may have multiple names, use only the first
                 # TODO: Update with better solution after meeting with supervisor
-                prop_hash = hash_fn(properties[prop][0])
+                prop_hash = HASH_FN(properties[prop][0])
             else:
-                prop_hash = hash_fn(properties[prop])
+                prop_hash = HASH_FN(properties[prop])
             # Take the 4 most significant digits
             hash_value += int(str(abs(prop_hash))[:PROPERTY_CARDINALITY[prop]])
 

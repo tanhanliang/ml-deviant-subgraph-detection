@@ -3,9 +3,10 @@ This module contains functions to process graph data into a form usable by the P
 algorithm.
 """
 import queue
+from patchy_san.parameters import MAX_FIELD_SIZE as size
 
 
-def generate_node_list(transform_fn, nodes):
+def generate_node_list(nodes, transform_fn=None):
     """
     Sorts a list of nodes by some labeling function, for example sorting by node timestamp.
 
@@ -14,6 +15,9 @@ def generate_node_list(transform_fn, nodes):
     :param nodes: A Dictionary of node_id -> node
     :return: A list of sorted nodes
     """
+    if transform_fn is None:
+        from patchy_san.parameters import LABELING_FN
+        transform_fn = LABELING_FN
 
     nodes_list = list(nodes.values())
     nodes_list = sorted(nodes_list, key=transform_fn)
@@ -36,7 +40,7 @@ def get_ts(node):
     return node.properties['timestamp']
 
 
-def get_receptive_field(root_id, nodes, incoming_edges, size):
+def get_receptive_field(root_id, nodes, incoming_edges):
     """
     Given a root node, performs breadth-first search, adding explored nodes to a Set.
     If number of reachable nodes is less than size, no padding is done.
@@ -52,7 +56,6 @@ def get_receptive_field(root_id, nodes, incoming_edges, size):
     :param root_id: The id of the start node
     :param nodes: A Dictionary of node_id -> node
     :param incoming_edges: A Dictionary of node_id -> list of outgoing edges
-    :param size: The size of the neighborhood.
     :return: A tuple of (node_id -> node, edge_id -> edge) which represents the
     receptive field (which is a subgraph)
     """

@@ -4,9 +4,10 @@ The neural network is built here, using Keras with a TensorFlow backend.
 
 from keras.models import Sequential
 from keras.layers import Dense, MaxPooling1D, Convolution1D, Flatten, Dropout
+from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT
 
 
-def build_model(input_shape):
+def build_model():
     """
     Builds the patchy-san convolutional neural network architecture using Keras.
     The architecture has been chosen arbitrarily, but will be refined later on.
@@ -16,6 +17,7 @@ def build_model(input_shape):
     :param input_shape: A tuple containing the (height, width, channels) of the input
     :return:
     """
+    input_shape = (FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT)
 
     model = Sequential()
     model.add(Convolution1D(16, 3, 3, activation='relu', input_shape=input_shape))
