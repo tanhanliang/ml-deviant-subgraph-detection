@@ -3,10 +3,9 @@ Contains functions to format the training data into ndarrays that can be used to
 model.
 """
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing
-from patchy_san.graph_normalisation import HASH_PROPERTIES
 import make_training_data.fetch_training_data as fetch_training_data
 from data_processing.preprocessing import clean_data
-from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE
+from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT
 import numpy as np
 
 
@@ -39,8 +38,7 @@ def get_all_training_data():
             target_class += 1
 
     training_examples = len(x_data_list)
-    node_properties = len(HASH_PROPERTIES)
-    x_data = np.ndarray((training_examples, FIELD_COUNT, MAX_FIELD_SIZE, node_properties))
+    x_data = np.ndarray((training_examples, FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT))
     y_target = np.asarray(y_target_list, dtype=np.int32)
 
     idx = 0
