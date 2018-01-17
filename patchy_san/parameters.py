@@ -3,6 +3,7 @@ This file contains all optimisable parameters for the convolutional neural netwo
 """
 from patchy_san.neighborhood_assembly import get_ts
 from patchy_san.graph_normalisation import build_node_list_hashing
+from hash_functions.hashes import hash_simhash
 
 # w
 FIELD_COUNT = 2
@@ -31,7 +32,7 @@ PROPERTY_CARDINALITY = {'cmdline': int(1e19), 'name': int(1e19), 'ips': int(1e10
 
 # A hash function used to canonicalise the graph (ie. represent the graph in such a way that
 # isomorphic graphs have the same representation)
-HASH_FN = hash
+HASH_FN = hash_simhash
 
 # A function used to impose an order on the nodes of a graph (ie. to linearise the nodes)
 LABELING_FN = get_ts
