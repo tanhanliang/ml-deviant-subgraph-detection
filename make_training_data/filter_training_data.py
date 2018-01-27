@@ -5,14 +5,14 @@ Contains functions to return lists of subgraphs which matches certain patterns.
 
 from data_processing.preprocessing import build_in_out_edges, get_nodes_edges_by_result
 from make_training_data.training_pattern_checks import matches_download_file_write
-from make_training_data.fetch_training_data import get_all_triples
+from make_training_data.fetch_training_data import get_train_all_triples
 
 import make_training_data.training_pattern_checks as checks
 
 # TODO: reuse code by creating generic function to iterate over nodes in each subgraph. D-R-Y
 
 
-def get_download_file_write():
+def get_filtered_download_file_write():
     """
     Gets instances of a node connecting to a socket and writing to a file. The input
     BoltStatementResult should describe subgraphs with 3 nodes at maximum.
@@ -21,7 +21,7 @@ def get_download_file_write():
     is a Dictionary of edge_id -> edge
     """
 
-    results = get_all_triples()
+    results = get_train_all_triples()
     training_data = []
     nodes_edges_list = get_nodes_edges_by_result(results)
 
@@ -35,16 +35,16 @@ def get_download_file_write():
     return training_data
 
 
-def get_negative_data():
+def get_filtered_negative_data():
     """
     Gets data which does not match any pattern.
 
     :return: A list of tuples of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
     is a Dictionary of edge_id -> edge
     """
-    import time
+    # import time
     # start = time.time()
-    results = get_all_triples()
+    results = get_train_all_triples()
     training_data = []
     nodes_edges_list = get_nodes_edges_by_result(results)
 

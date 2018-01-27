@@ -24,11 +24,12 @@ def get_all_training_data():
 
     for item in dir(filter_training_data):
         attribute = getattr(filter_training_data, item)
-        if callable(attribute) and item.startswith('get'):
+        if callable(attribute) and item.startswith('get_filtered_'):
             # training_data is a list of (node_id->node, edge_id->)
             training_data = attribute()
 
             for (training_nodes, training_edges) in training_data:
+                print(training_nodes)
                 receptive_fields_groups = build_groups_of_receptive_fields(training_nodes, training_edges)
 
                 # For training data for most classes there should only be one receptive field group

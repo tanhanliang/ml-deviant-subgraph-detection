@@ -21,7 +21,7 @@ RETURN path1, path2 LIMIT 10000
 """
 
 
-def get_train_data_download_file_execute():
+def get_train_download_file_execute():
     """
     Gets training data for instances of a process downloading a file then executing it.
 
@@ -31,7 +31,7 @@ def get_train_data_download_file_execute():
     return execute_query(DOWNLOAD_FILE_WRITE)
 
 
-def get_all_triples():
+def get_train_all_triples():
     """
     Gets all triple nodes with the following configuration: (node1)->(node2)<-(node3).
 
