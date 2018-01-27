@@ -17,7 +17,7 @@ TRIPLE_NODES = """
 MATCH path1=(n1)-[r1]-(m1)
 MATCH path2=(n1)-[r2]-(m2)
 WHERE m1 <> m2
-RETURN path1, path2 LIMIT 10000
+RETURN path1, path2 LIMIT 100000
 """
 
 

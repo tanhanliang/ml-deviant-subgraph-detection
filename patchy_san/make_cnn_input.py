@@ -100,7 +100,7 @@ def build_tensor_naive_hashing(norm_fields_list):
             node_prop = field[field_idx].properties
             for property_idx in range(CHANNEL_COUNT):
                 prop = HASH_PROPERTIES[property_idx]
-                if prop in node_prop:
+                if prop in node_prop and node_prop[prop] != []:
                     # TODO: Ask supervisor about better way to do this
                     if prop == 'name':
                         val = HASH_FN(node_prop[prop][0])

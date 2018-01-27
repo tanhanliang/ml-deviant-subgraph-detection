@@ -42,6 +42,7 @@ def get_nodes_edges_by_result(results):
     :return: A list of (Dictionary, Dictionary)
     """
     result_list = []
+    deleted = 0
 
     for subgraph_dict in results.data():
         nodes = {}
@@ -57,7 +58,9 @@ def get_nodes_edges_by_result(results):
 
         if node_count == len(nodes):
             result_list.append((nodes, edges))
-
+        else:
+            deleted += 1
+    print("Deleted: " + str(deleted))
     return result_list
 
 
