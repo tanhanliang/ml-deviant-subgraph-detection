@@ -4,7 +4,7 @@ This file contains functions to help me explore the Neo4j database.
 
 from neo4j.v1 import GraphDatabase, basic_auth
 from data_processing.preprocessing import clean_data
-# TODO: Put code creating and destroying sessions into separate functions
+# TODO: Put code creating and destroying sessions into separate optimisable_functions
 
 
 def get_all_successor_nodes(root_id):

@@ -1,9 +1,8 @@
 """
 This file contains all optimisable parameters for the convolutional neural network.
 """
-from patchy_san.neighborhood_assembly import get_ts
-from patchy_san.graph_normalisation import build_node_list_hashing
-from hash_functions.hashes import hash_simhash
+from optimisable_functions.labeling_fns import get_ts
+from optimisable_functions.hashes import hash_simhash
 
 # w
 FIELD_COUNT = 1
@@ -39,4 +38,6 @@ LABELING_FN = get_ts
 
 # A function used to build the normalised node list for each receptive field
 # Takes a Dictionary of node_id -> node as input, returns list of nodes
-NORM_FIELD_FN = build_node_list_hashing
+
+# NORM_FIELD_FN is now imported in patchy_san.make_cnn_input
+# NORM_FIELD_FN = build_node_list_hashing

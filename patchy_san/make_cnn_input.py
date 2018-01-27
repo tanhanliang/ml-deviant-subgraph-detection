@@ -48,7 +48,7 @@ def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
     :return: A list of lists of lists of nodes, or a list of lists of receptive fields
     """
     if norm_field_fn is None:
-        from patchy_san.parameters import NORM_FIELD_FN
+        from patchy_san.neighborhood_assembly import generate_node_list as NORM_FIELD_FN
         norm_field_fn = NORM_FIELD_FN
 
     nodes_list = generate_node_list(nodes)

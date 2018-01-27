@@ -24,22 +24,6 @@ def generate_node_list(nodes, transform_fn=None):
     return nodes_list
 
 
-def get_ts(node):
-    """
-    Given a node, returns its timestamp if it exists, otherwise throws a RuntimeError.
-    This fn will be used to sort a list of nodes by timestamp, using the built in sorted()
-    function.
-
-    :param node: A node in a list to be sorted
-    :return: The timestamp of the node
-    """
-
-    if 'timestamp' not in node.properties:
-        raise RuntimeError('timestamp does not exist in properties dict of node')
-
-    return node.properties['timestamp']
-
-
 def get_receptive_field(root_id, nodes, incoming_edges):
     """
     Given a root node, performs breadth-first search, adding explored nodes to a Set.
