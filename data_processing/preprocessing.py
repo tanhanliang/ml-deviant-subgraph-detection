@@ -34,7 +34,9 @@ def get_nodes_edges(results):
 def get_nodes_edges_by_result(results):
     """
     Builds a list of tuples of (node_id -> node, edge_id -> edge) for every result in the provided
-    BoltStatementResult. Also cleans the data.
+    BoltStatementResult. Also cleans the data. If the result does not lose any nodes as a result
+    of the cleaning (the result is clean) then the nodes and edges which represent it are added
+    to the list of tuples.
 
     :param results: A BoltStatementResult object describing all paths in the query
     :return: A list of (Dictionary, Dictionary)
@@ -50,8 +52,11 @@ def get_nodes_edges_by_result(results):
             for edge in subgraph_dict[path].relationships:
                 edges[edge.id] = edge
 
+        node_count = len(nodes)
         clean_data(nodes, edges)
-        result_list.append((nodes, edges))
+
+        if node_count == len(nodes):
+            result_list.append((nodes, edges))
 
     return result_list
 
