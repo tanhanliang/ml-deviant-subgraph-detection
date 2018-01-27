@@ -9,7 +9,7 @@ from make_training_data.fetch_training_data import get_all_triples
 
 import make_training_data.training_pattern_checks as checks
 
-# TODO: reuse code by creating generic function to iterate over nodes in each subgraph
+# TODO: reuse code by creating generic function to iterate over nodes in each subgraph. D-R-Y
 
 
 def get_download_file_write():

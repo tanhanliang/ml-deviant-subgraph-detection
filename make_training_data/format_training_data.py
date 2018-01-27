@@ -4,7 +4,6 @@ model.
 """
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing
 import make_training_data.filter_training_data as filter_training_data
-from data_processing.preprocessing import clean_data
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT
 import numpy as np
 

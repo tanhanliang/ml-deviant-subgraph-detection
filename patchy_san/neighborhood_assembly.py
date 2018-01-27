@@ -3,7 +3,7 @@ This module contains functions to process graph data into a form usable by the P
 algorithm.
 """
 import queue
-from patchy_san.parameters import MAX_FIELD_SIZE as size
+from patchy_san.parameters import MAX_FIELD_SIZE as SIZE
 
 
 def generate_node_list(nodes, transform_fn=None):
@@ -70,7 +70,7 @@ def get_receptive_field(root_id, nodes, incoming_edges):
     node_edge_q.put((nodes[root_id], None))
     marked_set.add(nodes[root_id])
 
-    while neighborhood_size < size:
+    while neighborhood_size < SIZE:
         if node_edge_q.empty():
             # No padding if size of graph smaller than desired receptive field
             break
