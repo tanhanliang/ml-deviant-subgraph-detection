@@ -31,6 +31,31 @@ def get_nodes_edges(results):
     return nodes, edges
 
 
+def get_nodes_edges_by_result(results):
+    """
+    Builds a list of tuples of (node_id -> node, edge_id -> edge) for every result in the provided
+    BoltStatementResult. Also cleans the data.
+
+    :param results: A BoltStatementResult object describing all paths in the query
+    :return: A list of (Dictionary, Dictionary)
+    """
+    result_list = []
+
+    for subgraph_dict in results.data():
+        nodes = {}
+        edges = {}
+        for path in subgraph_dict:
+            for node in subgraph_dict[path].nodes:
+                nodes[node.id] = node
+            for edge in subgraph_dict[path].relationships:
+                edges[edge.id] = edge
+
+        clean_data(nodes, edges)
+        result_list.append((nodes, edges))
+
+    return result_list
+
+
 def build_adjacency_matrix(results):
     """
     Builds an adjacency matrix based on a given graph, represented as a BoltStatementResult

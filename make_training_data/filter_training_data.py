@@ -3,7 +3,7 @@ Contains functions to return lists of subgraphs which matches certain patterns.
 (or does not match any pattern)
 """
 
-from data_processing.preprocessing import clean_data, build_in_out_edges
+from data_processing.preprocessing import clean_data, build_in_out_edges, get_nodes_edges_by_result
 from make_training_data.training_pattern_checks import matches_download_file_write
 from make_training_data.fetch_training_data import get_all_triples
 
@@ -19,22 +19,13 @@ def get_download_file_write():
 
     results = get_all_triples()
     training_data = []
-    # Each subgraph_dict in results.data() corresponds to one subgraph
-    for subgraph_dict in results.data():
-        training_nodes = {}
-        training_edges = {}
-        for path in subgraph_dict:
-            for node in subgraph_dict[path].nodes:
-                training_nodes[node.id] = node
-            for edge in subgraph_dict[path].relationships:
-                training_edges[edge.id] = edge
+    subgraphs_nodes_edges = get_nodes_edges_by_result(results)
 
-        clean_data(training_nodes, training_edges)
+    for training_nodes, training_edges in subgraphs_nodes_edges:
         incoming_edges, _ = build_in_out_edges(training_edges)
-
         for node_id in training_nodes:
             if matches_download_file_write(node_id, training_nodes, incoming_edges):
                 training_data.append((training_nodes, training_edges))
                 break
-
+    
     return training_data
