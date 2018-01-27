@@ -4,11 +4,12 @@ model.
 """
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing
 import make_training_data.filter_training_data as filter_training_data
+from make_training_data.filter_training_data import get_training_data
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT
 import numpy as np
 
 
-def get_all_training_data():
+def format_all_training_data():
     """
     Queries the database for data according to several predefined rules, then processes
     them into two ndarrays.
@@ -18,25 +19,20 @@ def get_all_training_data():
     s: number of training samples
     n: number of attributes
     """
+    import time
+    start = time.time()
     x_data_list = []
     y_target_list = []
-    target_class = 0
 
-    for item in dir(filter_training_data):
-        attribute = getattr(filter_training_data, item)
-        if callable(attribute) and item.startswith('get_filtered_'):
-            # training_data is a list of (node_id->node, edge_id->)
-            training_data = attribute()
+    training_data = get_training_data()
 
-            for (training_nodes, training_edges) in training_data:
-                receptive_fields_groups = build_groups_of_receptive_fields(training_nodes, training_edges)
-                # For training data for most classes there should only be one receptive field group
-                for fields_list in receptive_fields_groups:
-                    training_example_tensor = build_tensor_naive_hashing(fields_list)
-                    x_data_list.append(training_example_tensor)
-                    y_target_list.append(target_class)
-
-            target_class += 1
+    for (label, training_nodes, training_edges) in training_data:
+        receptive_fields_groups = build_groups_of_receptive_fields(training_nodes, training_edges)
+        # For training data for most classes there should only be one receptive field group
+        for fields_list in receptive_fields_groups:
+            training_example_tensor = build_tensor_naive_hashing(fields_list)
+            x_data_list.append(training_example_tensor)
+            y_target_list.append(label)
 
     training_examples = len(x_data_list)
     x_data = np.ndarray((training_examples, FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT))
@@ -46,5 +42,6 @@ def get_all_training_data():
     while idx < training_examples:
         x_data[idx] = x_data_list[idx]
         idx += 1
-
+    end = time.time()
+    print("Time elapsed(seconds): "+str(end-start))
     return x_data, y_target
