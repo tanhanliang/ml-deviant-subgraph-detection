@@ -102,7 +102,7 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
                     if incoming_edge.start is not master_node_id:
                         incoming_edge.end = master_node_id
                         # The key master_node_id may not exist
-                        if not master_node_id not in incoming_edges:
+                        if master_node_id not in incoming_edges:
                             incoming_edges[master_node_id] = []
                         incoming_edges[master_node_id] += [incoming_edge]
                 incoming_edges.pop(removed_node_id)
@@ -265,12 +265,26 @@ def clean_data(results):
     Given a BoltStatementResult object, cleans the data by removing anomalous nodes,
     consolidating node versions and renaming symlinked files.
 
-    :param results: A BoltstatementResult object
+    :param results: A BoltStatementResult
     :return: A tuple of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
     is a Dictionary of edge_id -> edge
     """
 
     nodes, edges = get_nodes_edges(results)
+    return clean_data(nodes, edges)
+
+
+def clean_data(nodes, edges):
+    """
+    Cleans the data by removing anomalous nodes,
+    consolidating node versions and renaming symlinked files.
+
+    :param nodes: A Dictionary of node-id -> node
+    :param edges: A Dictionary of edge_id -> edge
+    :return: A tuple of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
+    is a Dictionary of edge_id -> edge
+    """
+
     incoming_edges, outgoing_edges = build_in_out_edges(edges)
 
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)

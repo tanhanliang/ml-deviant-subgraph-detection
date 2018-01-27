@@ -3,7 +3,7 @@ Contains functions to format the training data into ndarrays that can be used to
 model.
 """
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing
-import make_training_data.fetch_training_data as fetch_training_data
+import make_training_data.filter_training_data as filter_training_data
 from data_processing.preprocessing import clean_data
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT
 import numpy as np
@@ -23,17 +23,20 @@ def get_all_training_data():
     y_target_list = []
     target_class = 0
 
-    for item in dir(fetch_training_data):
-        attribute = getattr(fetch_training_data, item)
+    for item in dir(filter_training_data):
+        attribute = getattr(filter_training_data, item)
         if callable(attribute) and item.startswith('get'):
-            # retrieve the training data as a BoltStatementResult
-            results = attribute()
-            nodes, edges = clean_data(results)
-            receptive_fields_groups = build_groups_of_receptive_fields(nodes, edges)
-            for fields_list in receptive_fields_groups:
-                training_example_tensor = build_tensor_naive_hashing(fields_list)
-                x_data_list.append(training_example_tensor)
-                y_target_list.append(target_class)
+            # training_data is a list of (node_id->node, edge_id->)
+            training_data = attribute()
+
+            for (training_nodes, training_edges) in training_data:
+                receptive_fields_groups = build_groups_of_receptive_fields(training_nodes, training_edges)
+
+                # For training data for most classes there should only be one receptive field group
+                for fields_list in receptive_fields_groups:
+                    training_example_tensor = build_tensor_naive_hashing(fields_list)
+                    x_data_list.append(training_example_tensor)
+                    y_target_list.append(target_class)
 
             target_class += 1
 

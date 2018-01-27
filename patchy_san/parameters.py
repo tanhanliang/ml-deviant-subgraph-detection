@@ -6,13 +6,13 @@ from patchy_san.graph_normalisation import build_node_list_hashing
 from hash_functions.hashes import hash_simhash
 
 # w
-FIELD_COUNT = 2
+FIELD_COUNT = 1
 
 # k
-MAX_FIELD_SIZE = 5
+MAX_FIELD_SIZE = 3
 
 # s
-STRIDE = 2
+STRIDE = 3
 
 # input channels
 HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
