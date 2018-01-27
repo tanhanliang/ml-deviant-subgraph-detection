@@ -11,4 +11,4 @@ def hash_simhash(text):
     :return: A hash value as an integer
     """
 
-    return simhash.Simhash(text).value/10
+    return int(simhash.Simhash(text).value/100)
