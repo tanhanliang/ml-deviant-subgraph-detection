@@ -47,6 +47,7 @@ def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
     norm_field_fn = build_node_list_hashing
     :return: A list of lists of lists of nodes, or a list of lists of receptive fields
     """
+
     if norm_field_fn is None:
         from patchy_san.neighborhood_assembly import generate_node_list as NORM_FIELD_FN
         norm_field_fn = NORM_FIELD_FN
@@ -60,17 +61,16 @@ def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
     norm_fields_count = 0
 
     while root_node is not None:
-        if norm_fields_count == FIELD_COUNT:
-            groups_of_receptive_fields.append(norm_fields_list)
-            norm_fields_list = []
-            norm_fields_count = 0
-
         r_field_nodes, r_field_edges = get_receptive_field(root_node.id, nodes, incoming_edges)
         r_field_nodes_list = norm_field_fn(r_field_nodes)
         norm_fields_list.append(r_field_nodes_list)
         root_node = iterate(nodes_iter, STRIDE)
         norm_fields_count += 1
 
+        if norm_fields_count == FIELD_COUNT:
+            groups_of_receptive_fields.append(norm_fields_list)
+            norm_fields_list = []
+            norm_fields_count = 0
     # only whole groups? or partial groups also
     # if norm_fields_list:
     #     groups_of_receptive_fields.append(norm_fields_list)

@@ -29,9 +29,7 @@ def get_all_training_data():
             training_data = attribute()
 
             for (training_nodes, training_edges) in training_data:
-                print(training_nodes)
                 receptive_fields_groups = build_groups_of_receptive_fields(training_nodes, training_edges)
-
                 # For training data for most classes there should only be one receptive field group
                 for fields_list in receptive_fields_groups:
                     training_example_tensor = build_tensor_naive_hashing(fields_list)

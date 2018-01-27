@@ -3,7 +3,7 @@ This file contains functions to help me explore the Neo4j database.
 """
 
 from neo4j.v1 import GraphDatabase, basic_auth
-from data_processing.preprocessing import clean_data
+from data_processing.preprocessing import clean_data_raw
 # TODO: Put code creating and destroying sessions into separate optimisable_functions
 
 
@@ -45,7 +45,7 @@ def get_attack_nodes():
     results = session.run(query)
     session.close()
 
-    nodes, edges = clean_data(results)
+    nodes, edges = clean_data_raw(results)
     return nodes, edges
 
 

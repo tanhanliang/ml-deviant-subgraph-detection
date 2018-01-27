@@ -174,6 +174,8 @@ def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
     where node.anomalous = true. This is an artefact of the provenance capture process
     and should not be included.
 
+    Also removes nodes which do not have a timestamp, as this is also anomalous.
+
     :param nodes: A Dictionary of node_id -> node
     :param edges: A Dictionary of edge_id -> edge
     :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
@@ -183,7 +185,8 @@ def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
 
     for node_id in list(nodes.keys()):
         node_prop = nodes[node_id].properties
-        if node_prop.__contains__('anomalous') and node_prop['anomalous']:
+        if node_prop.__contains__('anomalous') and node_prop['anomalous'] or \
+                'timestamp' not in node_prop:
             pop_related_edges(incoming_edges, edges, node_id)
             pop_related_edges(outgoing_edges, edges, node_id)
             nodes.pop(node_id)
@@ -290,7 +293,7 @@ def remove_duplicate_edges(edges, incoming_edges, outgoing_edges):
                 edges.pop(edge.id)
 
 
-def clean_data(results):
+def clean_data_raw(results):
     """
     Given a BoltStatementResult object, cleans the data by removing anomalous nodes,
     consolidating node versions and renaming symlinked files.
