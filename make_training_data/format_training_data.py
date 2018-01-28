@@ -54,7 +54,7 @@ def create_balanced_training_set(x_data, y_target, limit):
     :param x_data: A 4D NumPy ndarray (training_examples, FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT)
     :param y_target: A 1D NumPy ndarray (training_examples)
     :param limit: An integer which represents the max training examples for each class.
-    :return: A tuple of ndarrays with the same dimensions as the input
+    :return: A tuple of ndarrays
     """
 
     class_counts = [0 for i in range(CLASS_COUNT)]
@@ -68,4 +68,44 @@ def create_balanced_training_set(x_data, y_target, limit):
             x_train.append(x_data[i])
             y_train.append(y_target[i])
 
-    return x_train, y_train
+    new_x = np.ndarray((len(x_train), FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT))
+    new_y = np.ndarray((len(y_train)))
+
+    for i in range(len(x_train)):
+        new_x[i] = x_train[i]
+        new_y[i] = y_train[i]
+
+    return new_x, new_y
+
+
+def reshape_training_data(x_train):
+    """
+    Reshapes 3D tensors into a 2D tensor by combining the first two dimensions.
+    The final tensor has 4 dimensions specified, with the last dimension set as 1.
+
+    TODO: Fix the final dimension.
+
+    :param x_train: A ndarray with shape (s,field_count,max_field_size,n)
+    :return: A ndarray. It has shape (training examples,field_count*max_field_size,n, 1)
+    """
+
+    new_shape =(x_train.shape[0], FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
+    return x_train.reshape(new_shape)
+
+
+def get_final_datasets():
+    """
+    Gets and formats the datasets into a form ready to be fed to the model.
+
+    :return: A tuple of ndarrays (x_new, y_new). x_new has dimensions
+    (training_samples, field_cound*max_field_size, channel_count)
+    y_new has dimensions (training_samples, number_of_classes)
+    """
+
+    x, y = format_all_training_data()
+    x_train, y_train = create_balanced_training_set(x, y, 38)
+    from keras.utils import to_categorical
+    y_new = to_categorical(y_train)
+    x_new = reshape_training_data(x_train)
+
+    return x_new, y_new

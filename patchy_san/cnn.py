@@ -26,7 +26,7 @@ def build_model():
     model.add(Flatten())
     model.add(Dense(16, activation='relu'))
     model.add(Dropout(0.25))
-    model.add(Dense(5, activation='softmax'))
+    model.add(Dense(2, activation='sigmoid'))
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
