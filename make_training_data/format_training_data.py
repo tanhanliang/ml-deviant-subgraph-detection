@@ -5,7 +5,7 @@ model.
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing
 import make_training_data.filter_training_data as filter_training_data
 from make_training_data.filter_training_data import get_training_data
-from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT
+from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
 import numpy as np
 
 
@@ -45,3 +45,27 @@ def format_all_training_data():
     end = time.time()
     print("Time elapsed(seconds): "+str(end-start))
     return x_data, y_target
+
+
+def create_balanced_training_set(x_data, y_target, limit):
+    """
+    Ensure that training set contains equal numbers of training examples for each class.
+
+    :param x_data: A 4D NumPy ndarray (training_examples, FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT)
+    :param y_target: A 1D NumPy ndarray (training_examples)
+    :param limit: An integer which represents the max training examples for each class.
+    :return: A tuple of ndarrays with the same dimensions as the input
+    """
+
+    class_counts = [0 for i in range(CLASS_COUNT)]
+    x_train = []
+    y_train = []
+
+    for i in range(len(x_data)):
+        label = y_target[i]
+        if class_counts[label] < limit:
+            class_counts[label] += 1
+            x_train.append(x_data[i])
+            y_train.append(y_target[i])
+
+    return x_train, y_train
