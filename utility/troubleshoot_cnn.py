@@ -3,6 +3,7 @@ Contains functions to help me debug the cnn.
 """
 
 import keras.backend as backend
+from matplotlib import pyplot
 
 
 def get_nth_layer_output_fn(model, n):
@@ -25,3 +26,20 @@ def get_nth_layer_output_fn(model, n):
     """
 
     return backend.function([model.layers[0].input, backend.learning_phase()], [model.layers[n].output])
+
+
+def plot_eval_metrics(history):
+    """
+    Plots the loss and accuracy of the model as it was trained. Example usage:
+
+    history = model.fit(....)
+    plot_eval_metrics(history)
+
+    :param history: A keras.callbacks.History object
+    :return: nothing
+    """
+
+    pyplot.plot(history.history['loss'], label='loss')
+    pyplot.plot(history.history['acc'], label='accuracy')
+    pyplot.legend(loc='upper left')
+    pyplot.show()
