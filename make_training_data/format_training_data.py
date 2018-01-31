@@ -92,6 +92,19 @@ def reshape_training_data(x_train):
     return x_train.reshape(new_shape)
 
 
+def shuffle_datasets(x_train, y_train):
+    """
+    Shuffles the provided training datasets and labels together, along the first axis
+
+    :param x_train: A ndarray
+    :param y_train: A ndarray
+    :return: A tuple of shuffled ndarrays
+    """
+
+    permutation = np.random.permutation(x_train.shape[0])
+    return x_train[permutation], y_train[permutation]
+
+
 def get_final_datasets():
     """
     Gets and formats the datasets into a form ready to be fed to the model.
@@ -107,4 +120,4 @@ def get_final_datasets():
     y_new = to_categorical(y_train)
     x_new = reshape_training_data(x_train)
 
-    return x_new, y_new
+    return shuffle_datasets(x_new, y_new)
