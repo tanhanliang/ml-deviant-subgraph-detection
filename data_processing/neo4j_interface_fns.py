@@ -53,3 +53,18 @@ def get_neighborhood(start_id, k):
     session.close()
     return results
 
+
+def execute_query(query):
+    """
+    Executes a given query.
+
+    :param query: A String representing the query to be executed
+    :return: A BoltStatementResult object
+    """
+
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "neo4j"))
+    session = driver.session()
+
+    results = session.run(query)
+    session.close()
+    return results

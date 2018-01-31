@@ -3,37 +3,58 @@ This file contains functions to help me explore the Neo4j database.
 """
 
 from neo4j.v1 import GraphDatabase, basic_auth
+from data_processing.preprocessing import clean_data_raw
+# TODO: Put code creating and destroying sessions into separate optimisable_functions
 
 
-def get_attack_nodes():
+def get_all_successor_nodes(root_id):
     """
-    Searches the database for all nodes with 'attack' in their cmdline.
+    Returns all successor nodes given a root node.
 
-    :return: A list of nodes
+    :param root_id: The id of the root node
+    :return: A BoltStatementResult describing the raw result returned by Neo4j
     """
 
     driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "neo4j"))
     session = driver.session()
 
     query = """
-    MATCH (n) WHERE n.cmdline =~ '.*attack.*' RETURN n
+    MATCH path=(n)-[r*]->(m) 
+    WHERE Id(m) = $root_id
+    RETURN path
+    """
+    results = session.run(query, {"root_id": root_id})
+    session.close()
+    return results
+
+
+def get_attack_nodes():
+    """
+    Searches the database for all nodes with 'attack' in their cmdline.
+
+    :return: A tuple of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
+    is a Dictionary of edge_id -> edge
+    """
+
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=basic_auth("neo4j", "neo4j"))
+    session = driver.session()
+
+    query = """
+    MATCH path=(n) WHERE n.cmdline =~ '.*attack.*' RETURN path
     """
     results = session.run(query)
     session.close()
 
-    attack_nodes = []
-    for result in results:
-        attack_nodes.append(result['n'])
-
-    return attack_nodes
+    nodes, edges = clean_data_raw(results)
+    return nodes, edges
 
 
-def get_attack_paths(attack_nodes):
+def get_attack_paths(nodes):
     """
     Given a list of nodes from which an attack is launched, returns a list of sets of paths
     accessed by each attack node.
 
-    :param attack_nodes: A list of nodes
+    :param nodes: A list of nodes
     :return: A list of sets of paths (String)
     """
 
@@ -41,7 +62,8 @@ def get_attack_paths(attack_nodes):
     session = driver.session()
 
     path_sets = []
-    for node in attack_nodes:
+    for node_id in nodes:
+        node = nodes[node_id]
         query = """
         MATCH (n)-[r*]->(m) 
         WHERE Id(m) = $node_id
@@ -84,3 +106,17 @@ def print_paths_by_freq(counts):
 
     for item in items:
         print(item)
+
+
+def print_properties(nodes, prop):
+    """
+    Prints the value of the property prop of each node that has that property.
+
+    :param nodes: A Dictionary of node_id -> node
+    :param prop: The property in question
+    :return: nothing
+    """
+
+    for node_id, node in nodes.items():
+        if prop in node.properties:
+            print(node.properties[prop])

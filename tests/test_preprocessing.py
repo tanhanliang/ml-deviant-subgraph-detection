@@ -14,6 +14,7 @@ class MockNode:
             self.properties = {}
         else:
             self.properties = properties
+        self.properties["timestamp"] = 1000+node_id
 
 
 class MockEdge:

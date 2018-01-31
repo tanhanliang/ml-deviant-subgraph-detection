@@ -22,12 +22,46 @@ def get_nodes_edges(results):
     edges = {}
 
     for result in results.data():
-        for node in result['path'].nodes:
-            nodes[node.id] = node
-        for edge in result['path'].relationships:
-            edges[edge.id] = edge
+        for path_name in result:
+            for node in result[path_name].nodes:
+                nodes[node.id] = node
+            for edge in result[path_name].relationships:
+                edges[edge.id] = edge
 
     return nodes, edges
+
+
+def get_nodes_edges_by_result(results):
+    """
+    Builds a list of tuples of (node_id -> node, edge_id -> edge) for every result in the provided
+    BoltStatementResult. Also cleans the data. If the result does not lose any nodes as a result
+    of the cleaning (the result is clean) then the nodes and edges which represent it are added
+    to the list of tuples.
+
+    :param results: A BoltStatementResult object describing all paths in the query
+    :return: A list of (Dictionary, Dictionary)
+    """
+    result_list = []
+    deleted = 0
+
+    for subgraph_dict in results.data():
+        nodes = {}
+        edges = {}
+        for path in subgraph_dict:
+            for node in subgraph_dict[path].nodes:
+                nodes[node.id] = node
+            for edge in subgraph_dict[path].relationships:
+                edges[edge.id] = edge
+
+        node_count = len(nodes)
+        clean_data(nodes, edges)
+
+        if node_count == len(nodes):
+            result_list.append((nodes, edges))
+        else:
+            deleted += 1
+    print("Deleted: " + str(deleted))
+    return result_list
 
 
 def build_adjacency_matrix(results):
@@ -101,7 +135,7 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
                     if incoming_edge.start is not master_node_id:
                         incoming_edge.end = master_node_id
                         # The key master_node_id may not exist
-                        if not master_node_id not in incoming_edges:
+                        if master_node_id not in incoming_edges:
                             incoming_edges[master_node_id] = []
                         incoming_edges[master_node_id] += [incoming_edge]
                 incoming_edges.pop(removed_node_id)
@@ -143,6 +177,8 @@ def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
     where node.anomalous = true. This is an artefact of the provenance capture process
     and should not be included.
 
+    Also removes nodes which do not have a timestamp, as this is also anomalous.
+
     :param nodes: A Dictionary of node_id -> node
     :param edges: A Dictionary of edge_id -> edge
     :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
@@ -152,7 +188,8 @@ def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
 
     for node_id in list(nodes.keys()):
         node_prop = nodes[node_id].properties
-        if node_prop.__contains__('anomalous') and node_prop['anomalous']:
+        if node_prop.__contains__('anomalous') and node_prop['anomalous'] or \
+                'timestamp' not in node_prop:
             pop_related_edges(incoming_edges, edges, node_id)
             pop_related_edges(outgoing_edges, edges, node_id)
             nodes.pop(node_id)
@@ -231,20 +268,63 @@ def rename_symlinked_files_timestamp(nodes):
                         node.properties['name'] = smallest_ts_node.properties['name']
 
 
-def clean_data(results):
+def remove_duplicate_edges(edges, incoming_edges, outgoing_edges):
+    """
+    Checks every node's incoming and outgoing edges, and if two edges have the same
+    start (for incoming edges) or end (for outgoing edges) nodes, they are removed.
+
+    This method assumes that two edges between the same 2 nodes will always be of the same type,
+    and therefore can be removed. I believe that this is a valid assumption due to the
+    nature of the provenance data. Edges between the same 2 nodes only exist because of
+    the node version consolidation step above, which deletes nodes representing past versions.
+    If nodes representing past versions have a common neighbor, then the edge type between them
+    and the neighbor are all the same.
+
+    :param edges: A Dictionary of edge_id -> edge
+    :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
+    :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
+    :return: nothing
+    """
+
+    for node_id in outgoing_edges.keys():
+        edge_end_ids = set()
+        for edge in outgoing_edges[node_id]:
+            if edge.end not in edge_end_ids:
+                edge_end_ids.add(edge.end)
+            else:
+                outgoing_edges[node_id].remove(edge)
+                edges.pop(edge.id)
+
+
+def clean_data_raw(results):
     """
     Given a BoltStatementResult object, cleans the data by removing anomalous nodes,
     consolidating node versions and renaming symlinked files.
 
-    :param results: A BoltstatementResult object
+    :param results: A BoltStatementResult
     :return: A tuple of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
     is a Dictionary of edge_id -> edge
     """
 
     nodes, edges = get_nodes_edges(results)
+    return clean_data(nodes, edges)
+
+
+def clean_data(nodes, edges):
+    """
+    Cleans the data by removing anomalous nodes,
+    consolidating node versions and renaming symlinked files.
+
+    :param nodes: A Dictionary of node-id -> node
+    :param edges: A Dictionary of edge_id -> edge
+    :return: A tuple of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
+    is a Dictionary of edge_id -> edge
+    """
+
     incoming_edges, outgoing_edges = build_in_out_edges(edges)
 
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
+    # remove_duplicate_edges(edges, incoming_edges, outgoing_edges)
     remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
     rename_symlinked_files_timestamp(nodes)
 
