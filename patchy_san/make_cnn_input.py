@@ -6,7 +6,7 @@ import numpy as np
 from patchy_san.neighborhood_assembly import get_receptive_field
 from data_processing.preprocessing import build_in_out_edges
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
-from patchy_san.parameters import HASH_FN
+from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL
 
 
 def iterate(iterator, n):
@@ -107,7 +107,7 @@ def build_tensor_naive_hashing(norm_fields_list):
                     else:
                         val = HASH_FN(node_prop[prop])
                 else:
-                    val = 0
+                    val = DEFAULT_TENSOR_VAL
                 tensor[fields_idx][field_idx][property_idx] = val
 
     return tensor
