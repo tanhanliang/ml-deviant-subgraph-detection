@@ -3,7 +3,6 @@ Contains functions to format the training data into ndarrays that can be used to
 model.
 """
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing
-import make_training_data.filter_training_data as filter_training_data
 from make_training_data.filter_training_data import get_training_data
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
 import numpy as np
@@ -57,7 +56,7 @@ def create_balanced_training_set(x_data, y_target, limit):
     :return: A tuple of ndarrays
     """
 
-    class_counts = [0 for i in range(CLASS_COUNT)]
+    class_counts = [0 for _ in range(CLASS_COUNT)]
     x_train = []
     y_train = []
 
@@ -69,7 +68,7 @@ def create_balanced_training_set(x_data, y_target, limit):
             y_train.append(y_target[i])
 
     new_x = np.ndarray((len(x_train), FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT))
-    new_y = np.ndarray((len(y_train)))
+    new_y = np.ndarray((len(y_train),))
 
     for i in range(len(x_train)):
         new_x[i] = x_train[i]
@@ -89,7 +88,7 @@ def reshape_training_data(x_train):
     :return: A ndarray. It has shape (training examples,field_count*max_field_size,n, 1)
     """
 
-    new_shape =(x_train.shape[0], FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
+    new_shape = (x_train.shape[0], FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
     return x_train.reshape(new_shape)
 
 

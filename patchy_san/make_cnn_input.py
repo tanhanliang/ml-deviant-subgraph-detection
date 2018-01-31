@@ -3,7 +3,7 @@ Contains functions to generate input in the form of NumPy arrays for the CNN.
 """
 
 import numpy as np
-from patchy_san.neighborhood_assembly import generate_node_list, get_receptive_field
+from patchy_san.neighborhood_assembly import get_receptive_field
 from data_processing.preprocessing import build_in_out_edges
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
 from patchy_san.parameters import HASH_FN
@@ -49,10 +49,10 @@ def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
     """
 
     if norm_field_fn is None:
-        from patchy_san.neighborhood_assembly import generate_node_list as NORM_FIELD_FN
-        norm_field_fn = NORM_FIELD_FN
+        from patchy_san.neighborhood_assembly import generate_node_list
+        norm_field_fn = generate_node_list
 
-    nodes_list = generate_node_list(nodes)
+    nodes_list = norm_field_fn(nodes)
     groups_of_receptive_fields = []
     norm_fields_list = []
     nodes_iter = iter(nodes_list)
