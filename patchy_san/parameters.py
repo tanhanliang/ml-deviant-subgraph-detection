@@ -45,4 +45,4 @@ LABELING_FN = get_ts
 # Number of classes that model should predict
 CLASS_COUNT = 2
 
-DEFAULT_TENSOR_VAL = -100000
+DEFAULT_TENSOR_VAL = 100000
