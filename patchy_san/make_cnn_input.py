@@ -6,7 +6,8 @@ import numpy as np
 from patchy_san.neighborhood_assembly import get_receptive_field
 from data_processing.preprocessing import build_in_out_edges
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
-from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL
+from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL, NODE_TYPE_HASH
+from optimisable_functions.hashes import hash_labels_prop
 
 
 def iterate(iterator, n):
@@ -97,15 +98,16 @@ def build_tensor_naive_hashing(norm_fields_list):
     for fields_idx in range(field_count):
         field = norm_fields_list[fields_idx]
         for field_idx in range(len(field)):
-            node_prop = field[field_idx].properties
+            node = field[field_idx]
+            node_prop = node.properties
             for property_idx in range(CHANNEL_COUNT):
                 prop = HASH_PROPERTIES[property_idx]
                 if prop in node_prop and node_prop[prop] != []:
                     # TODO: Ask supervisor about better way to do this
                     if prop == 'name':
-                        val = HASH_FN(node_prop[prop][0])
+                        val = HASH_FN(node.labels, NODE_TYPE_HASH, node_prop[prop][0])
                     else:
-                        val = HASH_FN(node_prop[prop])
+                        val = HASH_FN(node.labels, NODE_TYPE_HASH, node_prop[prop])
                 else:
                     val = DEFAULT_TENSOR_VAL
                 tensor[fields_idx][field_idx][property_idx] = val

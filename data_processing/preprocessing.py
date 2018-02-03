@@ -324,7 +324,7 @@ def clean_data(nodes, edges):
     incoming_edges, outgoing_edges = build_in_out_edges(edges)
 
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
-    # remove_duplicate_edges(edges, incoming_edges, outgoing_edges)
+    remove_duplicate_edges(edges, incoming_edges, outgoing_edges)
     remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
     rename_symlinked_files_timestamp(nodes)
 

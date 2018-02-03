@@ -20,13 +20,15 @@ def build_model():
     input_shape = (FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
 
     model = Sequential()
-    model.add(Convolution2D(activation='relu', filters=8, kernel_size=(1, 2), input_shape=input_shape))
+    model.add(Convolution2D(activation='relu', filters=8, kernel_size=(3, 1), input_shape=input_shape))
     model.add(MaxPooling2D(pool_size=(1, 2)))
     model.add(Dropout(0.25))
     model.add(Flatten())
     model.add(Dense(16, activation='relu'))
     model.add(Dropout(0.25))
     model.add(Dense(CLASS_COUNT, activation='relu'))
-    optimiser = sgd(lr=0.01, momentum=0.0)
-    model.compile(loss='categorical_crossentropy', optimizer=optimiser, metrics=['accuracy'])
+    optimiser = sgd(lr=.1, momentum=0.0)
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=optimiser,
+                  metrics=['accuracy'])
     return model
