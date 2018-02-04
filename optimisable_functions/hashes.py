@@ -27,10 +27,26 @@ def hash_labels_prop(labels, node_label_hash, property):
     :return: An integer
     """
 
+    hash_value = hash_labels_only(labels, node_label_hash)
+
+    hash_value *= 1e10
+    hash_value += int(str(hash_simhash(property))[:10])
+    return hash_value
+
+
+def hash_labels_only(labels, node_label_hash):
+    """
+    Computes a hash value only based on a list of labels.
+
+    :param labels: A list of strings
+    :param node_label_hash: A Dictionary of String -> integer
+    Each label is assigned an integer which is a power of 2, to ensure that each combination
+    of labels has a unique hash value.
+    :return: An integer
+    """
+
     hash_value = 0
     for label in labels:
         hash_value += node_label_hash[label]
 
-    hash_value *= 1e10
-    hash_value += int(str(hash_simhash(property))[:10])
     return hash_value
