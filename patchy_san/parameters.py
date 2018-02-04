@@ -14,8 +14,8 @@ MAX_FIELD_SIZE = 3
 STRIDE = 3
 
 # input channels
-# HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
-HASH_PROPERTIES = ['cmdline', 'name']
+HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+# HASH_PROPERTIES = ['cmdline', 'name']
 
 
 #a_v
