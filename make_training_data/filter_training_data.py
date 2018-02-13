@@ -5,7 +5,7 @@ Contains functions to return lists of subgraphs which matches certain patterns.
 
 from data_processing.preprocessing import build_in_out_edges, get_nodes_edges_by_result
 from make_training_data.training_pattern_checks import matches_download_file_write
-from make_training_data.fetch_training_data import get_train_all_triples
+from make_training_data.fetch_training_data import get_train_download_file_execute, get_negative_data
 
 
 def get_training_data():
@@ -17,19 +17,18 @@ def get_training_data():
     nodes is a Dictionary of node_id -> node, edges is a Dictionary of edge_id -> edge
     """
 
-    results = get_train_all_triples()
+    results = []
     training_data = []
-    nodes_edges_list = get_nodes_edges_by_result(results)
+    results.append(get_train_download_file_execute())
+    results.append(get_negative_data())
+    label = 0
 
-    for training_nodes, training_edges in nodes_edges_list:
-        incoming_edges, _ = build_in_out_edges(training_edges)
-        has_match = False
-        for node_id in training_nodes:
-            if matches_download_file_write(node_id, training_nodes, incoming_edges):
-                training_data.append((1, training_nodes, training_edges))
-                has_match = True
-                break
-        if not has_match:
-            training_data.append((0, training_nodes, training_edges))
+    for result in results:
+        nodes_edges_list = get_nodes_edges_by_result(result)
+
+        for training_nodes, training_edges in nodes_edges_list:
+            training_data.append((label, training_nodes, training_edges))
+
+        label += 1
 
     return training_data
