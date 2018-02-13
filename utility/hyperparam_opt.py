@@ -3,6 +3,8 @@ Contains functions to optimize hyperparameters.
 """
 
 from patchy_san.cnn import build_model
+from sklearn.model_selection import StratifiedKFold
+import numpy as np
 
 LEARNING_RATES = [1, 0.1, 0.01, 0.001]
 MOMENTUM_VALS = [0, 0.5, 0.7, 0.9, 0.99]
@@ -48,3 +50,39 @@ def grid_search(x_train, y_train):
                     best_rate = rate
 
     return best_rate, best_momentum, best_activation, best_accuracy
+
+
+def cross_validation(x, y, folds):
+    """
+    Performs k-fold cross validation for a particular dataset.
+
+    :param x: training data in the form of a NumPy array
+    :param y: target data in the form of a Numpy array
+    :param folds: An integer
+    :return:
+    """
+
+    y_labels = np.argmax(y, axis=1)
+    skf = StratifiedKFold(n_splits=folds)
+    idx = 1
+    average_accuracy = 0
+    average_loss = 0
+
+    for train_indices, test_indices in skf.split(x, y_labels):
+        print("Training on fold " + str(1))
+        x_train, x_test = x[train_indices], x[test_indices]
+        y_train, y_test = y[train_indices], y[test_indices]
+
+        model = None
+        model = build_model()
+        model.fit(x_train, y_train, epochs=50, batch_size=5, validation_split=0.0, shuffle=True)
+        loss, accuracy = model.evaluate(x_test, y_test)
+        average_accuracy += accuracy
+        average_loss += loss
+        idx += 1
+        print("Accuracy for the " + str(idx) + "th fold: " + str(accuracy))
+
+    average_accuracy /= folds
+    average_loss /= folds
+    print("Average accuracy: " + str(average_accuracy))
+    print("Average loss: " + str(average_loss))
