@@ -42,4 +42,6 @@ def plot_eval_metrics(history):
     pyplot.plot(history.history['loss'], label='loss')
     pyplot.plot(history.history['acc'], label='accuracy')
     pyplot.legend(loc='upper left')
+    pyplot.xlabel('Epoch')
+    pyplot.ylabel('Dimensionless quantity')
     pyplot.show()
