@@ -4,7 +4,14 @@ have nodes ordered similarly (relative ordering of nodes) after being normalised
 """
 
 from data_processing.preprocessing import *
-from patchy_san.parameters import HASH_PROPERTIES, NODE_TYPE_HASH, PROPERTY_CARDINALITY, HASH_FN
+from patchy_san.parameters import HASH_PROPERTIES, PROPERTY_CARDINALITY, HASH_FN
+
+
+# Used to compute the hash value of a node. The hash values are base 2 to ensure that
+# every unique combination of node labels will produce unique hash values.
+# The hash value of the node will be computed partially from the addition of node's label values
+NODE_TYPE_HASH = {'Conn': 2, 'File': 4, 'Global': 8, 'Machine': 16, 'Meta': 32, 'Process': 64,
+                  'Socket': 1}
 
 
 def build_node_list_hashing(nodes):
@@ -72,9 +79,9 @@ def compute_hash(node):
             if prop == 'name':
                 # A node may have multiple names, use only the first
                 # TODO: Update with better solution after meeting with supervisor
-                prop_hash = HASH_FN(properties[prop][0])
+                prop_hash = HASH_FN(properties[prop][0], NODE_TYPE_HASH)
             else:
-                prop_hash = HASH_FN(properties[prop])
+                prop_hash = HASH_FN(properties[prop], NODE_TYPE_HASH)
             # Take the 4 most significant digits
             hash_value += int(str(abs(prop_hash))[:PROPERTY_CARDINALITY[prop]])
 
