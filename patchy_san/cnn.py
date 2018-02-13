@@ -8,7 +8,7 @@ from keras.layers import Dense, MaxPooling2D, Convolution2D, Flatten, Dropout
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
 
 
-def build_model(learning_rate, momentum, activations):
+def build_model(learning_rate=0.1, momentum=0, activations="relu"):
     """
     Builds the patchy-san convolutional neural network architecture using Keras.
     The architecture has been chosen arbitrarily, but will be refined later on.
@@ -22,10 +22,11 @@ def build_model(learning_rate, momentum, activations):
     model = Sequential()
     model.add(Convolution2D(activation='relu', filters=8, kernel_size=(1, 2), input_shape=input_shape))
     model.add(MaxPooling2D(pool_size=(1, 2)))
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.1))
     model.add(Flatten())
-    model.add(Dense(16, activation='relu'))
-    model.add(Dropout(0.25))
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(8, activation='relu'))
+    model.add(Dropout(0.1))
     model.add(Dense(CLASS_COUNT, activation=activations))
     optimiser = sgd(lr=learning_rate, momentum=momentum)
     model.compile(loss='categorical_crossentropy',
