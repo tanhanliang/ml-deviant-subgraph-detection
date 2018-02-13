@@ -4,9 +4,10 @@ Contains functions to optimize hyperparameters.
 
 from patchy_san.cnn import build_model
 
-LEARNING_RATES = [1, 0.5, 0.1, 0.05, 0.01, 0.005, 0.001]
-MOMENTUM_VALS = [0, 0.5, 0.7, 0.9, 0.95, 0.99]
+LEARNING_RATES = [1, 0.1, 0.01, 0.001]
+MOMENTUM_VALS = [0, 0.5, 0.7, 0.9, 0.99]
 ACTIVATIONS = ['relu']
+VALIDATION_SPLIT = 0.2
 
 
 def grid_search(x_train, y_train):
@@ -22,6 +23,7 @@ def grid_search(x_train, y_train):
     best_activation = ""
     best_accuracy = 0
     count = 0
+    training_examples = int(x_train.shape[0]*(1-VALIDATION_SPLIT))
 
     for rate in LEARNING_RATES:
         for momentum in MOMENTUM_VALS:
@@ -31,10 +33,11 @@ def grid_search(x_train, y_train):
                           y_train,
                           epochs=100,
                           batch_size=5,
-                          validation_split=0.0,
+                          validation_split=VALIDATION_SPLIT,
                           shuffle=True)
 
-                accuracy = model.evaluate(x_train, y_train)[1]
+                # Evaluate model on last 20% of data which was not seen by model
+                accuracy = model.evaluate(x_train[training_examples:], y_train[training_examples:])[1]
                 count += 1
                 print("##################COUNT = " + str(count))
 
