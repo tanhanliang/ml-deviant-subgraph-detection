@@ -6,7 +6,7 @@ import queue
 from patchy_san.parameters import MAX_FIELD_SIZE as SIZE
 
 
-def generate_node_list(nodes, transform_fn=None):
+def label_and_order_nodes(nodes, transform_fn=None):
     """
     Sorts a list of nodes by some labeling function, for example sorting by node timestamp.
 

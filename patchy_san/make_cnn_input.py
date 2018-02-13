@@ -8,8 +8,8 @@ from data_processing.preprocessing import build_in_out_edges
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
 from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL
 from patchy_san.graph_normalisation import NODE_TYPE_HASH
-from patchy_san.neighborhood_assembly import generate_node_list
-from patchy_san.graph_normalisation import build_node_list_hashing
+from patchy_san.neighborhood_assembly import label_and_order_nodes
+from patchy_san.graph_normalisation import normalise_receptive_field
 
 
 def iterate(iterator, n):
@@ -47,7 +47,7 @@ def build_groups_of_receptive_fields(nodes, edges):
     :return: A list of lists of lists of nodes, or a list of lists of receptive fields
     """
 
-    nodes_list = generate_node_list(nodes)
+    nodes_list = label_and_order_nodes(nodes)
     groups_of_receptive_fields = []
     norm_fields_list = []
     nodes_iter = iter(nodes_list)
@@ -57,7 +57,7 @@ def build_groups_of_receptive_fields(nodes, edges):
 
     while root_node is not None:
         r_field_nodes, r_field_edges = get_receptive_field(root_node.id, nodes, incoming_edges)
-        r_field_nodes_list = build_node_list_hashing(r_field_nodes)
+        r_field_nodes_list = normalise_receptive_field(r_field_nodes)
         norm_fields_list.append(r_field_nodes_list)
         root_node = iterate(nodes_iter, STRIDE)
         norm_fields_count += 1

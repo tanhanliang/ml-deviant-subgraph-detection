@@ -46,7 +46,7 @@ LABELING_FN = get_ts
 # Takes a Dictionary of node_id -> node as input, returns list of nodes
 
 # NORM_FIELD_FN is now imported in patchy_san.make_cnn_input
-# NORM_FIELD_FN = build_node_list_hashing
+# NORM_FIELD_FN = normalise_receptive_field
 
 # Number of classes that model should predict
 CLASS_COUNT = 2

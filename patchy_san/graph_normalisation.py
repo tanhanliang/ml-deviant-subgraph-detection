@@ -7,7 +7,7 @@ from data_processing.preprocessing import *
 from patchy_san.parameters import HASH_PROPERTIES, NODE_TYPE_HASH, PROPERTY_CARDINALITY, RECEPTIVE_FIELD_HASH
 
 
-def build_node_list_hashing(nodes):
+def normalise_receptive_field(nodes):
     """
     Builds a list of nodes and orders them in ascending order using the hash function
     provided.
@@ -33,7 +33,7 @@ def build_normalised_adj_matrix(results):
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
     remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
 
-    ordered_node_list = build_node_list_hashing(nodes)
+    ordered_node_list = normalise_receptive_field(nodes)
 
     node_count = len(nodes)
     adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
