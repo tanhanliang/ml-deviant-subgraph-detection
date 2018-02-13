@@ -4,7 +4,7 @@ have nodes ordered similarly (relative ordering of nodes) after being normalised
 """
 
 from data_processing.preprocessing import *
-from patchy_san.parameters import HASH_PROPERTIES, NODE_TYPE_HASH, PROPERTY_CARDINALITY, HASH_FN
+from patchy_san.parameters import HASH_PROPERTIES, NODE_TYPE_HASH, PROPERTY_CARDINALITY, RECEPTIVE_FIELD_HASH
 
 
 def build_node_list_hashing(nodes):
@@ -72,9 +72,9 @@ def compute_hash(node):
             if prop == 'name':
                 # A node may have multiple names, use only the first
                 # TODO: Update with better solution after meeting with supervisor
-                prop_hash = HASH_FN(property=properties[prop][0])
+                prop_hash = RECEPTIVE_FIELD_HASH(property=properties[prop][0])
             else:
-                prop_hash = HASH_FN(property=properties[prop])
+                prop_hash = RECEPTIVE_FIELD_HASH(property=properties[prop])
             # Take the 4 most significant digits
             hash_value += int(str(abs(prop_hash))[:PROPERTY_CARDINALITY[prop]])
 
