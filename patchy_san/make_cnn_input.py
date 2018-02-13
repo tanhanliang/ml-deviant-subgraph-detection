@@ -8,7 +8,8 @@ from data_processing.preprocessing import build_in_out_edges
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
 from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL
 from patchy_san.graph_normalisation import NODE_TYPE_HASH
-from optimisable_functions.hashes import hash_labels_prop
+from patchy_san.neighborhood_assembly import generate_node_list
+from patchy_san.graph_normalisation import build_node_list_hashing
 
 
 def iterate(iterator, n):
@@ -27,7 +28,7 @@ def iterate(iterator, n):
     return next(iterator, None)
 
 
-def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
+def build_groups_of_receptive_fields(nodes, edges):
     """
     Extracts as many groups of receptive fields as possible. Each group of fields is considered
     complete once it reaches the maximum field size.
@@ -43,18 +44,10 @@ def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
 
     :param nodes: A Dictionary of node_id -> node
     :param edges: A Dictionary of edge_id -> edge
-    :param norm_field_fn: A function used to build the normalised node list for each field.
-    This function should only take a Dictionary of node_id -> node as input
-    into list of nodes e.g:
-    norm_field_fn = build_node_list_hashing
     :return: A list of lists of lists of nodes, or a list of lists of receptive fields
     """
 
-    if norm_field_fn is None:
-        from patchy_san.neighborhood_assembly import generate_node_list
-        norm_field_fn = generate_node_list
-
-    nodes_list = norm_field_fn(nodes)
+    nodes_list = generate_node_list(nodes)
     groups_of_receptive_fields = []
     norm_fields_list = []
     nodes_iter = iter(nodes_list)
@@ -64,7 +57,7 @@ def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
 
     while root_node is not None:
         r_field_nodes, r_field_edges = get_receptive_field(root_node.id, nodes, incoming_edges)
-        r_field_nodes_list = norm_field_fn(r_field_nodes)
+        r_field_nodes_list = build_node_list_hashing(r_field_nodes)
         norm_fields_list.append(r_field_nodes_list)
         root_node = iterate(nodes_iter, STRIDE)
         norm_fields_count += 1
