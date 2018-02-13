@@ -7,8 +7,6 @@ from data_processing.preprocessing import build_in_out_edges, get_nodes_edges_by
 from make_training_data.training_pattern_checks import matches_download_file_write
 from make_training_data.fetch_training_data import get_train_all_triples
 
-# TODO: reuse code by creating generic function to iterate over nodes in each subgraph. D-R-Y
-
 
 def get_training_data():
     """

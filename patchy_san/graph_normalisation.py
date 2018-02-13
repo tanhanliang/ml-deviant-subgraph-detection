@@ -71,7 +71,6 @@ def compute_hash(node):
         if properties.__contains__(prop):
             if prop == 'name':
                 # A node may have multiple names, use only the first
-                # TODO: Update with better solution after meeting with supervisor
                 prop_hash = RECEPTIVE_FIELD_HASH(property=properties[prop][0])
             else:
                 prop_hash = RECEPTIVE_FIELD_HASH(property=properties[prop])

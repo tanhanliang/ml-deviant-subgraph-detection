@@ -118,7 +118,7 @@ def get_final_datasets():
     _, counts = np.unique(y, return_counts=True)
 
     if len(counts) == 1:
-        return np.ndarray((0)), np.ndarray((0))
+        return np.ndarray((0,)), np.ndarray((0,))
 
     min_count = np.amin(counts)
     x_train, y_train = create_balanced_training_set(x, y, min_count)
