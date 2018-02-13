@@ -106,9 +106,15 @@ def build_tensor_naive_hashing(norm_fields_list):
                 if prop in node_prop and node_prop[prop] != []:
                     # TODO: Ask supervisor about better way to do this
                     if prop == 'name':
-                        val = HASH_FN(node.labels, NODE_TYPE_HASH)
+                        val = HASH_FN(
+                            labels=node.labels,
+                            node_label_hash=NODE_TYPE_HASH,
+                            property=node_prop[prop][0])
                     else:
-                        val = HASH_FN(node.labels, NODE_TYPE_HASH)
+                        val = HASH_FN(
+                            labels=node.labels,
+                            node_label_hash=NODE_TYPE_HASH,
+                            property=node_prop[prop])
                 else:
                     val = DEFAULT_TENSOR_VAL
                 tensor[fields_idx][field_idx][property_idx] = val
