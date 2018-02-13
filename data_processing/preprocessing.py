@@ -5,6 +5,7 @@ This module contains functions to pre-process(clean) graph data from Neo4j into 
 import numpy as np
 import sys
 from data_processing.adj_matrices import AdjacencyMatrix
+from patchy_san.parameters import CLEAN_TRAIN_DATA
 
 VERSION_TYPES = ['GLOB_OBJ_PREV', 'META_PREV', 'PROC_OBJ_PREV']
 
@@ -54,7 +55,8 @@ def get_nodes_edges_by_result(results):
                 edges[edge.id] = edge
 
         node_count = len(nodes)
-        clean_data(nodes, edges)
+        if CLEAN_TRAIN_DATA:
+            clean_data(nodes, edges)
 
         if node_count == len(nodes):
             result_list.append((nodes, edges))

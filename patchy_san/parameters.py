@@ -52,3 +52,6 @@ LABELING_FN = get_ts
 CLASS_COUNT = 2
 
 DEFAULT_TENSOR_VAL = 0
+
+# Clean the data (remove anomalous nodes, consolidate node versions etc) or not
+CLEAN_TRAIN_DATA = False
