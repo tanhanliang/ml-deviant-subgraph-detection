@@ -15,8 +15,8 @@ def load_data():
 
     x_1 = np.fromfile("training_data/x_train1.txt")
     # Shape is currently hardcoded until i find a better way to do it
-    x_1 = x_1.reshape((100, 3, 5, 1))
+    x_1 = x_1.reshape((378, 3, 5, 1))
     y_1 = np.fromfile("training_data/y_train1.txt")
-    y_1 = y_1.reshape((100, 2))
+    y_1 = y_1.reshape((378, 2))
 
     return x_1, y_1
