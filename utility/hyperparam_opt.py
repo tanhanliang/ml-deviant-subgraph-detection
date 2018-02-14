@@ -49,13 +49,15 @@ def grid_search(x_train, y_train):
     return best_rate, best_activation, best_accuracy
 
 
-def cross_validation(x, y, folds):
+def cross_validation(x, y, folds, learning_rate, activation):
     """
     Performs k-fold cross validation for a particular dataset.
 
     :param x: training data in the form of a NumPy array
     :param y: target data in the form of a Numpy array
     :param folds: An integer
+    :param learning_rate: A float
+    :param activation: A string
     :return:
     """
 
@@ -71,7 +73,7 @@ def cross_validation(x, y, folds):
         y_train, y_test = y[train_indices], y[test_indices]
 
         model = None
-        model = build_model()
+        model = build_model(learning_rate, activation)
         model.fit(x_train, y_train, epochs=50, batch_size=5, validation_split=0.0, shuffle=True)
         loss, accuracy = model.evaluate(x_test, y_test)
         average_accuracy += accuracy
