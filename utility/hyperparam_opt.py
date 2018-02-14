@@ -6,9 +6,9 @@ from patchy_san.cnn import build_model
 from sklearn.model_selection import StratifiedKFold
 import numpy as np
 
-LEARNING_RATES = [1, 0.1, 0.01, 0.001]
-MOMENTUM_VALS = [0, 0.5, 0.7, 0.9, 0.99]
-ACTIVATIONS = ['relu']
+LEARNING_RATES = [1, 0.5, 0.01, 0.05, 0.001, 0.005, 0.0001, 0.0005]
+# MOMENTUM_VALS = [0, 0.5, 0.7, 0.9, 0.99]
+ACTIVATIONS = ['relu', 'sigmoid', 'softmax']
 VALIDATION_SPLIT = 0.2
 
 
@@ -21,35 +21,32 @@ def grid_search(x_train, y_train):
     (best_rate, best_momentum, best_activation, best_accuracy)
     """
     best_rate = -1
-    best_momentum = -1
     best_activation = ""
     best_accuracy = 0
     count = 0
     training_examples = int(x_train.shape[0]*(1-VALIDATION_SPLIT))
 
     for rate in LEARNING_RATES:
-        for momentum in MOMENTUM_VALS:
-            for activation in ACTIVATIONS:
-                model = build_model(rate, momentum, activation)
-                model.fit(x_train,
-                          y_train,
-                          epochs=100,
-                          batch_size=5,
-                          validation_split=VALIDATION_SPLIT,
-                          shuffle=True)
+        for activation in ACTIVATIONS:
+            model = build_model(rate, activation)
+            model.fit(x_train,
+                      y_train,
+                      epochs=100,
+                      batch_size=5,
+                      validation_split=VALIDATION_SPLIT,
+                      shuffle=True)
 
-                # Evaluate model on last 20% of data which was not seen by model
-                accuracy = model.evaluate(x_train[training_examples:], y_train[training_examples:])[1]
-                count += 1
-                print("##################COUNT = " + str(count))
+            # Evaluate model on last 20% of data which was not seen by model
+            accuracy = model.evaluate(x_train[training_examples:], y_train[training_examples:])[1]
+            count += 1
+            print("##################COUNT = " + str(count))
 
-                if accuracy > best_accuracy:
-                    best_accuracy = accuracy
-                    best_activation = activation
-                    best_momentum = momentum
-                    best_rate = rate
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_activation = activation
+                best_rate = rate
 
-    return best_rate, best_momentum, best_activation, best_accuracy
+    return best_rate, best_activation, best_accuracy
 
 
 def cross_validation(x, y, folds):
