@@ -69,7 +69,7 @@ def cross_validation(x, y, folds):
     average_loss = 0
 
     for train_indices, test_indices in skf.split(x, y_labels):
-        print("Training on fold " + str(1))
+        print("Training on fold " + str(idx))
         x_train, x_test = x[train_indices], x[test_indices]
         y_train, y_test = y[train_indices], y[test_indices]
 
