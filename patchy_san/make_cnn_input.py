@@ -73,6 +73,25 @@ def build_groups_of_receptive_fields(nodes, edges):
     return groups_of_receptive_fields
 
 
+def normalise_tensor(tensor):
+    """
+    Normalises the tensor by applying computing the following for every element val in
+    the tensor:
+
+    new_val = (val-minimum_value)/(maximum_value-minimum_value)
+
+    where minimum_value and maximum_value are the minimum and maximum values in the tensor.
+
+    :param tensor: A 3d NumPy array
+    :return: A 3d NumPy array
+    """
+
+    min_val = np.min(tensor)
+    max_val = np.max(tensor)
+    normalised_tensor = (tensor-min_val)/(max_val-min_val)
+    return normalised_tensor
+
+
 def build_tensor_naive_hashing(norm_fields_list):
     """
     From a list of receptive fields(list of lists of nodes), builds a 3d NumPy array, with
@@ -111,4 +130,4 @@ def build_tensor_naive_hashing(norm_fields_list):
                     val = DEFAULT_TENSOR_VAL
                 tensor[fields_idx][field_idx][property_idx] = val
 
-    return tensor
+    return normalise_tensor(tensor)
