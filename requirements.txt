@@ -2,3 +2,4 @@ neo4j-driver
 numpy
 keras
 matplotlib
+sklearn
