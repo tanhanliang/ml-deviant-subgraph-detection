@@ -3,3 +3,4 @@ numpy
 keras
 matplotlib
 sklearn
+simhash
