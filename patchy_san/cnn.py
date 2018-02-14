@@ -2,13 +2,13 @@
 The neural network is built here, using Keras with a TensorFlow backend.
 """
 
-from keras.optimizers import sgd
+from keras.optimizers import sgd, adam
 from keras.models import Sequential
 from keras.layers import Dense, MaxPooling2D, Convolution2D, Flatten, Dropout
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
 
 
-def build_model(learning_rate=0.1, momentum=0, activations="relu"):
+def build_model(learning_rate=0.005, activations="sigmoid"):
     """
     Builds the patchy-san convolutional neural network architecture using Keras.
     The architecture has been chosen arbitrarily, but will be refined later on.
@@ -28,8 +28,8 @@ def build_model(learning_rate=0.1, momentum=0, activations="relu"):
     model.add(Dense(8, activation='relu'))
     model.add(Dropout(0.1))
     model.add(Dense(CLASS_COUNT, activation=activations))
-    optimiser = sgd(lr=learning_rate, momentum=momentum)
-    model.compile(loss='categorical_crossentropy',
+    optimiser = adam(lr=learning_rate)
+    model.compile(loss='mean_squared_error',
                   optimizer=optimiser,
                   metrics=['accuracy'])
     return model
