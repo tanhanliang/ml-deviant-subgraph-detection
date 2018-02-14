@@ -10,7 +10,7 @@ DOWNLOAD_FILE_WRITE = """
 MATCH path1=(n1)<-[r1]-(:File)
 MATCH path2=(n1)<-[]-(:Socket)
 WHERE (r1.state = 'RaW' OR r1.state = 'WRITE')
-RETURN path1, path2
+RETURN path1, path2 LIMIT 100000
 """
 
 TRIPLE_NODES = """
@@ -18,6 +18,14 @@ MATCH path1=(n1)-[r1]-(m1)
 MATCH path2=(n1)-[r2]-(m2)
 WHERE m1 <> m2
 RETURN path1, path2 LIMIT 100000
+"""
+
+NEGATIVE_DATA = """
+MATCH path1=(n1)<-[r1]-(m1)
+MATCH path2=(n1)<-[r2]-(m2)
+WHERE m1 <> m2 AND (NOT "File" IN labels(m1) OR NOT "Socket" IN labels(m2)) 
+AND (r1.state <> 'RaW' AND r1.state <> 'WRITE')
+RETURN path1, path2 LIMIT 1000
 """
 
 
@@ -39,3 +47,13 @@ def get_train_all_triples():
     """
 
     return execute_query(TRIPLE_NODES)
+
+
+def get_negative_data():
+    """
+    Gets all triple nodes which does not match any pattern.
+
+    :return: A BoltStatementResult object
+    """
+
+    return execute_query(NEGATIVE_DATA)

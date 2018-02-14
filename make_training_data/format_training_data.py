@@ -115,7 +115,14 @@ def get_final_datasets():
     """
 
     x, y = format_all_training_data()
-    x_train, y_train = create_balanced_training_set(x, y, 38)
+    _, counts = np.unique(y, return_counts=True)
+
+    if len(counts) == 1:
+        return np.ndarray((0,)), np.ndarray((0,))
+
+    min_count = np.amin(counts)
+    x_train, y_train = create_balanced_training_set(x, y, min_count)
+
     from keras.utils import to_categorical
     y_new = to_categorical(y_train)
     x_new = reshape_training_data(x_train)

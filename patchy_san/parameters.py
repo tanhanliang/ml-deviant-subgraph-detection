@@ -2,7 +2,7 @@
 This file contains all optimisable parameters for the convolutional neural network.
 """
 from optimisable_functions.labeling_fns import get_ts
-from optimisable_functions.hashes import hash_simhash
+from optimisable_functions.hashes import hash_simhash, hash_labels_prop
 
 # w
 FIELD_COUNT = 1
@@ -15,6 +15,8 @@ STRIDE = 3
 
 # input channels
 HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+# HASH_PROPERTIES = ['cmdline', 'name']
+
 
 #a_v
 CHANNEL_COUNT = len(HASH_PROPERTIES)
@@ -31,7 +33,11 @@ PROPERTY_CARDINALITY = {'cmdline': int(1e19), 'name': int(1e19), 'ips': int(1e10
 
 # A hash function used to canonicalise the graph (ie. represent the graph in such a way that
 # isomorphic graphs have the same representation)
-HASH_FN = hash_simhash
+# HASH_FN = hash_simhash
+HASH_FN = hash_labels_prop
+
+# A hash function used to order the receptive fields
+RECEPTIVE_FIELD_HASH = hash_simhash
 
 # A function used to impose an order on the nodes of a graph (ie. to linearise the nodes)
 LABELING_FN = get_ts
@@ -40,9 +46,12 @@ LABELING_FN = get_ts
 # Takes a Dictionary of node_id -> node as input, returns list of nodes
 
 # NORM_FIELD_FN is now imported in patchy_san.make_cnn_input
-# NORM_FIELD_FN = build_node_list_hashing
+# NORM_FIELD_FN = normalise_receptive_field
 
 # Number of classes that model should predict
 CLASS_COUNT = 2
 
-DEFAULT_TENSOR_VAL = 100000
+DEFAULT_TENSOR_VAL = 0
+
+# Clean the data (remove anomalous nodes, consolidate node versions etc) or not
+CLEAN_TRAIN_DATA = False

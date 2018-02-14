@@ -7,6 +7,9 @@ from patchy_san.neighborhood_assembly import get_receptive_field
 from data_processing.preprocessing import build_in_out_edges
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
 from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL
+from patchy_san.graph_normalisation import NODE_TYPE_HASH
+from patchy_san.neighborhood_assembly import label_and_order_nodes
+from patchy_san.graph_normalisation import normalise_receptive_field
 
 
 def iterate(iterator, n):
@@ -25,7 +28,7 @@ def iterate(iterator, n):
     return next(iterator, None)
 
 
-def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
+def build_groups_of_receptive_fields(nodes, edges):
     """
     Extracts as many groups of receptive fields as possible. Each group of fields is considered
     complete once it reaches the maximum field size.
@@ -41,18 +44,10 @@ def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
 
     :param nodes: A Dictionary of node_id -> node
     :param edges: A Dictionary of edge_id -> edge
-    :param norm_field_fn: A function used to build the normalised node list for each field.
-    This function should only take a Dictionary of node_id -> node as input
-    into list of nodes e.g:
-    norm_field_fn = build_node_list_hashing
     :return: A list of lists of lists of nodes, or a list of lists of receptive fields
     """
 
-    if norm_field_fn is None:
-        from patchy_san.neighborhood_assembly import generate_node_list
-        norm_field_fn = generate_node_list
-
-    nodes_list = norm_field_fn(nodes)
+    nodes_list = label_and_order_nodes(nodes)
     groups_of_receptive_fields = []
     norm_fields_list = []
     nodes_iter = iter(nodes_list)
@@ -62,7 +57,7 @@ def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
 
     while root_node is not None:
         r_field_nodes, r_field_edges = get_receptive_field(root_node.id, nodes, incoming_edges)
-        r_field_nodes_list = norm_field_fn(r_field_nodes)
+        r_field_nodes_list = normalise_receptive_field(r_field_nodes)
         norm_fields_list.append(r_field_nodes_list)
         root_node = iterate(nodes_iter, STRIDE)
         norm_fields_count += 1
@@ -76,6 +71,25 @@ def build_groups_of_receptive_fields(nodes, edges, norm_field_fn=None):
     #     groups_of_receptive_fields.append(norm_fields_list)
 
     return groups_of_receptive_fields
+
+
+def normalise_tensor(tensor):
+    """
+    Normalises the tensor by applying computing the following for every element val in
+    the tensor:
+
+    new_val = (val-minimum_value)/(maximum_value-minimum_value)
+
+    where minimum_value and maximum_value are the minimum and maximum values in the tensor.
+
+    :param tensor: A 3d NumPy array
+    :return: A 3d NumPy array
+    """
+
+    min_val = np.min(tensor)
+    max_val = np.max(tensor)
+    normalised_tensor = (tensor-min_val)/(max_val-min_val)
+    return normalised_tensor
 
 
 def build_tensor_naive_hashing(norm_fields_list):
@@ -97,17 +111,23 @@ def build_tensor_naive_hashing(norm_fields_list):
     for fields_idx in range(field_count):
         field = norm_fields_list[fields_idx]
         for field_idx in range(len(field)):
-            node_prop = field[field_idx].properties
+            node = field[field_idx]
+            node_prop = node.properties
             for property_idx in range(CHANNEL_COUNT):
                 prop = HASH_PROPERTIES[property_idx]
                 if prop in node_prop and node_prop[prop] != []:
-                    # TODO: Ask supervisor about better way to do this
                     if prop == 'name':
-                        val = HASH_FN(node_prop[prop][0])
+                        val = HASH_FN(
+                            labels=node.labels,
+                            node_label_hash=NODE_TYPE_HASH,
+                            property=node_prop[prop][0])
                     else:
-                        val = HASH_FN(node_prop[prop])
+                        val = HASH_FN(
+                            labels=node.labels,
+                            node_label_hash=NODE_TYPE_HASH,
+                            property=node_prop[prop])
                 else:
                     val = DEFAULT_TENSOR_VAL
                 tensor[fields_idx][field_idx][property_idx] = val
 
-    return tensor
+    return normalise_tensor(tensor)

@@ -3,7 +3,7 @@ Contains functions to help me debug the cnn.
 """
 
 import keras.backend as backend
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
 
 
 def get_nth_layer_output_fn(model, n):
@@ -39,7 +39,19 @@ def plot_eval_metrics(history):
     :return: nothing
     """
 
-    pyplot.plot(history.history['loss'], label='loss')
-    pyplot.plot(history.history['acc'], label='accuracy')
-    pyplot.legend(loc='upper left')
-    pyplot.show()
+    plt.figure(1)
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'validation'], loc='upper left')
+
+    plt.figure(2)
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'validation'], loc='upper left')
+    plt.show()

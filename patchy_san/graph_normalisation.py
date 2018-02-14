@@ -4,10 +4,10 @@ have nodes ordered similarly (relative ordering of nodes) after being normalised
 """
 
 from data_processing.preprocessing import *
-from patchy_san.parameters import HASH_PROPERTIES, NODE_TYPE_HASH, PROPERTY_CARDINALITY, HASH_FN
+from patchy_san.parameters import HASH_PROPERTIES, NODE_TYPE_HASH, PROPERTY_CARDINALITY, RECEPTIVE_FIELD_HASH
 
 
-def build_node_list_hashing(nodes):
+def normalise_receptive_field(nodes):
     """
     Builds a list of nodes and orders them in ascending order using the hash function
     provided.
@@ -33,7 +33,7 @@ def build_normalised_adj_matrix(results):
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
     remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
 
-    ordered_node_list = build_node_list_hashing(nodes)
+    ordered_node_list = normalise_receptive_field(nodes)
 
     node_count = len(nodes)
     adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
@@ -71,10 +71,9 @@ def compute_hash(node):
         if properties.__contains__(prop):
             if prop == 'name':
                 # A node may have multiple names, use only the first
-                # TODO: Update with better solution after meeting with supervisor
-                prop_hash = HASH_FN(properties[prop][0])
+                prop_hash = RECEPTIVE_FIELD_HASH(property=properties[prop][0])
             else:
-                prop_hash = HASH_FN(properties[prop])
+                prop_hash = RECEPTIVE_FIELD_HASH(property=properties[prop])
             # Take the 4 most significant digits
             hash_value += int(str(abs(prop_hash))[:PROPERTY_CARDINALITY[prop]])
 
