@@ -3,9 +3,36 @@ Contains functions to format the training data into ndarrays that can be used to
 model.
 """
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing
-from make_training_data.filter_training_data import get_training_data
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
+from data_processing.preprocessing import get_nodes_edges_by_result
+from make_training_data.fetch_training_data import get_train_download_file_execute, get_negative_data
 import numpy as np
+
+
+def get_training_data():
+    """
+    Gets instances of a node connecting to a socket and writing to a file. The input
+    BoltStatementResult should describe subgraphs with 3 nodes at maximum.
+
+    :return: A list of tuples of (label, nodes, edges). label is an integer,
+    nodes is a Dictionary of node_id -> node, edges is a Dictionary of edge_id -> edge
+    """
+
+    results = []
+    training_data = []
+    results.append(get_train_download_file_execute())
+    results.append(get_negative_data())
+    label = 0
+
+    for result in results:
+        nodes_edges_list = get_nodes_edges_by_result(result)
+
+        for training_nodes, training_edges in nodes_edges_list:
+            training_data.append((label, training_nodes, training_edges))
+
+        label += 1
+
+    return training_data
 
 
 def format_all_training_data():
