@@ -3,8 +3,7 @@ Contains functions to return lists of subgraphs which matches certain patterns.
 (or does not match any pattern)
 """
 
-from data_processing.preprocessing import build_in_out_edges, get_nodes_edges_by_result
-from make_training_data.training_pattern_checks import matches_download_file_write
+from data_processing.preprocessing import get_nodes_edges_by_result
 from make_training_data.fetch_training_data import get_train_download_file_execute, get_negative_data
 
 

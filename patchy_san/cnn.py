@@ -2,7 +2,7 @@
 The neural network is built here, using Keras with a TensorFlow backend.
 """
 
-from keras.optimizers import sgd, adam
+from keras.optimizers import adam
 from keras.models import Sequential
 from keras.layers import Dense, MaxPooling2D, Convolution2D, Flatten, Dropout
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT

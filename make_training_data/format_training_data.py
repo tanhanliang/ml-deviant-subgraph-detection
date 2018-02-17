@@ -1,4 +1,4 @@
-"""
+"""build_in_out_edges
 Contains functions to format the training data into ndarrays that can be used to train the
 model.
 """

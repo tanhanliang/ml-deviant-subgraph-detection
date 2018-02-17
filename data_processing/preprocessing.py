@@ -270,7 +270,7 @@ def rename_symlinked_files_timestamp(nodes):
                         node.properties['name'] = smallest_ts_node.properties['name']
 
 
-def remove_duplicate_edges(edges, incoming_edges, outgoing_edges):
+def remove_duplicate_edges(edges, outgoing_edges):
     """
     Checks every node's incoming and outgoing edges, and if two edges have the same
     start (for incoming edges) or end (for outgoing edges) nodes, they are removed.
@@ -283,7 +283,6 @@ def remove_duplicate_edges(edges, incoming_edges, outgoing_edges):
     and the neighbor are all the same.
 
     :param edges: A Dictionary of edge_id -> edge
-    :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
     :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
     :return: nothing
     """
@@ -326,7 +325,7 @@ def clean_data(nodes, edges):
     incoming_edges, outgoing_edges = build_in_out_edges(edges)
 
     consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
-    remove_duplicate_edges(edges, incoming_edges, outgoing_edges)
+    remove_duplicate_edges(edges, outgoing_edges)
     remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
     rename_symlinked_files_timestamp(nodes)
 

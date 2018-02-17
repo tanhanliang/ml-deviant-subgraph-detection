@@ -33,11 +33,11 @@ def hash_labels_prop(**data):
 
     node_label_hash = data["node_label_hash"]
     labels = data["labels"]
-    property = data["property"]
+    node_property = data["property"]
 
     hash_value = hash_labels_only(labels=labels, node_label_hash=node_label_hash)
     hash_value *= 1e10
-    hash_value += int(str(hash_simhash(property=property))[:10])
+    hash_value += int(str(hash_simhash(property=node_property))[:10])
     return hash_value
 
 
