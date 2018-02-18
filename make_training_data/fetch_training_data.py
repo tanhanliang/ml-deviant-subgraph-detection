@@ -10,20 +10,20 @@ DOWNLOAD_FILE_WRITE = """
 MATCH path1=(n1)<-[r1]-(:File)
 MATCH path2=(n1)<-[]-(:Socket)
 WHERE (r1.state = 'RaW' OR r1.state = 'WRITE')
-RETURN path1, path2 LIMIT 100000
+RETURN path1, path2 LIMIT 2000
 """
 
 TRIPLE_NODES = """
 MATCH path1=(n1)-[r1]-(m1)
 MATCH path2=(n1)-[r2]-(m2)
 WHERE m1 <> m2
-RETURN path1, path2 LIMIT 100000
+RETURN path1, path2 LIMIT 1000
 """
 
-CONNECT_EXECUTE = """
+PROC_PROC_SOCK = """
 MATCH p1=(process:Process)<-[]-(sock:Socket)
-MATCH p2=(process:Process)<-[bin]-(file:File)
-WHERE bin.state = "BIN" RETURN p1,p2 LIMIT 1000
+MATCH p2=(process:Process)<-[]-(proc:Process)
+RETURN p1,p2 LIMIT 2000
 """
 
 NEGATIVE_DATA = """
@@ -35,7 +35,7 @@ AND (r1.state <> 'RaW' AND r1.state <> 'WRITE')
 AND m1 <> m2 AND (NOT "File" IN labels(m1) OR NOT "Socket" IN labels(m2)) 
 AND (r1.state <> 'BIN') 
 
-RETURN path1, path2 LIMIT 1000
+RETURN path1, path2 LIMIT 2000
 """
 
 
@@ -59,14 +59,14 @@ def get_train_all_triples():
     return execute_query(TRIPLE_NODES)
 
 
-def get_train_connect_execute():
+def get_train_proc_proc_socket():
     """
     Gets all triple nodes where a process connects to a socket and executes a file.
 
     :return: A BoltStatementResult object
     """
 
-    return execute_query(CONNECT_EXECUTE)
+    return execute_query(PROC_PROC_SOCK)
 
 
 def get_negative_data():
