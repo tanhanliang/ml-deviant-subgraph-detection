@@ -68,7 +68,7 @@ def compute_hash(node):
 
     for prop in HASH_PROPERTIES:
         hash_value *= PROPERTY_CARDINALITY[prop]
-        if properties.__contains__(prop):
+        if properties.__contains__(prop) and properties[prop] != []:
             if prop == 'name':
                 # A node may have multiple names, use only the first
                 prop_hash = RECEPTIVE_FIELD_HASH(property=properties[prop][0])
