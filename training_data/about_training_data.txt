@@ -12,4 +12,20 @@ LABELING_FN = get_ts
 CLASS_COUNT = 2
 DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
-Shape = (378, 3, 5, 1)
+x.shape = (378, 3, 5, 1)
+y.shape = (378, 2)
+
+Dataset 2: Process connects to a socket, then writes to a file. Process connects to a socket,
+then executes a file
+Field count = 1
+Field size = 3
+Stride = 3
+HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+HASH_FN = hash_labels_prop
+RECEPTIVE_FIELD_HASH = hash_simhash
+LABELING_FN = get_ts
+CLASS_COUNT = 3
+DEFAULT_TENSOR_VAL = 0
+CLEAN_TRAIN_DATA = False
+x.shape = (126, 3, 5, 1)
+y.shape = (126, 3)
