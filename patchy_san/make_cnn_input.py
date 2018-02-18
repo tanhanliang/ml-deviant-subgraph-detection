@@ -88,6 +88,10 @@ def normalise_tensor(tensor):
 
     min_val = np.min(tensor)
     max_val = np.max(tensor)
+
+    if min_val == max_val:
+        return tensor-min_val
+
     normalised_tensor = (tensor-min_val)/(max_val-min_val)
     return normalised_tensor
 
