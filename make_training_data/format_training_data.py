@@ -5,7 +5,7 @@ model.
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
 from data_processing.preprocessing import get_nodes_edges_by_result
-from make_training_data.fetch_training_data import get_train_download_file_execute, get_negative_data
+import make_training_data.fetch_training_data as fetch
 import numpy as np
 
 
@@ -20,8 +20,9 @@ def get_training_data():
 
     results = []
     training_data = []
-    results.append(get_train_download_file_execute())
-    results.append(get_negative_data())
+    results.append(fetch.get_train_download_file_execute())
+    results.append(fetch.get_train_connect_execute())
+    results.append(fetch.get_negative_data())
     label = 0
 
     for result in results:

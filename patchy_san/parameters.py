@@ -49,7 +49,7 @@ LABELING_FN = get_ts
 # NORM_FIELD_FN = normalise_receptive_field
 
 # Number of classes that model should predict
-CLASS_COUNT = 2
+CLASS_COUNT = 3
 
 DEFAULT_TENSOR_VAL = 0
 

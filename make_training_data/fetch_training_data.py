@@ -20,11 +20,21 @@ WHERE m1 <> m2
 RETURN path1, path2 LIMIT 100000
 """
 
+CONNECT_EXECUTE = """
+MATCH p1=(process:Process)<-[]-(sock:Socket)
+MATCH p2=(process:Process)<-[bin]-(file:File)
+WHERE bin.state = "BIN" RETURN p1,p2 LIMIT 1000
+"""
+
 NEGATIVE_DATA = """
 MATCH path1=(n1)<-[r1]-(m1)
 MATCH path2=(n1)<-[r2]-(m2)
 WHERE m1 <> m2 AND (NOT "File" IN labels(m1) OR NOT "Socket" IN labels(m2)) 
 AND (r1.state <> 'RaW' AND r1.state <> 'WRITE')
+
+AND m1 <> m2 AND (NOT "File" IN labels(m1) OR NOT "Socket" IN labels(m2)) 
+AND (r1.state <> 'BIN') 
+
 RETURN path1, path2 LIMIT 1000
 """
 
@@ -47,6 +57,16 @@ def get_train_all_triples():
     """
 
     return execute_query(TRIPLE_NODES)
+
+
+def get_train_connect_execute():
+    """
+    Gets all triple nodes where a process connects to a socket and executes a file.
+
+    :return: A BoltStatementResult object
+    """
+
+    return execute_query(CONNECT_EXECUTE)
 
 
 def get_negative_data():
