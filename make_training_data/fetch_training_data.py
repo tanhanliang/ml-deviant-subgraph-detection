@@ -26,14 +26,13 @@ MATCH p2=(process:Process)<-[]-(proc:Process)
 RETURN p1,p2 LIMIT 2000
 """
 
-NEGATIVE_DATA = """
+NEGATIVE_DATA_TRIPLES = """
 MATCH path1=(n1)<-[r1]-(m1)
 MATCH path2=(n1)<-[r2]-(m2)
 WHERE m1 <> m2 AND (NOT "File" IN labels(m1) OR NOT "Socket" IN labels(m2)) 
 AND (r1.state <> 'RaW' AND r1.state <> 'WRITE')
 
-AND m1 <> m2 AND (NOT "File" IN labels(m1) OR NOT "Socket" IN labels(m2)) 
-AND (r1.state <> 'BIN') 
+AND m1 <> m2 AND (NOT "Process" IN labels(m1) OR NOT "Socket" IN labels(m2)) 
 
 RETURN path1, path2 LIMIT 2000
 """
@@ -76,4 +75,4 @@ def get_negative_data():
     :return: A BoltStatementResult object
     """
 
-    return execute_query(NEGATIVE_DATA)
+    return execute_query(NEGATIVE_DATA_TRIPLES)
