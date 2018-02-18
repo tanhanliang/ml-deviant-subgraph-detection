@@ -37,6 +37,24 @@ AND m1 <> m2 AND (NOT "Process" IN labels(m1) OR NOT "Socket" IN labels(m2))
 RETURN path1, path2 LIMIT 2000
 """
 
+DOWNLOAD_FILE_WRITE_EXECUTE = """
+MATCH path1=(process:Process)<-[write]-(:File)
+MATCH path2=(process:Process)<-[]-(:Socket)
+MATCH path3=(process:Process)<-[bin]-(:File)
+WHERE write.state = 'WRITE' AND bin.state = "BIN"
+RETURN path1,path2,path3 LIMIT 1000
+"""
+
+NEGATIVE_DATA_4_NODES = """
+MATCH path1=(node1)<-[r1]-(node2)
+MATCH path2=(node1)<-[r2]-(node3)
+MATCH path3=(node1)<-[r3]-(node4)
+WHERE NOT "Process" IN labels(node1) OR NOT "FILE" IN labels(node2) 
+OR NOT "Socket" IN labels(node3) OR NOT "FILE" IN labels(node4) OR r1.state <> "WRITE"
+OR r3.state <> "BIN"
+RETURN path1,path2,path3 LIMIT 1000
+"""
+
 
 def get_train_download_file_execute():
     """
@@ -68,7 +86,7 @@ def get_train_proc_proc_socket():
     return execute_query(PROC_PROC_SOCK)
 
 
-def get_negative_data():
+def get_negative_data_triples():
     """
     Gets all triple nodes which does not match any pattern.
 
@@ -76,3 +94,24 @@ def get_negative_data():
     """
 
     return execute_query(NEGATIVE_DATA_TRIPLES)
+
+
+def get_download_file_write_execute():
+    """
+    Gets all 4-node combinations where a process connects to a socket, downloads a file,
+    and executes a file (probably not be the same file that was downloaded).
+
+    :return: A BoltStatementResult object
+    """
+
+    return execute_query(DOWNLOAD_FILE_WRITE_EXECUTE)
+
+
+def get_negative_data_4_nodes():
+    """
+    Gets all 4-node combinations which do not match any pattern.
+
+    :return: A BoltStatementResult object
+    """
+
+    return execute_query(NEGATIVE_DATA_4_NODES)

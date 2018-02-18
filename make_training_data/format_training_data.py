@@ -20,9 +20,8 @@ def get_training_data():
 
     results = []
     training_data = []
-    results.append(fetch.get_train_download_file_execute())
-    results.append(fetch.get_train_proc_proc_socket())
-    results.append(fetch.get_negative_data())
+    results.append(fetch.get_download_file_write_execute())
+    results.append(fetch.get_negative_data_4_nodes())
     label = 0
 
     for result in results:
