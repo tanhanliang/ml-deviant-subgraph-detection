@@ -29,3 +29,17 @@ DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
 x.shape = (6000, 3, 5, 1)
 y.shape = (6000, 3)
+
+Dataset 3: Process connects to a socket, then writes to a file, then executes a file.
+Field count = 1
+Field size = 4
+Stride = 4
+HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+HASH_FN = hash_labels_prop
+RECEPTIVE_FIELD_HASH = hash_simhash
+LABELING_FN = get_ts
+CLASS_COUNT = 2
+DEFAULT_TENSOR_VAL = 0
+CLEAN_TRAIN_DATA = False
+x.shape = (2000, 4, 5, 1)
+y.shape = (2000, 2)
