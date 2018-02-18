@@ -27,5 +27,5 @@ LABELING_FN = get_ts
 CLASS_COUNT = 3
 DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
-x.shape = (126, 3, 5, 1)
-y.shape = (126, 3)
+x.shape = (6000, 3, 5, 1)
+y.shape = (6000, 3)
