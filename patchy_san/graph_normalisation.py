@@ -3,20 +3,19 @@ Contains functions to normalise graph nodes in a linear ordering such that simil
 have nodes ordered similarly (relative ordering of nodes) after being normalised.
 """
 
-from data_processing.preprocessing import *
 from patchy_san.parameters import HASH_PROPERTIES, NODE_TYPE_HASH, PROPERTY_CARDINALITY, RECEPTIVE_FIELD_HASH
 
 
-def normalise_receptive_field(nodes):
+def normalise_receptive_field(graph):
     """
     Builds a list of nodes and orders them in ascending order using the hash function
     provided.
 
-    :param nodes: A Dictionary of node_id -> node
+    :param graph: A Graph object
     :return: A list of nodes ordered using the hash fn.
     """
 
-    node_list = list(nodes.values())
+    node_list = list(graph.nodes.values())
     return sorted(node_list, key=lambda node: compute_hash(node))
 
 

@@ -45,11 +45,11 @@ class TestPreprocessingFns(unittest.TestCase):
         node_list = [MockNode(1), MockNode(2), MockNode(3)]
         edge_list = [MockEdge(1), MockEdge(2), MockEdge(3)]
         data = MockBoltStatementResult(node_list, edge_list)
-        nodes, edges = get_nodes_edges(data)
+        graph = get_graph(data)
 
         for node_id in range(1, 4):
-            self.assertEquals(node_id, nodes[node_id].id)
-            self.assertEquals(node_id, edges[node_id].id)
+            self.assertEquals(node_id, graph.nodes[node_id].id)
+            self.assertEquals(node_id, graph.edges[node_id].id)
 
     def test_consolidate_node_versions(self):
         nodes = {1: MockNode(1), 2: MockNode(2), 3: MockNode(3), 4: MockNode(4)}
@@ -57,11 +57,12 @@ class TestPreprocessingFns(unittest.TestCase):
                  2: MockEdge(2, 2, 3, 'GLOB_OBJ_PREV'),
                  3: MockEdge(3, 3, 4, 'META_PREV')}
         incoming_edges, outgoing_edges = build_in_out_edges(edges)
-        consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
+        graph = Graph(nodes, edges, incoming_edges, outgoing_edges)
+        consolidate_node_versions(graph)
 
-        self.assertTrue(len(nodes) == 1)
-        self.assertTrue(nodes[1].id == 1)
-        self.assertTrue(len(edges) == 0)
+        self.assertTrue(len(graph.nodes) == 1)
+        self.assertTrue(graph.nodes[1].id == 1)
+        self.assertTrue(len(graph.edges) == 0)
 
     def test_build_in_out_edges(self):
         edges = {1: MockEdge(1, 1, 2), 2: MockEdge(2, 1, 3), 3: MockEdge(3, 1, 4)}
@@ -79,23 +80,26 @@ class TestPreprocessingFns(unittest.TestCase):
                  3: MockNode(3, {'anomalous': False}), 4: MockNode(4, {'anomalous': False})}
         edges = {1: MockEdge(1, 1, 2), 2: MockEdge(2, 2, 3), 3: MockEdge(3, 3, 4)}
         incoming_edges, outgoing_edges = build_in_out_edges(edges)
-        remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
+        graph = Graph(nodes, edges, incoming_edges, outgoing_edges)
+        remove_anomalous_nodes_edges(graph)
 
-        self.assertTrue(len(nodes) == 2)
-        self.assertTrue(len(edges) == 1)
-        self.assertTrue(edges[3].start == 3 and edges[3].end == 4)
-        self.assertTrue(nodes[3].id == 3 and nodes[4].id == 4)
+        self.assertTrue(len(graph.nodes) == 2)
+        self.assertTrue(len(graph.edges) == 1)
+        self.assertTrue(graph.edges[3].start == 3 and edges[3].end == 4)
+        self.assertTrue(graph.nodes[3].id == 3 and nodes[4].id == 4)
 
     def test_rename_symlinked_files_timestamp(self):
         nodes = {1: MockNode(1, {'uuid': 10, 'timestamp': 100, 'name': '/etc/lib.so.6'}),
                  2: MockNode(2, {'uuid': 10, 'timestamp': 101, 'name': '/etc/lib.so.1234'}),
                  3: MockNode(3, {'uuid': 11, 'timestamp': 99, 'name': '/var/test'})}
-        rename_symlinked_files_timestamp(nodes)
+        graph = Graph(nodes, {}, {}, {})
+        rename_symlinked_files_timestamp(graph)
 
-        self.assertTrue(len(nodes) == 3)
-        self.assertTrue(nodes[1].properties['name'] == '/etc/lib.so.6')
-        self.assertTrue(nodes[2].properties['name'] == '/etc/lib.so.6')
-        self.assertTrue(nodes[3].properties['name'] == '/var/test')
+        self.assertTrue(len(graph.nodes) == 3)
+        self.assertTrue(graph.nodes[1].properties['name'] == '/etc/lib.so.6')
+        self.assertTrue(graph.nodes[2].properties['name'] == '/etc/lib.so.6')
+        self.assertTrue(graph.nodes[3].properties['name'] == '/var/test')
+
 
 def main():
     unittest.main()

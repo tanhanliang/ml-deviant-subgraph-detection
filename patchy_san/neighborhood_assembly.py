@@ -4,27 +4,30 @@ algorithm.
 """
 import queue
 from patchy_san.parameters import MAX_FIELD_SIZE as SIZE
+from data_processing.graphs import Graph
+from data_processing.preprocessing import build_in_out_edges
 
 
-def label_and_order_nodes(nodes, transform_fn=None):
+def label_and_order_nodes(graph, transform_fn=None):
     """
     Sorts a list of nodes by some labeling function, for example sorting by node timestamp.
 
     :param transform_fn: A function which takes a node as an argument and returns some value
     to be used for sorting
-    :param nodes: A Dictionary of node_id -> node
+    :param graph: A Graph object
     :return: A list of sorted nodes
     """
+
     if transform_fn is None:
         from patchy_san.parameters import LABELING_FN
         transform_fn = LABELING_FN
 
-    nodes_list = list(nodes.values())
+    nodes_list = list(graph.nodes.values())
     nodes_list = sorted(nodes_list, key=transform_fn)
     return nodes_list
 
 
-def get_receptive_field(root_id, nodes, incoming_edges):
+def get_receptive_field(root_id, graph):
     """
     Given a root node, performs breadth-first search, adding explored nodes to a Set.
     If number of reachable nodes is less than size, no padding is done.
@@ -38,8 +41,7 @@ def get_receptive_field(root_id, nodes, incoming_edges):
     TODO: Find way to implement ordering such that nodes will not be selected arbitrarily.
 
     :param root_id: The id of the start node
-    :param nodes: A Dictionary of node_id -> node
-    :param incoming_edges: A Dictionary of node_id -> list of outgoing edges
+    :param graph: A Graph object
     :return: A tuple of (node_id -> node, edge_id -> edge) which represents the
     receptive field (which is a subgraph)
     """
@@ -48,6 +50,9 @@ def get_receptive_field(root_id, nodes, incoming_edges):
     edges_dict = {}
     marked_set = set()
     neighborhood_size = 0
+    nodes = graph.nodes
+    incoming_edges = graph.incoming_edges
+
     # A queue that contains a tuple of (node, edge) where edge is the edge to the previous
     # explored node
     node_edge_q = queue.Queue()
@@ -76,4 +81,5 @@ def get_receptive_field(root_id, nodes, incoming_edges):
                         node_edge_q.put((neighbor_node, edge))
                         marked_set.add(neighbor_node)
 
-    return nodes_dict, edges_dict
+    new_incoming_edges, new_outgoing_edges = build_in_out_edges(edges_dict)
+    return Graph(nodes_dict, edges_dict, new_incoming_edges, new_outgoing_edges)

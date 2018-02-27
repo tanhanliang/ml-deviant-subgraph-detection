@@ -4,17 +4,18 @@ This module contains functions to pre-process(clean) graph data from Neo4j into 
 
 import sys
 from patchy_san.parameters import CLEAN_TRAIN_DATA
+from data_processing.graphs import Graph
 
 VERSION_TYPES = ['GLOB_OBJ_PREV', 'META_PREV', 'PROC_OBJ_PREV']
 
 
-def get_nodes_edges(results):
+def get_graph(results):
     """
-    Builds a Dictionary of node_id -> node and a Dictionary of edge_id -> edge from a
-    BoltStatementResult object which is the raw result of a neo4j query.
+    Builds a graph object from a BoltStatementResult object which is the
+    raw result of a neo4j query.
 
     :param results: A BoltStatementResult object describing all paths in the query
-    :return: A tuple of (Dictionary, Dictionary)
+    :return: A Graph object
     """
 
     nodes = {}
@@ -27,18 +28,19 @@ def get_nodes_edges(results):
             for edge in result[path_name].relationships:
                 edges[edge.id] = edge
 
-    return nodes, edges
+    incoming_edges, outgoing_edges = build_in_out_edges(edges)
+    return Graph(nodes, edges, incoming_edges, outgoing_edges)
 
 
-def get_nodes_edges_by_result(results):
+def get_graphs_by_result(results):
     """
-    Builds a list of tuples of (node_id -> node, edge_id -> edge) for every result in the provided
+    Builds a list of Graphs for every result in the provided
     BoltStatementResult. Also cleans the data. If the result does not lose any nodes as a result
     of the cleaning (the result is clean) then the nodes and edges which represent it are added
     to the list of tuples.
 
     :param results: A BoltStatementResult object describing all paths in the query
-    :return: A list of (Dictionary, Dictionary)
+    :return: A list of Graphs
     """
     result_list = []
     deleted = 0
@@ -53,18 +55,21 @@ def get_nodes_edges_by_result(results):
                 edges[edge.id] = edge
 
         node_count = len(nodes)
+        incoming_edges, outgoing_edges = build_in_out_edges(edges)
+        graph = Graph(nodes, edges, incoming_edges, outgoing_edges)
+
         if CLEAN_TRAIN_DATA:
-            clean_data(nodes, edges)
+            clean_data(graph)
 
         if node_count == len(nodes):
-            result_list.append((nodes, edges))
+            result_list.append(graph)
         else:
             deleted += 1
     print("Deleted: " + str(deleted))
     return result_list
 
 
-def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
+def consolidate_node_versions(graph):
     """
     Given a Dictionary of node_id -> node and a Dictionary of edge_id -> edge,
     for all adjacent edges and nodes (node1)-[edge]->(node2) where
@@ -75,12 +80,13 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
     2 nodes. Currently this is not a problem because the adjacency matrix produced from
     the set of edges and nodes cannot contain duplicated edges.
 
-    :param nodes: A Dictionary of node_id to Neo4j Nodes
-    :param edges: A Dictionary of edge_id to edges
-    :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
-    :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
+    :param graph: A Graph object
     :return: nothing
     """
+    nodes = graph.nodes
+    edges = graph.edges
+    incoming_edges = graph.incoming_edges
+    outgoing_edges = graph.outgoing_edges
 
     # Glue incoming and outgoing edges from the old node to the master node
     for edge_id in list(edges.keys()):
@@ -97,7 +103,7 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
                     # This assumes that there are no nodes connected by two edges in
                     # both directions
                     outgoing_edges[master_node_id] += [outgoing_edge]
-                outgoing_edges.pop(removed_node_id)
+                    outgoing_edges.pop(removed_node_id)
 
             if removed_node_id in incoming_edges.keys():
                 for incoming_edge in incoming_edges[removed_node_id]:
@@ -106,11 +112,11 @@ def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
                         # The key master_node_id may not exist
                         if master_node_id not in incoming_edges:
                             incoming_edges[master_node_id] = []
-                        incoming_edges[master_node_id] += [incoming_edge]
-                incoming_edges.pop(removed_node_id)
+                            incoming_edges[master_node_id] += [incoming_edge]
+                            incoming_edges.pop(removed_node_id)
 
-            nodes.pop(removed_node_id)
-            edges.pop(edge_id)
+                nodes.pop(removed_node_id)
+                edges.pop(edge_id)
 
 
 def build_in_out_edges(edges):
@@ -140,7 +146,7 @@ def build_in_out_edges(edges):
     return incoming_edges, outgoing_edges
 
 
-def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
+def remove_anomalous_nodes_edges(graph):
     """
     Removes all nodes from the Dictionaries of node_id -> node and edge_id -> edge
     where node.anomalous = true. This is an artefact of the provenance capture process
@@ -148,20 +154,17 @@ def remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges):
 
     Also removes nodes which do not have a timestamp, as this is also anomalous.
 
-    :param nodes: A Dictionary of node_id -> node
-    :param edges: A Dictionary of edge_id -> edge
-    :param incoming_edges: A Dictionary of node_id -> list of edges (incoming edges to that node)
-    :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
+    :param graph: A Graph object
     :return: nothing
     """
 
-    for node_id in list(nodes.keys()):
-        node_prop = nodes[node_id].properties
+    for node_id in list(graph.nodes.keys()):
+        node_prop = graph.nodes[node_id].properties
         if node_prop.__contains__('anomalous') and node_prop['anomalous'] or \
                 'timestamp' not in node_prop:
-            pop_related_edges(incoming_edges, edges, node_id)
-            pop_related_edges(outgoing_edges, edges, node_id)
-            nodes.pop(node_id)
+            pop_related_edges(graph.incoming_edges, graph.edges, node_id)
+            pop_related_edges(graph.outgoing_edges, graph.edges, node_id)
+            graph.nodes.pop(node_id)
 
 
 def pop_related_edges(node_edge_dict, edges, node_id):
@@ -183,18 +186,18 @@ def pop_related_edges(node_edge_dict, edges, node_id):
         node_edge_dict.pop(node_id)
 
 
-def group_nodes_by_uuid(nodes):
+def group_nodes_by_uuid(graph):
     """
     Creates a dictionary of uuid -> Set of nodes. The set contains all nodes with that uuid.
     Nodes with no uuid are not included.
 
-    :param nodes: A Dictionary of node_id -> node
+    :param graph: A Graph object
     :return: A Dictionary of uuid -> Set of nodes
     """
 
     uuid_to_nodes = {}
 
-    for _, node in nodes.items():
+    for _, node in graph.nodes.items():
         node_prop = node.properties
         if 'uuid' in node_prop:
             uuid = node_prop['uuid']
@@ -205,18 +208,18 @@ def group_nodes_by_uuid(nodes):
     return uuid_to_nodes
 
 
-def rename_symlinked_files_timestamp(nodes):
+def rename_symlinked_files_timestamp(graph):
     """
     For all file nodes with the same uuid, renames them with the name of the node
     with the smallest timestamp (oldest node). Nodes with no name are not renamed.
     Nodes with no timestamp are still renamed (all nodes should have a timestamp).
     If multiple nodes have the same timestamp, a name is selected arbitrarily.
 
-    :param nodes: A Dictionary of node_id -> node
+    :param graph: A Graph object
     :return: Nothing
     """
 
-    uuid_to_nodes = group_nodes_by_uuid(nodes)
+    uuid_to_nodes = group_nodes_by_uuid(graph)
 
     for uuid, nodes_set in uuid_to_nodes.items():
         if len(nodes_set) > 1:
@@ -237,7 +240,7 @@ def rename_symlinked_files_timestamp(nodes):
                         node.properties['name'] = smallest_ts_node.properties['name']
 
 
-def remove_duplicate_edges(edges, outgoing_edges):
+def remove_duplicate_edges(graph):
     """
     Checks every node's incoming and outgoing edges, and if two edges have the same
     start (for incoming edges) or end (for outgoing edges) nodes, they are removed.
@@ -249,10 +252,12 @@ def remove_duplicate_edges(edges, outgoing_edges):
     If nodes representing past versions have a common neighbor, then the edge type between them
     and the neighbor are all the same.
 
-    :param edges: A Dictionary of edge_id -> edge
-    :param outgoing_edges: A Dictionary of node_id -> list of edges (outgoing edges from that node)
+    :param graph: A Graph object
     :return: nothing
     """
+
+    edges = graph.edges
+    outgoing_edges = graph.outgoing_edges
 
     for node_id in outgoing_edges.keys():
         edge_end_ids = set()
@@ -274,26 +279,20 @@ def clean_data_raw(results):
     is a Dictionary of edge_id -> edge
     """
 
-    nodes, edges = get_nodes_edges(results)
-    return clean_data(nodes, edges)
+    graph = get_graph(results)
+    return clean_data(graph)
 
 
-def clean_data(nodes, edges):
+def clean_data(graph):
     """
     Cleans the data by removing anomalous nodes,
     consolidating node versions and renaming symlinked files.
 
-    :param nodes: A Dictionary of node-id -> node
-    :param edges: A Dictionary of edge_id -> edge
-    :return: A tuple of (nodes, edges). nodes is a Dictionary of node_id -> node, edges
-    is a Dictionary of edge_id -> edge
+    :param graph: A Graph object
+    :return: Nothing
     """
 
-    incoming_edges, outgoing_edges = build_in_out_edges(edges)
-
-    consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
-    remove_duplicate_edges(edges, outgoing_edges)
-    remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
-    rename_symlinked_files_timestamp(nodes)
-
-    return nodes, edges
+    consolidate_node_versions(graph)
+    remove_duplicate_edges(graph)
+    remove_anomalous_nodes_edges(graph)
+    rename_symlinked_files_timestamp(graph)

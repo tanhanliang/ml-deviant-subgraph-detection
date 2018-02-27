@@ -4,7 +4,6 @@ Contains functions to generate input in the form of NumPy arrays for the CNN.
 
 import numpy as np
 from patchy_san.neighborhood_assembly import get_receptive_field
-from data_processing.preprocessing import build_in_out_edges
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
 from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL
 from patchy_san.graph_normalisation import NODE_TYPE_HASH
@@ -28,7 +27,7 @@ def iterate(iterator, n):
     return next(iterator, None)
 
 
-def build_groups_of_receptive_fields(nodes, edges):
+def build_groups_of_receptive_fields(graph):
     """
     Extracts as many groups of receptive fields as possible. Each group of fields is considered
     complete once it reaches the maximum field size.
@@ -42,22 +41,20 @@ def build_groups_of_receptive_fields(nodes, edges):
     Each list of receptive fields makes a group. This function returns all groups that could be
     constructed.
 
-    :param nodes: A Dictionary of node_id -> node
-    :param edges: A Dictionary of edge_id -> edge
+    :param graph: A Graph object
     :return: A list of lists of lists of nodes, or a list of lists of receptive fields
     """
 
-    nodes_list = label_and_order_nodes(nodes)
+    nodes_list = label_and_order_nodes(graph)
     groups_of_receptive_fields = []
     norm_fields_list = []
     nodes_iter = iter(nodes_list)
     root_node = next(nodes_iter, None)
-    incoming_edges, outgoing_edges = build_in_out_edges(edges)
     norm_fields_count = 0
 
     while root_node is not None:
-        r_field_nodes, r_field_edges = get_receptive_field(root_node.id, nodes, incoming_edges)
-        r_field_nodes_list = normalise_receptive_field(r_field_nodes)
+        receptive_field_graph = get_receptive_field(root_node.id, graph)
+        r_field_nodes_list = normalise_receptive_field(receptive_field_graph)
         norm_fields_list.append(r_field_nodes_list)
         root_node = iterate(nodes_iter, STRIDE)
         norm_fields_count += 1

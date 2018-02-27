@@ -4,7 +4,7 @@ model.
 """
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
-from data_processing.preprocessing import get_nodes_edges_by_result
+from data_processing.preprocessing import get_graphs_by_result
 import make_training_data.fetch_training_data as fetch
 import numpy as np
 
@@ -14,8 +14,7 @@ def get_training_data():
     Gets instances of a node connecting to a socket and writing to a file. The input
     BoltStatementResult should describe subgraphs with 3 nodes at maximum.
 
-    :return: A list of tuples of (label, nodes, edges). label is an integer,
-    nodes is a Dictionary of node_id -> node, edges is a Dictionary of edge_id -> edge
+    :return: A list of tuplesof (label, graph). label is an integer, graph is a Graph object/
     """
 
     results = []
@@ -25,10 +24,10 @@ def get_training_data():
     label = 0
 
     for result in results:
-        nodes_edges_list = get_nodes_edges_by_result(result)
+        graph_list = get_graphs_by_result(result)
 
-        for training_nodes, training_edges in nodes_edges_list:
-            training_data.append((label, training_nodes, training_edges))
+        for graph in graph_list:
+            training_data.append((label, graph))
 
         label += 1
 
@@ -52,8 +51,8 @@ def format_all_training_data():
 
     training_data = get_training_data()
 
-    for (label, training_nodes, training_edges) in training_data:
-        receptive_fields_groups = build_groups_of_receptive_fields(training_nodes, training_edges)
+    for (label, graph) in training_data:
+        receptive_fields_groups = build_groups_of_receptive_fields(graph)
         # For training data for most classes there should only be one receptive field group
         for fields_list in receptive_fields_groups:
             training_example_tensor = build_tensor_naive_hashing(fields_list)
