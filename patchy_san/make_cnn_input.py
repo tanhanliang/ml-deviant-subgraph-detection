@@ -10,6 +10,8 @@ from patchy_san.graph_normalisation import NODE_TYPE_HASH
 from patchy_san.neighborhood_assembly import label_and_order_nodes
 from patchy_san.graph_normalisation import normalise_receptive_field
 
+TENSOR_UPPER_LIMIT = 7e11
+TENSOR_LOWER_LIMIT = 0
 
 def iterate(iterator, n):
     """
@@ -83,13 +85,7 @@ def normalise_tensor(tensor):
     :return: A 3d NumPy array
     """
 
-    min_val = np.min(tensor)
-    max_val = np.max(tensor)
-
-    if min_val == max_val:
-        return tensor-min_val
-
-    normalised_tensor = (tensor-min_val)/(max_val-min_val)
+    normalised_tensor = (tensor-TENSOR_LOWER_LIMIT)/(TENSOR_UPPER_LIMIT-TENSOR_LOWER_LIMIT)
     return normalised_tensor
 
 
