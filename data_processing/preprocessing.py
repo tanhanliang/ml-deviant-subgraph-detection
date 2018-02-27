@@ -137,11 +137,16 @@ def build_in_out_edges(edges):
         edge = edges[edge_id]
         if not incoming_edges.__contains__(edge.end):
             incoming_edges[edge.end] = []
-        incoming_edges[edge.end] += [edge]
+        incoming_edges[edge.end].append(edge)
 
         if not outgoing_edges.__contains__(edge.start):
             outgoing_edges[edge.start] = []
-        outgoing_edges[edge.start] += [edge]
+        outgoing_edges[edge.start].append(edge)
+
+    for edge_dict in [incoming_edges, outgoing_edges]:
+        for edge_id in edge_dict:
+            edges = edge_dict[edge_id]
+            edge_dict[edge_id] = sorted(edges, key=lambda x: x.id)
 
     return incoming_edges, outgoing_edges
 
