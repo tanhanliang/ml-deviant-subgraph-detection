@@ -51,26 +51,6 @@ class TestPreprocessingFns(unittest.TestCase):
             self.assertEquals(node_id, nodes[node_id].id)
             self.assertEquals(node_id, edges[node_id].id)
 
-    def test_build_adjacency_matrix(self):
-        node_list = [MockNode(1), MockNode(2), MockNode(3), MockNode(4)]
-        edge_list = [MockEdge(1, 1, 2), MockEdge(2, 2, 3), MockEdge(3, 3, 4)]
-        data = MockBoltStatementResult(node_list, edge_list)
-        adj_matrix = build_adjacency_matrix(data)
-        shape = adj_matrix.matrix.shape
-
-        self.assertEquals(shape, (len(node_list), len(node_list)))
-
-        index_to_id = {}
-        for node_id, index in adj_matrix.id_to_index.items():
-            index_to_id[index] = node_id
-
-        for row in range(shape[0]):
-            for col in range(shape[1]):
-                if adj_matrix.matrix[row, col] == 1:
-                    start_id = index_to_id[row]
-                    end_id = index_to_id[col]
-                    self.assertTrue(end_id-start_id == 1)
-
     def test_consolidate_node_versions(self):
         nodes = {1: MockNode(1), 2: MockNode(2), 3: MockNode(3), 4: MockNode(4)}
         edges = {1: MockEdge(1, 1, 2, 'PROC_OBJ_PREV'),

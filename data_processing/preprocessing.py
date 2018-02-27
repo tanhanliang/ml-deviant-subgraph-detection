@@ -2,9 +2,7 @@
 This module contains functions to pre-process(clean) graph data from Neo4j into a convenient form.
 """
 
-import numpy as np
 import sys
-from data_processing.adj_matrices import AdjacencyMatrix
 from patchy_san.parameters import CLEAN_TRAIN_DATA
 
 VERSION_TYPES = ['GLOB_OBJ_PREV', 'META_PREV', 'PROC_OBJ_PREV']
@@ -64,37 +62,6 @@ def get_nodes_edges_by_result(results):
             deleted += 1
     print("Deleted: " + str(deleted))
     return result_list
-
-
-def build_adjacency_matrix(results):
-    """
-    Builds an adjacency matrix based on a given graph, represented as a BoltStatementResult
-
-    :param results: A BoltStatementResult describing all paths within the graph
-    :return: An adjacency matrix representation for the graph, using a np.matrix
-    """
-
-    nodes, edges = get_nodes_edges(results)
-
-    incoming_edges, outgoing_edges = build_in_out_edges(edges)
-    consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges)
-    remove_anomalous_nodes_edges(nodes, edges, incoming_edges, outgoing_edges)
-
-    node_count = len(nodes)
-    adjacency_matrix = np.matrix(np.zeros(shape=(node_count, node_count), dtype=np.int8))
-    id_to_index = {}
-
-    idx = 0
-    for node_id in nodes.keys():
-        id_to_index[node_id] = idx
-        idx += 1
-
-    for edge_id in edges.keys():
-        start_idx = id_to_index[edges[edge_id].start]
-        end_idx = id_to_index[edges[edge_id].end]
-        adjacency_matrix[start_idx, end_idx] = 1
-
-    return AdjacencyMatrix(adjacency_matrix, id_to_index, nodes, edges)
 
 
 def consolidate_node_versions(nodes, edges, incoming_edges, outgoing_edges):
