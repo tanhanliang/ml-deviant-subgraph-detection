@@ -133,7 +133,7 @@ def build_tensor_naive_hashing(norm_fields_list):
     return normalise_tensor(tensor)
 
 
-def build_embeddings(graph):
+def build_embedding(graph):
     """
     Given a graph, creates word embeddings for the names of all nodes.
 
@@ -147,22 +147,23 @@ def build_embeddings(graph):
     """
 
     nodes_list = list(graph.nodes.values())
-
-    def get_hash(node):
-        hash_labels_only(labels=node.labels, node_label_hash=NODE_TYPE_HASH)
-
-    sorted_nodes = sorted(nodes_list, key=get_hash)
+    sorted_nodes = sorted(
+        nodes_list,
+        key=lambda x: hash_labels_only(labels=x.labels, node_label_hash=NODE_TYPE_HASH))
     embedding = []
 
     for i in range(MAX_NODES):
         if i < len(sorted_nodes) and "name" in sorted_nodes[i].properties and \
                         sorted_nodes[i].properties["name"] != []:
 
-            name = sorted_nodes[i].properties["name"]
+            # The 'name' property on each node is a list, the current solution is to
+            # take the first element.
+            name = sorted_nodes[i].properties["name"][0]
             encoded_name = one_hot(name, VOCAB_SIZE)
-            embedding += pad_sequences(encoded_name, maxlen=EMBEDDING_LENGTH)
-
+            embedding.append(encoded_name)
         else:
-            embedding += pad_sequences("", maxlen=EMBEDDING_LENGTH)
+            embedding.append([])
 
-    return np.asarray(embedding, dtype=np.int16)
+    padded_embedding = pad_sequences(embedding, maxlen=EMBEDDING_LENGTH)
+    combined_embedding = [num for sublist in padded_embedding for num in sublist]
+    return np.asarray(combined_embedding, dtype=np.int16)
