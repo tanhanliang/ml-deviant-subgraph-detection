@@ -63,5 +63,5 @@ EMBEDDING_DIM = 10
 VOCAB_SIZE = 1000
 MAX_NODES = 4
 x_patchy4.shape = (2000, 4, 5, 1)
-x_embed4.shape = (2000, 4)
+x_embed4.shape = (2000, 40)
 y_train4.shape = (2000, 2)
