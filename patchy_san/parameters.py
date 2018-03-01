@@ -24,7 +24,7 @@ CHANNEL_COUNT = len(HASH_PROPERTIES)
 # every unique combination of node labels will produce unique hash values.
 # The hash value of the node will be computed partially from the addition of node's label values
 NODE_TYPE_HASH = {'Conn': 2, 'File': 4, 'Global': 8, 'Machine': 16, 'Meta': 32, 'Process': 64,
-                  'Socket': 1}
+                  'Socket': 1, 'Pipe': 128}
 
 # Number of digits that can represent the range of values possible for each property
 PROPERTY_CARDINALITY = {'cmdline': int(1e19), 'name': int(1e19), 'ips': int(1e10),
