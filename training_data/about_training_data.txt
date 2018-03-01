@@ -12,8 +12,8 @@ LABELING_FN = get_ts
 CLASS_COUNT = 2
 DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
-x.shape = (378, 3, 5, 1)
-y.shape = (378, 2)
+x_train1.shape = (378, 3, 5, 1)
+y_train1.shape = (378, 2)
 
 Dataset 2: Process connects to a socket, then writes to a file. Process connects to a socket,
 then executes a file
@@ -27,8 +27,8 @@ LABELING_FN = get_ts
 CLASS_COUNT = 3
 DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
-x.shape = (6000, 3, 5, 1)
-y.shape = (6000, 3)
+x_train2.shape = (6000, 3, 5, 1)
+y_train2.shape = (6000, 3)
 
 Dataset 3: Process connects to a socket, then writes to a file, then executes a file.
 Field count = 1
@@ -41,5 +41,27 @@ LABELING_FN = get_ts
 CLASS_COUNT = 2
 DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
-x.shape = (2000, 4, 5, 1)
-y.shape = (2000, 2)
+x_train3.shape = (2000, 4, 5, 1)
+y_train3.shape = (2000, 2)
+
+Dataset 4: Process connects to a socket, writes to a file starting with '/usr' and
+reads the file named '/etc/libmap.conf'. The negative data for this dataset is exactly
+the same as the pattern described above, except the file read by the process is not named
+'/etc/libmap.conf'.
+Field count = 1
+Field size = 4
+Stride = 4
+HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+HASH_FN = hash_labels_prop
+RECEPTIVE_FIELD_HASH = hash_simhash
+LABELING_FN = get_ts
+CLASS_COUNT = 2
+DEFAULT_TENSOR_VAL = 0
+CLEAN_TRAIN_DATA = False
+EMBEDDING_LENGTH = 10
+EMBEDDING_DIM = 10
+VOCAB_SIZE = 1000
+MAX_NODES = 4
+x_patchy4.shape = (2000, 4, 5, 1)
+x_embed4.shape = (2000, 4)
+y_train4.shape = (2000, 2)

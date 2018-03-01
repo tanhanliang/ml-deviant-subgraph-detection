@@ -58,8 +58,8 @@ NEGATIVE_DATA_4_NODES = """
 MATCH path1=(process:Process)<-[conn]-(sock:Socket)
 MATCH path2=(process:Process)<-[read]-(file:File)
 MATCH path3=(process:Process)<-[exec]-(file2:File)
-WHERE read.state="READ" AND exec.state="BIN" AND file <> file2 AND (NOT file2.name[0] =~ '/usr.*'
-OR NOT file.name[0] = '/etc/libmap.conf')
+WHERE read.state="READ" AND exec.state="BIN" AND file <> file2 AND (file2.name[0] =~ '/usr.*'
+AND NOT file.name[0] = '/etc/libmap.conf')
 RETURN path1,path2,path3 LIMIT 1000
 """
 
