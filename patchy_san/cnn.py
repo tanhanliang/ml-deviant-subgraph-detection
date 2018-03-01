@@ -3,7 +3,7 @@ The neural network is built here, using Keras with a TensorFlow backend.
 """
 
 from keras.optimizers import adam
-from keras.models import Model
+from keras.models import Model, Sequential
 from keras.layers import Dense, MaxPooling2D, Convolution2D, Flatten, Dropout, Input, Embedding
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
 from patchy_san.parameters import EMBEDDING_LENGTH, EMBEDDING_DIM, MAX_NODES, VOCAB_SIZE
@@ -50,6 +50,38 @@ def build_model(learning_rate=0.005, activations="sigmoid"):
     dropout1 = Dropout(0.1, name='dropout1')(dense2)
     output = Dense(CLASS_COUNT, activation=activations, name='output')(dropout1)
     model = Model(inputs=[patchy_san_input, emb_input], outputs=output)
+    optimiser = adam(lr=learning_rate)
+    model.compile(loss='mean_squared_error',
+                  optimizer=optimiser,
+                  metrics=['accuracy'])
+    return model
+
+
+def build_single_input_model(learning_rate=0.005, activations="sigmoid"):
+    """
+    Builds the old, single-input model without word embeddings. This is here so that
+    I can run experiments on the old model.
+
+    The training data generation framework may not support generation of training data
+    for this old model, but you can retrieve stored training data. Remember to reshape
+    it correctly, as described in the 'training_data/about_training_data.txt' file!
+
+    :param learning_rate: A float
+    :param activations: A string. The last layer's activation function
+    :return: A keras Model
+    """
+
+    input_shape = (FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
+
+    model = Sequential()
+    model.add(Convolution2D(activation='relu', filters=8, kernel_size=(1, 2), input_shape=input_shape))
+    model.add(MaxPooling2D(pool_size=(1, 2)))
+    model.add(Dropout(0.1))
+    model.add(Flatten())
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(8, activation='relu'))
+    model.add(Dropout(0.1))
+    model.add(Dense(CLASS_COUNT, activation=activations))
     optimiser = adam(lr=learning_rate)
     model.compile(loss='mean_squared_error',
                   optimizer=optimiser,
