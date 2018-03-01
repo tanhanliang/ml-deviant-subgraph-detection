@@ -19,7 +19,7 @@ def get_training_data():
 
     results = []
     training_data = []
-    results.append(fetch.get_download_file_write_execute())
+    results.append(fetch.get_read_exec_conn())
     results.append(fetch.get_negative_data_4_nodes())
     label = 0
 

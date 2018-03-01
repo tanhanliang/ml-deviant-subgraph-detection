@@ -45,13 +45,21 @@ WHERE write.state = 'WRITE' AND bin.state = "BIN"
 RETURN path1,path2,path3 LIMIT 1000
 """
 
+READ_EXEC_CONN = """
+MATCH path1=(process:Process)<-[conn]-(sock:Socket)
+MATCH path2=(process:Process)<-[read]-(file:File)
+MATCH path3=(process:Process)<-[exec]-(file2:File)
+WHERE read.state="READ" AND exec.state="BIN" AND file2.name[0] =~ '/usr.*' AND file <> file2
+AND file.name[0] = '/etc/libmap.conf'
+RETURN path1,path2,path3 LIMIT 1000
+"""
+
 NEGATIVE_DATA_4_NODES = """
-MATCH path1=(node1)<-[r1]-(node2)
-MATCH path2=(node1)<-[r2]-(node3)
-MATCH path3=(node1)<-[r3]-(node4)
-WHERE NOT "Process" IN labels(node1) OR NOT "FILE" IN labels(node2) 
-OR NOT "Socket" IN labels(node3) OR NOT "FILE" IN labels(node4) OR r1.state <> "WRITE"
-OR r3.state <> "BIN"
+MATCH path1=(process:Process)<-[conn]-(sock:Socket)
+MATCH path2=(process:Process)<-[read]-(file:File)
+MATCH path3=(process:Process)<-[exec]-(file2:File)
+WHERE read.state="READ" AND exec.state="BIN" AND file <> file2 AND (NOT file2.name[0] =~ '/usr.*'
+OR NOT file.name[0] = '/etc/libmap.conf')
 RETURN path1,path2,path3 LIMIT 1000
 """
 
@@ -105,6 +113,17 @@ def get_download_file_write_execute():
     """
 
     return execute_query(DOWNLOAD_FILE_WRITE_EXECUTE)
+
+
+def get_read_exec_conn():
+    """
+    Gets 4-node instances where a process connects to a socket, reads a file named '/etc/libmap.conf'
+    and executes a file starting with '/usr'.
+
+    :return: A BoltStatementResult object
+    """
+
+    return execute_query(READ_EXEC_CONN)
 
 
 def get_negative_data_4_nodes():
