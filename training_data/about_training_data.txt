@@ -78,7 +78,8 @@ Dataset 5: Process connects to a socket, writes to a file starting with '/usr' a
 reads the file named '/etc/libmap.conf'. A quarter of the negative data for this dataset
 is exactly the same as the pattern described above, except the file read by the process
 is not named '/etc/libmap.conf'. The other quarter of the negative data is any random 4
-node pattern that does not match the pattern described above.
+node pattern that does not match the pattern described above, except that it has a node named
+'/etc/libmap.conf' and a node starting with '/usr'.
 
 This dataset is here to test if the model can simultaneously use
 information from both the patchy-san inputs and the word embedding inputs.
