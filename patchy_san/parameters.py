@@ -4,8 +4,6 @@ This file contains all optimisable parameters for the convolutional neural netwo
 from optimisable_functions.labeling_fns import get_ts
 from optimisable_functions.hashes import hash_simhash, hash_labels_prop
 
-MAX_NODES = 4
-
 # w
 FIELD_COUNT = 1
 
@@ -60,5 +58,11 @@ CLEAN_TRAIN_DATA = False
 # The length of embedding for each name
 EMBEDDING_LENGTH = 10
 
+# The number of dimensions to map each word into
+EMBEDDING_DIM = 10
+
 # The number of bins used for the embedding
 VOCAB_SIZE = 1000
+
+# Max nodes in each input graph
+MAX_NODES = 4
