@@ -2,6 +2,7 @@ Each dataset will have at least 2 classes, including 1 'negative' class which co
 data that does not match any pattern.
 
 Dataset 1: Process connects to a socket, then writes to a file.
+
 Field count = 1
 Field size = 3
 Stride = 3
@@ -14,8 +15,10 @@ DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
 x_train1.shape = (378, 3, 5, 1)
 y_train1.shape = (378, 2)
+#######################################################
 
 Dataset 2: Process connects to a socket, then writes to a file. Process connects to a socket,
+
 then executes a file
 Field count = 1
 Field size = 3
@@ -29,8 +32,10 @@ DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
 x_train2.shape = (6000, 3, 5, 1)
 y_train2.shape = (6000, 3)
+#######################################################
 
 Dataset 3: Process connects to a socket, then writes to a file, then executes a file.
+
 Field count = 1
 Field size = 4
 Stride = 4
@@ -43,11 +48,13 @@ DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
 x_train3.shape = (2000, 4, 5, 1)
 y_train3.shape = (2000, 2)
+#######################################################
 
 Dataset 4: Process connects to a socket, writes to a file starting with '/usr' and
 reads the file named '/etc/libmap.conf'. The negative data for this dataset is exactly
 the same as the pattern described above, except the file read by the process is not named
 '/etc/libmap.conf'.
+
 Field count = 1
 Field size = 4
 Stride = 4
@@ -65,3 +72,32 @@ MAX_NODES = 4
 x_patchy4.shape = (2000, 4, 5, 1)
 x_embed4.shape = (2000, 40)
 y_train4.shape = (2000, 2)
+#######################################################
+
+Dataset 5: Process connects to a socket, writes to a file starting with '/usr' and
+reads the file named '/etc/libmap.conf'. A quarter of the negative data for this dataset
+is exactly the same as the pattern described above, except the file read by the process
+is not named '/etc/libmap.conf'. The other quarter of the negative data is any random 4
+node pattern that does not match the pattern described above.
+
+This dataset is here to test if the model can simultaneously use
+information from both the patchy-san inputs and the word embedding inputs.
+
+Field count = 1
+Field size = 4
+Stride = 4
+HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+HASH_FN = hash_labels_prop
+RECEPTIVE_FIELD_HASH = hash_simhash
+LABELING_FN = get_ts
+CLASS_COUNT = 2
+DEFAULT_TENSOR_VAL = 0
+CLEAN_TRAIN_DATA = False
+EMBEDDING_LENGTH = 10
+EMBEDDING_DIM = 10
+VOCAB_SIZE = 1000
+MAX_NODES = 4
+x_patchy5.shape = (4000, 4, 5, 1)
+x_embed5.shape = (4000, 40)
+y_train5.shape = (4000, 2)
+#######################################################
