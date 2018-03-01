@@ -4,19 +4,20 @@ This file contains all optimisable parameters for the convolutional neural netwo
 from optimisable_functions.labeling_fns import get_ts
 from optimisable_functions.hashes import hash_simhash, hash_labels_prop
 
+MAX_NODES = 4
+
 # w
 FIELD_COUNT = 1
 
 # k
-MAX_FIELD_SIZE = 3
+MAX_FIELD_SIZE = 4
 
 # s
-STRIDE = 3
+STRIDE = 4
 
 # input channels
 HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
 # HASH_PROPERTIES = ['cmdline', 'name']
-
 
 #a_v
 CHANNEL_COUNT = len(HASH_PROPERTIES)
@@ -49,9 +50,15 @@ LABELING_FN = get_ts
 # NORM_FIELD_FN = normalise_receptive_field
 
 # Number of classes that model should predict
-CLASS_COUNT = 3
+CLASS_COUNT = 2
 
 DEFAULT_TENSOR_VAL = 0
 
 # Clean the data (remove anomalous nodes, consolidate node versions etc) or not
 CLEAN_TRAIN_DATA = False
+
+# The length of embedding for each name
+EMBEDDING_LENGTH = 10
+
+# The number of bins used for the embedding
+VOCAB_SIZE = 1000

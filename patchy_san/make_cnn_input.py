@@ -3,15 +3,18 @@ Contains functions to generate input in the form of NumPy arrays for the CNN.
 """
 
 import numpy as np
-from patchy_san.neighborhood_assembly import get_receptive_field
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
-from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL
-from patchy_san.graph_normalisation import NODE_TYPE_HASH
-from patchy_san.neighborhood_assembly import label_and_order_nodes
+from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL, MAX_NODES, NODE_TYPE_HASH, VOCAB_SIZE
+from patchy_san.parameters import EMBEDDING_LENGTH
+from patchy_san.neighborhood_assembly import label_and_order_nodes, get_receptive_field
 from patchy_san.graph_normalisation import normalise_receptive_field
+from optimisable_functions.hashes import hash_labels_only
+from keras.preprocessing.text import one_hot
+from keras.preprocessing.sequence import pad_sequences
 
 TENSOR_UPPER_LIMIT = 7e11
 TENSOR_LOWER_LIMIT = 0
+
 
 def iterate(iterator, n):
     """
@@ -128,3 +131,38 @@ def build_tensor_naive_hashing(norm_fields_list):
                 tensor[fields_idx][field_idx][property_idx] = val
 
     return normalise_tensor(tensor)
+
+
+def build_embeddings(graph):
+    """
+    Given a graph, creates word embeddings for the names of all nodes.
+
+    First the nodes in the graph are ordered by their labels. Next, for each
+    node in the ordered list of nodes, a one hot encoding is computed for its name,
+    which is a list of integers. This list is padded. The padded list of integers for all nodes
+    are combines to form a single list of integers, which is returned.
+
+    :param graph: A Graph object describing the input data
+    :return: A 1D numpy array of shape (MAX_NODES*EMBEDDING_LENGTH,)
+    """
+
+    nodes_list = list(graph.nodes.values())
+
+    def get_hash(node):
+        hash_labels_only(labels=node.labels, node_label_hash=NODE_TYPE_HASH)
+
+    sorted_nodes = sorted(nodes_list, key=get_hash)
+    embedding = []
+
+    for i in range(MAX_NODES):
+        if i < len(sorted_nodes) and "name" in sorted_nodes[i].properties and \
+                        sorted_nodes[i].properties["name"] != []:
+
+            name = sorted_nodes[i].properties["name"]
+            encoded_name = one_hot(name, VOCAB_SIZE)
+            embedding += pad_sequences(encoded_name, maxlen=EMBEDDING_LENGTH)
+
+        else:
+            embedding += pad_sequences("", maxlen=EMBEDDING_LENGTH)
+
+    return np.asarray(embedding, dtype=np.int16)
