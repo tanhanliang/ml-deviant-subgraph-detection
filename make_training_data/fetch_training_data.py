@@ -13,13 +13,6 @@ WHERE (r1.state = 'RaW' OR r1.state = 'WRITE')
 RETURN path1, path2 LIMIT 2000
 """
 
-TRIPLE_NODES = """
-MATCH path1=(n1)-[r1]-(m1)
-MATCH path2=(n1)-[r2]-(m2)
-WHERE m1 <> m2
-RETURN path1, path2 LIMIT 1000
-"""
-
 PROC_PROC_SOCK = """
 MATCH p1=(process:Process)<-[]-(sock:Socket)
 MATCH p2=(process:Process)<-[]-(proc:Process)
@@ -93,16 +86,6 @@ def get_train_download_file_execute():
     """
 
     return execute_query(DOWNLOAD_FILE_WRITE)
-
-
-def get_train_all_triples():
-    """
-    Gets all triple nodes with the following configuration: (node1)->(node2)<-(node3).
-
-    :return: A BoltStatementResult object
-    """
-
-    return execute_query(TRIPLE_NODES)
 
 
 def get_train_proc_proc_socket():
