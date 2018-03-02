@@ -45,7 +45,7 @@ WHERE write.state = 'WRITE' AND bin.state = "BIN"
 RETURN path1,path2,path3 LIMIT 1000
 """
 
-READ_EXEC_CONN = """
+READ_EXEC_CONN_LIBMAP = """
 MATCH path1=(process:Process)<-[conn]-(sock:Socket)
 MATCH path2=(process:Process)<-[read]-(file:File)
 MATCH path3=(process:Process)<-[exec]-(file2:File)
@@ -54,12 +54,33 @@ AND file.name[0] = '/etc/libmap.conf'
 RETURN path1,path2,path3 LIMIT 1000
 """
 
-NEGATIVE_DATA_4_NODES = """
+READ_EXEC_CONN_LIBC1 = """
 MATCH path1=(process:Process)<-[conn]-(sock:Socket)
 MATCH path2=(process:Process)<-[read]-(file:File)
 MATCH path3=(process:Process)<-[exec]-(file2:File)
-WHERE read.state="READ" AND exec.state="BIN" AND file <> file2 AND (file2.name[0] =~ '/usr.*'
-AND NOT file.name[0] = '/etc/libmap.conf')
+WHERE read.state="READ" AND exec.state="BIN" AND file2.name[0] =~ '/usr.*' AND file <> file2
+AND file.name[0] = '/lib/libc.so.7'
+RETURN path1,path2,path3 LIMIT 1000
+"""
+
+READ_EXEC_CONN_LIBC2 = """
+MATCH path1=(process:Process)<-[conn]-(sock:Socket)
+MATCH path2=(process:Process)<-[read]-(file:File)
+MATCH path3=(process:Process)<-[exec]-(file2:File)
+WHERE read.state="READ" AND exec.state="BIN" AND file2.name[0] =~ '/usr.*' AND file <> file2
+AND file.name[0] = '/lib/libcrypto.so.8'
+RETURN path1,path2,path3 LIMIT 1000
+"""
+
+NEGATIVE_DATA_4_NODES = """
+MATCH path1=(node1)<-[r1]-(node2)
+MATCH path2=(node1)<-[r2]-(node3)
+MATCH path3=(node1)<-[r3]-(node4)
+WHERE (NOT "Process" in labels(node1) OR NOT "Socket" IN labels(node2) OR NOT "File" IN labels(node3)
+OR NOT "File" IN labels(node4) OR r2.state <> "READ" OR r3.state <> "BIN" 
+OR NOT node4.name[0] =~ '/usr.*' OR NOT (node3.name[0] = '/etc/libmap.conf' 
+OR node3.name[0] = '/lib/libc.so.7' OR node4.name[0] = '/lib/libcrypto.so.8')) AND node3 <> node4
+
 RETURN path1,path2,path3 LIMIT 1000
 """
 
@@ -123,7 +144,29 @@ def get_read_exec_conn():
     :return: A BoltStatementResult object
     """
 
-    return execute_query(READ_EXEC_CONN)
+    return execute_query(READ_EXEC_CONN_LIBMAP)
+
+
+def get_read_exec_conn_libc1():
+    """
+    Gets 4-node instances where a process connects to a socket, reads a file named '/lib/libc.so.7'
+    and executes a file starting with '/usr'.
+
+    :return: A BoltStatementResult object
+    """
+
+    return execute_query(READ_EXEC_CONN_LIBC1)
+
+
+def get_read_exec_conn_libc2():
+    """
+    Gets 4-node instances where a process connects to a socket, reads a file named '/lib/libc.so.7'
+    and executes a file starting with '/usr'.
+
+    :return: A BoltStatementResult object
+    """
+
+    return execute_query(READ_EXEC_CONN_LIBC2)
 
 
 def get_negative_data_4_nodes():
