@@ -2,6 +2,8 @@
 Contains function to edit training data.
 """
 import random as r
+import make_training_data.fetch_training_data as fetch
+import make_training_data.format_training_data as format
 
 
 def get_rand_string(length):
@@ -25,21 +27,21 @@ def alter_process_cmdlines():
 
     :return: A list of tuples (label, graph). label is an integer, graph is a Graph object.
     """
-    import make_training_data.format_training_data as format
     # training_data is a list of tuples (label, Graph)
-    training_data = format.get_training_data()
+    results = fetch.get_train_4_node_test_cmdline()
+    training_graphs = format.label_and_process_data(results)
     total_length = 11
 
-    for i in range(len(training_data)):
-        graph = training_data[i][1]
+    for i in range(len(training_graphs)):
+        graph = training_graphs[i][1]
         for node_id in graph.nodes:
             node = graph.nodes[node_id]
             if "Process" in node.labels:
-                if training_data[i][0] == 0:
+                if training_graphs[i][0] == 0:
                     target_word_idx = r.randint(0, 9)
                     new_cmd = get_rand_string(target_word_idx) + ' -k ' + get_rand_string(9-target_word_idx)
                     node.properties["cmdline"] = new_cmd
                 else:
                     node.properties["cmdline"] = get_rand_string(10)
 
-    return training_data
+    return training_graphs

@@ -7,20 +7,20 @@ from patchy_san.make_cnn_input import build_embedding
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT, EMBEDDING_LENGTH
 from patchy_san.parameters import MAX_NODES
 from data_processing.preprocessing import get_graphs_by_result
-import make_training_data.fetch_training_data as fetch
 import numpy as np
 
 
-def get_training_data():
+def label_and_process_data(results):
     """
-    Gets instances of a node connecting to a socket and writing to a file. The input
-    BoltStatementResult should describe subgraphs with 3 nodes at maximum.
+    Given a list of BoltStatementResults, each of which corresponds to training data for
+    one class, process it by labelling it correctly and creating graphs for each training
+    example (e.g one BoltStatementResult has many training examples).
 
+    :param results A list of BoltstatementResults.
     :return: A list of tuplesof (label, graph). label is an integer, graph is a Graph object/
     """
 
     training_data = []
-    results = fetch.get_train_4_node_test_cmdline()
     label = 0
 
     for result in results:
@@ -34,12 +34,12 @@ def get_training_data():
     return training_data
 
 
-def format_all_training_data(training_data=None):
+def format_all_training_data(training_data):
     """
     Queries the database for data according to several predefined rules, then processes
     them into two ndarrays.
 
-    :param training_data: A list of tuples (label, graph). label is an integer,
+    :param training_data:A list of tuples (label, graph). label is an integer,
     graph is a Graph object.
     :return: A tuple (x_patchy_input, x_embedding_input, y_target). The first argument is
     the input ndarray created by patchy_san, the second is the ndarray created by word
@@ -53,9 +53,6 @@ def format_all_training_data(training_data=None):
     start = time.time()
     x_data_list = []
     y_target_list = []
-
-    if training_data is None:
-        training_data = get_training_data()
 
     for (label, graph) in training_data:
         receptive_fields_groups = build_groups_of_receptive_fields(graph)
@@ -147,18 +144,18 @@ def shuffle_datasets(x_patchy, x_embedding, y_train):
     return x_patchy[permutation], x_embedding[permutation], y_train[permutation]
 
 
-def get_final_datasets(training_data=None):
+def process_training_examples(training_graphs):
     """
     Gets and formats the datasets into a form ready to be fed to the model.
 
-    :param training_data:A list of tuples (label, graph). label is an integer,
+    :param training_graphs:A list of tuples (label, graph). label is an integer,
     graph is a Graph object.
     :return: A tuple of ndarrays (x_new, y_new). x_new has dimensions
     (training_samples, field_cound*max_field_size, channel_count)
     y_new has dimensions (training_samples, number_of_classes)
     """
 
-    x_patchy, x_embedding, y = format_all_training_data(training_data)
+    x_patchy, x_embedding, y = format_all_training_data(training_graphs)
     _, counts = np.unique(y, return_counts=True)
 
     if len(counts) == 1:
@@ -172,3 +169,18 @@ def get_final_datasets(training_data=None):
     x_patchy_new = reshape_training_data(x_patchy)
 
     return shuffle_datasets(x_patchy_new, x_embedding, y_new)
+
+
+def get_final_datasets(results):
+    """
+    Given a list of BoltStatementResults, each corresponding to training data for one
+    training pattern, generates training data and formats it properly.
+
+    :param results: A list of BoltStatementResults
+    :return: A tuple of ndarrays (x_new, y_new). x_new has dimensions
+    (training_samples, field_cound*max_field_size, channel_count)
+    y_new has dimensions (training_samples, number_of_classes)
+    """
+
+    training_graphs = label_and_process_data(results)
+    return process_training_examples(training_graphs)

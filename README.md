@@ -13,7 +13,10 @@ model.fit([x_patchy, x_embed], y, validation_split=0.20, epochs=10, batch_size=5
 If you do have a Neo4j database of provenance data, you can build training data as follows:
 ```
 from make_training_data.format_training_data import get_final_datasets
-x_patchy, x_embed, y = get_final_datasets()
+# An example of training data that you can build
+from make_training_data.fetch_training_data import get_train_4_node_test_cmdline
+results = get_train_4_node_test_cmdline()
+x_patchy, x_embed, y = get_final_datasets(results)
 ```
 
 The project dependencies may be found in requirements.txt.
