@@ -34,11 +34,13 @@ def get_training_data():
     return training_data
 
 
-def format_all_training_data():
+def format_all_training_data(training_data=None):
     """
     Queries the database for data according to several predefined rules, then processes
     them into two ndarrays.
 
+    :param training_data: A list of tuples (label, graph). label is an integer,
+    graph is a Graph object.
     :return: A tuple (x_patchy_input, x_embedding_input, y_target). The first argument is
     the input ndarray created by patchy_san, the second is the ndarray created by word
     embeddings. The last, y_target is also an ndarray.
@@ -52,7 +54,8 @@ def format_all_training_data():
     x_data_list = []
     y_target_list = []
 
-    training_data = get_training_data()
+    if training_data is None:
+        training_data = get_training_data()
 
     for (label, graph) in training_data:
         receptive_fields_groups = build_groups_of_receptive_fields(graph)
@@ -144,16 +147,18 @@ def shuffle_datasets(x_patchy, x_embedding, y_train):
     return x_patchy[permutation], x_embedding[permutation], y_train[permutation]
 
 
-def get_final_datasets():
+def get_final_datasets(training_data=None):
     """
     Gets and formats the datasets into a form ready to be fed to the model.
 
+    :param training_data:A list of tuples (label, graph). label is an integer,
+    graph is a Graph object.
     :return: A tuple of ndarrays (x_new, y_new). x_new has dimensions
     (training_samples, field_cound*max_field_size, channel_count)
     y_new has dimensions (training_samples, number_of_classes)
     """
 
-    x_patchy, x_embedding, y = format_all_training_data()
+    x_patchy, x_embedding, y = format_all_training_data(training_data)
     _, counts = np.unique(y, return_counts=True)
 
     if len(counts) == 1:
