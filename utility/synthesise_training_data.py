@@ -20,7 +20,7 @@ def get_rand_string(length):
     return accum + "/"
 
 
-def alter_process_cmdlines():
+def get_graphs_altered_cmdlines():
     """
     Queries the database for a certain pattern of graphs, then alters the cmdlines of
     all processes in that graph.
@@ -28,7 +28,7 @@ def alter_process_cmdlines():
     :return: A list of tuples (label, graph). label is an integer, graph is a Graph object.
     """
     # training_data is a list of tuples (label, Graph)
-    results = fetch.get_train_4_node_test_cmdline()
+    results = fetch.get_train_4_node_simple()
     training_graphs = format.label_and_process_data(results)
     total_length = 11
 
