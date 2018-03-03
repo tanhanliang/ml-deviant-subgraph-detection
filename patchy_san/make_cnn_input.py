@@ -9,8 +9,9 @@ from patchy_san.parameters import EMBEDDING_LENGTH
 from patchy_san.neighborhood_assembly import label_and_order_nodes, get_receptive_field
 from patchy_san.graph_normalisation import normalise_receptive_field
 from optimisable_functions.hashes import hash_labels_only
-from keras.preprocessing.text import one_hot
+from keras.preprocessing.text import hashing_trick
 from keras.preprocessing.sequence import pad_sequences
+from optimisable_functions.hashes import hash_simhash
 
 TENSOR_UPPER_LIMIT = 7e11
 TENSOR_LOWER_LIMIT = 0
@@ -159,7 +160,7 @@ def build_embedding(graph):
             # The 'name' property on each node is a list, the current solution is to
             # take the first element.
             name = sorted_nodes[i].properties["name"][0]
-            encoded_name = one_hot(name, VOCAB_SIZE)
+            encoded_name = hashing_trick(name, VOCAB_SIZE, hash_simhash)
             embedding.append(encoded_name)
         else:
             embedding.append([])

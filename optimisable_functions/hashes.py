@@ -3,7 +3,7 @@
 import simhash
 
 
-def hash_simhash(**data):
+def hash_simhash(text):
     """
     Calculates the SimHash value for the string property passed in.
 
@@ -12,7 +12,7 @@ def hash_simhash(**data):
     :return: An integer value
     """
 
-    return int(simhash.Simhash(data["property"]).value/100)
+    return int(simhash.Simhash(text).value/100)
 
 
 def hash_labels_prop(**data):
@@ -37,7 +37,7 @@ def hash_labels_prop(**data):
 
     hash_value = hash_labels_only(labels=labels, node_label_hash=node_label_hash)
     hash_value *= 1e10
-    hash_value += int(str(hash_simhash(property=node_property))[:10])
+    hash_value += int(str(hash_simhash(node_property))[:10])
     return hash_value
 
 
