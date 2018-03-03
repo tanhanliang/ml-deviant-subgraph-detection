@@ -44,7 +44,7 @@ def format_all_training_data():
     embeddings. The last, y_target is also an ndarray.
 
     x_patchy_input has shape (training_examples,field_count,max_field_size,channels)
-    x_embedding_input (training_examples, max_nodes_in_input_graph*embedding_length)
+    x_embedding_input (training_examples, max_nodes_in_input_graph*embedding_length*2)
     y_target has shape (training_examples, 1)
     """
     import time
@@ -70,7 +70,7 @@ def format_all_training_data():
 
     training_examples = len(x_data_list)
     x_patchy_input = np.ndarray((training_examples, FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT))
-    x_embedding_input = np.ndarray((training_examples, MAX_NODES*EMBEDDING_LENGTH))
+    x_embedding_input = np.ndarray((training_examples, MAX_NODES*EMBEDDING_LENGTH*2))
     y_target = np.asarray(y_target_list, dtype=np.int32)
 
     idx = 0
@@ -89,7 +89,7 @@ def create_balanced_training_set(x_patchy_input, x_embedding_input, y_target, li
     Ensure that training set contains equal numbers of training examples for each class.
 
     :param x_patchy_input: A ndarray with shape (training_examples,field_count,max_field_size,channels)
-    :param x_embedding_input: A ndarray with shape (training_examples, MAX_NODES*EMBEDDING_LENGTH)
+    :param x_embedding_input: A ndarray with shape (training_examples, MAX_NODES*EMBEDDING_LENGTH*2)
     :param y_target: A 1D NumPy ndarray (training_examples,)
     :param limit: An integer which represents the max training examples for each class.
     :return: A tuple of ndarrays
@@ -97,7 +97,7 @@ def create_balanced_training_set(x_patchy_input, x_embedding_input, y_target, li
 
     class_counts = [0 for _ in range(CLASS_COUNT)]
     new_x_patchy_input = np.zeros((limit*CLASS_COUNT, FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT))
-    new_x_embedding_input = np.zeros((limit*CLASS_COUNT, EMBEDDING_LENGTH*MAX_NODES))
+    new_x_embedding_input = np.zeros((limit*CLASS_COUNT, EMBEDDING_LENGTH*MAX_NODES*2))
     new_y = np.ndarray((limit*CLASS_COUNT,))
     idx = 0
 
@@ -133,7 +133,7 @@ def shuffle_datasets(x_patchy, x_embedding, y_train):
     Shuffles the provided training datasets and labels together, along the first axis
 
     :param x_patchy: A ndarray with shape (training_examples,field_count,max_field_size,channels)
-    :param x_embedding: A ndarray with shape (training_examples, MAX_NODES*EMBEDDING_LENGTH)
+    :param x_embedding: A ndarray with shape (training_examples, MAX_NODES*EMBEDDING_LENGTH*2)
 
     :param y_train: A ndarray
     :return: A tuple of shuffled ndarrays

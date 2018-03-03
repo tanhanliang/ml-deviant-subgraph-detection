@@ -35,11 +35,11 @@ def build_model(learning_rate=0.005, activations="sigmoid"):
     ps_flatten1 = Flatten(name='ps_flatten1')(ps_dropout1)
 
     # Embedding track
-    emb_input = Input(shape=(EMBEDDING_LENGTH*MAX_NODES,), name='emb_input')
+    emb_input = Input(shape=(EMBEDDING_LENGTH*MAX_NODES*2,), name='emb_input')
     emb_embedding = Embedding(
         VOCAB_SIZE,
         EMBEDDING_DIM,
-        input_length=EMBEDDING_LENGTH*MAX_NODES,
+        input_length=EMBEDDING_LENGTH*MAX_NODES*2,
         name='emb_embedding'
     )(emb_input)
     emb_flatten = Flatten(name='emb_flatten')(emb_embedding)

@@ -161,9 +161,16 @@ def build_embedding(graph):
             # take the first element.
             name = sorted_nodes[i].properties["name"][0]
             encoded_name = hashing_trick(name, VOCAB_SIZE, hash_simhash)
-            embedding.append(encoded_name)
+
+            if "cmdline" in sorted_nodes[i].properties:
+                cmdline = sorted_nodes[i].properties["cmdline"]
+                encoded_cmdline = hashing_trick(cmdline, VOCAB_SIZE, hash_simhash)
+            else:
+                encoded_cmdline = []
+
+            embedding += [encoded_name, encoded_cmdline]
         else:
-            embedding.append([])
+            embedding += [[],[]]
 
     padded_embedding = pad_sequences(embedding, maxlen=EMBEDDING_LENGTH)
     combined_embedding = [num for sublist in padded_embedding for num in sublist]
