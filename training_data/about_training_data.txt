@@ -79,3 +79,34 @@ x_embed4.shape = (2000, 80)
 y_train4.shape = (2000, 2)
 
 #######################################################
+
+Dataset 5: There are 4 nodes, where 3 nodes have an edge to a central node. No constraints
+on the labels of the nodes. Each node has a standard name ('/standard/name') and a cmdline
+made of 100 random numbers delimited by a '/'. The exception is a randomly chosen node,
+whose cmdline is comprised of 99 random numbers and a randomly inserted '-k'
+(e.g '/132/../123/ -k /333/').
+
+The negative data is exactly the same, except it does not have a randomly chosen node with a
+randomly inserted '-k'.
+
+This dataset causes the model to overfit completely.
+
+Field count = 1
+Field size = 4
+Stride = 4
+HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+HASH_FN = hash_labels_prop
+RECEPTIVE_FIELD_HASH = hash_simhash
+LABELING_FN = get_ts
+CLASS_COUNT = 2
+DEFAULT_TENSOR_VAL = 0
+CLEAN_TRAIN_DATA = False
+EMBEDDING_LENGTH = 100
+EMBEDDING_DIM = 10
+VOCAB_SIZE = 1000
+MAX_NODES = 4
+x_patchy5.shape = (2000, 4, 5, 1)
+x_embed5.shape = (2000, 80)
+y_train5.shape = (2000, 2)
+
+#######################################################
