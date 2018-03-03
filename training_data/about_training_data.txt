@@ -48,4 +48,44 @@ DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
 x_train3.shape = (2000, 4, 5, 1)
 y_train3.shape = (2000, 2)
+
+#######################################################
+
+Dataset 4: The dataset that 'breaks' the model. There are 4 nodes, where 3 nodes have an edge to a central node. The
+central node has a cmdline which is either a '/' delimited string of 10 random numbers, or a
+'/' delimited string of 9 random numbers and a randomly inserted '-k' (e.g '/132/../123/ -k /333/')
+
+Field count = 1
+Field size = 4
+Stride = 4
+HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+HASH_FN = hash_labels_prop
+RECEPTIVE_FIELD_HASH = hash_simhash
+LABELING_FN = get_ts
+CLASS_COUNT = 2
+DEFAULT_TENSOR_VAL = 0
+CLEAN_TRAIN_DATA = False
+x_patchy4.shape = (2000, 4, 5, 1)
+x_embed4.shape = (2000, 80)
+y_train4.shape = (2000, 2)
+
+#######################################################
+
+Dataset 5: 3 nodes are connected to a central node. No constraints on node labels. In the pattern,
+one particular node has '-k' in its cmdline, while this is not so for the negative data.
+
+Field count = 1
+Field size = 4
+Stride = 4
+HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+HASH_FN = hash_labels_prop
+RECEPTIVE_FIELD_HASH = hash_simhash
+LABELING_FN = get_ts
+CLASS_COUNT = 2
+DEFAULT_TENSOR_VAL = 0
+CLEAN_TRAIN_DATA = False
+x_patchy5.shape = (2000, 4, 5, 1)
+x_embed5.shape = (2000, 80)
+y_train5.shape = (2000, 2)
+
 #######################################################

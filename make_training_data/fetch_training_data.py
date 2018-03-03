@@ -110,3 +110,23 @@ def get_train_4_node_test_cmdline():
     """
 
     return [execute_query(pattern), execute_query(negative_data)]
+
+
+def get_train_4_node_simple():
+    """
+    Queries the db twice for the same simple 4 node pattern. This is used to help me
+    synthesise training data (it is queried twice so the pipeline will partition the data
+    by assigning different labels, so I can edit data in one half of it).
+
+    :return: A list of BoltStatementResult objects
+    """
+
+    pattern = """
+    MATCH path1=(node1)<-[]-(node2)
+    MATCH path2=(node1)<-[]-(node3)
+    MATCH path3=(node1)<-[]-(node4)
+    WHERE node2 <> node3 AND node3 <> node4 AND node2 <> node4
+    RETURN path1,path2,path3 LIMIT 1000
+    """
+
+    return [execute_query(pattern), execute_query(pattern)]
