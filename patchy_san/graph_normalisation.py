@@ -38,9 +38,9 @@ def compute_hash(node):
         if properties.__contains__(prop) and properties[prop] != []:
             if prop == 'name':
                 # A node may have multiple names, use only the first
-                prop_hash = RECEPTIVE_FIELD_HASH(property=properties[prop][0])
+                prop_hash = RECEPTIVE_FIELD_HASH(properties[prop][0])
             else:
-                prop_hash = RECEPTIVE_FIELD_HASH(property=properties[prop])
+                prop_hash = RECEPTIVE_FIELD_HASH(properties[prop])
             # Take the 4 most significant digits
             hash_value += int(str(abs(prop_hash))[:PROPERTY_CARDINALITY[prop]])
 
