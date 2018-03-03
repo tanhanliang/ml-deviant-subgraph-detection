@@ -83,3 +83,30 @@ def get_train_4_node_diff_name():
 
     results.append(execute_query(negative_data))
     return results
+
+
+def get_train_4_node_test_cmdline():
+    """
+    Creates training data where the only constant difference between the pattern and the
+    negative data is the presence of the word '-k' somewhere in the cmdline of a particlar node.
+
+    :return: A list of BoltStatementResults results
+    """
+
+    pattern = """
+    MATCH path1=(node1)<-[]-(node2)
+    MATCH path2=(node1)<-[]-(node3)
+    MATCH path3=(node1)<-[]-(node4)
+    WHERE node2 <> node3 AND node3 <> node4 AND node2 <> node4 AND node1.cmdline =~ '.*-k.*'
+    RETURN path1,path2,path3 LIMIT 1000
+    """
+
+    negative_data = """
+    MATCH path1=(node1)<-[]-(node2)
+    MATCH path2=(node1)<-[]-(node3)
+    MATCH path3=(node1)<-[]-(node4)
+    WHERE node2 <> node3 AND node3 <> node4 AND node2 <> node4 AND NOT node1.cmdline =~ '.*-k.*'
+    RETURN path1,path2,path3 LIMIT 1000
+    """
+
+    return [execute_query(pattern), execute_query(negative_data)]

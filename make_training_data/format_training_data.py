@@ -20,7 +20,7 @@ def get_training_data():
     """
 
     training_data = []
-    results = fetch.get_train_4_node_diff_name()
+    results = fetch.get_train_4_node_test_cmdline()
     label = 0
 
     for result in results:
