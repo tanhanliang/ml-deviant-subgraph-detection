@@ -19,10 +19,8 @@ def get_training_data():
     :return: A list of tuplesof (label, graph). label is an integer, graph is a Graph object/
     """
 
-    results = []
     training_data = []
-    results.append(fetch.get_read_exec_conn())
-    results.append(fetch.get_negative_data_4_nodes())
+    results = fetch.get_train_4_node_diff_name()
     label = 0
 
     for result in results:
