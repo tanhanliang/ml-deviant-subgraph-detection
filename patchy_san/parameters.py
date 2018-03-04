@@ -8,15 +8,14 @@ from optimisable_functions.hashes import hash_simhash, hash_labels_prop
 FIELD_COUNT = 1
 
 # k
-MAX_FIELD_SIZE = 3
+MAX_FIELD_SIZE = 4
 
 # s
-STRIDE = 3
+STRIDE = 4
 
 # input channels
 HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
 # HASH_PROPERTIES = ['cmdline', 'name']
-
 
 #a_v
 CHANNEL_COUNT = len(HASH_PROPERTIES)
@@ -25,7 +24,7 @@ CHANNEL_COUNT = len(HASH_PROPERTIES)
 # every unique combination of node labels will produce unique hash values.
 # The hash value of the node will be computed partially from the addition of node's label values
 NODE_TYPE_HASH = {'Conn': 2, 'File': 4, 'Global': 8, 'Machine': 16, 'Meta': 32, 'Process': 64,
-                  'Socket': 1}
+                  'Socket': 1, 'Pipe': 128}
 
 # Number of digits that can represent the range of values possible for each property
 PROPERTY_CARDINALITY = {'cmdline': int(1e19), 'name': int(1e19), 'ips': int(1e10),
@@ -55,3 +54,15 @@ DEFAULT_TENSOR_VAL = 0
 
 # Clean the data (remove anomalous nodes, consolidate node versions etc) or not
 CLEAN_TRAIN_DATA = False
+
+# The length of embedding for each name
+EMBEDDING_LENGTH = 10
+
+# The number of dimensions to map each word into
+EMBEDDING_DIM = 10
+
+# The number of bins used for the embedding
+VOCAB_SIZE = 1000
+
+# Max nodes in each input graph
+MAX_NODES = 4

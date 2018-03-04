@@ -3,13 +3,18 @@ Contains functions to generate input in the form of NumPy arrays for the CNN.
 """
 
 import numpy as np
-from patchy_san.neighborhood_assembly import get_receptive_field
-from data_processing.preprocessing import build_in_out_edges
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
-from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL
-from patchy_san.graph_normalisation import NODE_TYPE_HASH
-from patchy_san.neighborhood_assembly import label_and_order_nodes
+from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL, MAX_NODES, NODE_TYPE_HASH, VOCAB_SIZE
+from patchy_san.parameters import EMBEDDING_LENGTH
+from patchy_san.neighborhood_assembly import label_and_order_nodes, get_receptive_field
 from patchy_san.graph_normalisation import normalise_receptive_field
+from optimisable_functions.hashes import hash_labels_only
+from keras.preprocessing.text import hashing_trick
+from keras.preprocessing.sequence import pad_sequences
+from optimisable_functions.hashes import hash_simhash
+
+TENSOR_UPPER_LIMIT = 7e11
+TENSOR_LOWER_LIMIT = 0
 
 
 def iterate(iterator, n):
@@ -28,7 +33,7 @@ def iterate(iterator, n):
     return next(iterator, None)
 
 
-def build_groups_of_receptive_fields(nodes, edges):
+def build_groups_of_receptive_fields(graph):
     """
     Extracts as many groups of receptive fields as possible. Each group of fields is considered
     complete once it reaches the maximum field size.
@@ -42,22 +47,20 @@ def build_groups_of_receptive_fields(nodes, edges):
     Each list of receptive fields makes a group. This function returns all groups that could be
     constructed.
 
-    :param nodes: A Dictionary of node_id -> node
-    :param edges: A Dictionary of edge_id -> edge
+    :param graph: A Graph object
     :return: A list of lists of lists of nodes, or a list of lists of receptive fields
     """
 
-    nodes_list = label_and_order_nodes(nodes)
+    nodes_list = label_and_order_nodes(graph)
     groups_of_receptive_fields = []
     norm_fields_list = []
     nodes_iter = iter(nodes_list)
     root_node = next(nodes_iter, None)
-    incoming_edges, outgoing_edges = build_in_out_edges(edges)
     norm_fields_count = 0
 
     while root_node is not None:
-        r_field_nodes, r_field_edges = get_receptive_field(root_node.id, nodes, incoming_edges)
-        r_field_nodes_list = normalise_receptive_field(r_field_nodes)
+        receptive_field_graph = get_receptive_field(root_node.id, graph)
+        r_field_nodes_list = normalise_receptive_field(receptive_field_graph)
         norm_fields_list.append(r_field_nodes_list)
         root_node = iterate(nodes_iter, STRIDE)
         norm_fields_count += 1
@@ -86,9 +89,7 @@ def normalise_tensor(tensor):
     :return: A 3d NumPy array
     """
 
-    min_val = np.min(tensor)
-    max_val = np.max(tensor)
-    normalised_tensor = (tensor-min_val)/(max_val-min_val)
+    normalised_tensor = (tensor-TENSOR_LOWER_LIMIT)/(TENSOR_UPPER_LIMIT-TENSOR_LOWER_LIMIT)
     return normalised_tensor
 
 
@@ -131,3 +132,46 @@ def build_tensor_naive_hashing(norm_fields_list):
                 tensor[fields_idx][field_idx][property_idx] = val
 
     return normalise_tensor(tensor)
+
+
+def build_embedding(graph):
+    """
+    Given a graph, creates word embeddings for the names of all nodes.
+
+    First the nodes in the graph are ordered by their labels. Next, for each
+    node in the ordered list of nodes, a one hot encoding is computed for its name,
+    which is a list of integers. This list is padded. The padded list of integers for all nodes
+    are combines to form a single list of integers, which is returned.
+
+    :param graph: A Graph object describing the input data
+    :return: A 1D numpy array of shape (MAX_NODES*EMBEDDING_LENGTH,)
+    """
+
+    nodes_list = list(graph.nodes.values())
+    sorted_nodes = sorted(
+        nodes_list,
+        key=lambda x: hash_labels_only(labels=x.labels, node_label_hash=NODE_TYPE_HASH))
+    embedding = []
+
+    for i in range(MAX_NODES):
+        if i < len(sorted_nodes) and "name" in sorted_nodes[i].properties and \
+                        sorted_nodes[i].properties["name"] != []:
+
+            # The 'name' property on each node is a list, the current solution is to
+            # take the first element.
+            name = sorted_nodes[i].properties["name"][0]
+            encoded_name = hashing_trick(name, VOCAB_SIZE, hash_simhash)
+
+            if "cmdline" in sorted_nodes[i].properties:
+                cmdline = sorted_nodes[i].properties["cmdline"]
+                encoded_cmdline = hashing_trick(cmdline, VOCAB_SIZE, hash_simhash)
+            else:
+                encoded_cmdline = []
+
+            embedding += [encoded_name, encoded_cmdline]
+        else:
+            embedding += [[],[]]
+
+    padded_embedding = pad_sequences(embedding, maxlen=EMBEDDING_LENGTH)
+    combined_embedding = [num for sublist in padded_embedding for num in sublist]
+    return np.asarray(combined_embedding, dtype=np.int16)

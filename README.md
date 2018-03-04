@@ -1,19 +1,22 @@
 # ml-deviant-subgraph-detection
 This project aims to create a classifier which will identify subgraphs from a larger provenance graph which potentially contains malicious behavior.
 
-To train the model, you don't have to have a Neo4j database of provenance data anymore! Simply fetch the stored training data as follows:
+You don't have to have a Neo4j database of provenance data anymore! Simply fetch the stored training data as follows:
 ```
 from patchy_san.cnn import build_model
 from utility.load_data import *
-x, y = load_data()
+x_patchy, x_embed, y = load_data()
 model = build_model()
-model.fit(x, y, validation_split=0.33, epochs=150, batch_size=5)
+model.fit([x_patchy, x_embed], y, validation_split=0.20, epochs=10, batch_size=5)
 ```
 
 If you do have a Neo4j database of provenance data, you can build training data as follows:
 ```
 from make_training_data.format_training_data import get_final_datasets
-x, y = get_final_datasets()
+# An example of training data that you can build
+from make_training_data.fetch_training_data import get_train_4_node_test_cmdline
+results = get_train_4_node_test_cmdline()
+x_patchy, x_embed, y = get_final_datasets(results)
 ```
 
 The project dependencies may be found in requirements.txt.
@@ -25,8 +28,6 @@ Phases of the project:
 
 3) Building and training classifiers.
 
-4) Writing code to visualise subgraphs on the cadets-ui.
-
-5) Evaluation of methods used.
+4) Evaluation of methods used.
 
 Currently, this project is in phase 3.
