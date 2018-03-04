@@ -20,27 +20,27 @@ def label_and_process_data(results):
     :return: A list of tuplesof (label, graph). label is an integer, graph is a Graph object/
     """
 
-    training_data = []
+    training_graphs = []
     label = 0
 
     for result in results:
         graph_list = get_graphs_by_result(result)
 
         for graph in graph_list:
-            training_data.append((label, graph))
+            training_graphs.append((label, graph))
 
         label += 1
 
     print("Raw data has been formatted into Graph objects.")
-    return training_data
+    return training_graphs
 
 
-def format_all_training_data(training_data):
+def format_all_training_data(training_graphs):
     """
     Queries the database for data according to several predefined rules, then processes
     them into two ndarrays.
 
-    :param training_data:A list of tuples (label, graph). label is an integer,
+    :param training_graphs:A list of tuples (label, graph). label is an integer,
     graph is a Graph object.
     :return: A tuple (x_patchy_input, x_embedding_input, y_target). The first argument is
     the input ndarray created by patchy_san, the second is the ndarray created by word
@@ -56,7 +56,7 @@ def format_all_training_data(training_data):
     y_target_list = []
 
     print("Processing training graphs into tensors...")
-    for (label, graph) in training_data:
+    for (label, graph) in training_graphs:
         receptive_fields_groups = build_groups_of_receptive_fields(graph)
 
         # For training data there will only be one receptive field group, so assume
