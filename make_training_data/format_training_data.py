@@ -31,6 +31,7 @@ def label_and_process_data(results):
 
         label += 1
 
+    print("Raw data has been formatted into Graph objects.")
     return training_data
 
 
@@ -54,6 +55,7 @@ def format_all_training_data(training_data):
     x_data_list = []
     y_target_list = []
 
+    print("Processing training graphs into tensors...")
     for (label, graph) in training_data:
         receptive_fields_groups = build_groups_of_receptive_fields(graph)
 
@@ -80,7 +82,7 @@ def format_all_training_data(training_data):
         idx += 1
 
     end = time.time()
-    print("Time elapsed(seconds): "+str(end-start))
+    print("Time elapsed to process training graphs into tensors (seconds): "+str(end-start))
     return x_patchy_input, x_embedding_input, y_target
 
 
@@ -139,7 +141,6 @@ def shuffle_datasets(x_patchy, x_embedding, y_train):
     :return: A tuple of shuffled ndarrays
     """
 
-    print(y_train.shape)
     permutation = np.random.permutation(y_train.shape[0])
     return x_patchy[permutation], x_embedding[permutation], y_train[permutation]
 
@@ -163,6 +164,7 @@ def process_training_examples(training_graphs):
 
     min_count = np.amin(counts)
     x_patchy, x_embedding, y_train = create_balanced_training_set(x_patchy, x_embedding, y, min_count)
+    print("The training data has been balanced.")
 
     from keras.utils import to_categorical
     y_new = to_categorical(y_train)
