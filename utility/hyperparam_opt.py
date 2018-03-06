@@ -49,7 +49,7 @@ def grid_search(x_train, y_train):
     return best_rate, best_activation, best_accuracy
 
 
-def cross_validation(x, y, folds, epochs, learning_rate, activation):
+def cross_validation(xp, xe, y, folds, epochs, learning_rate, activation):
     """
     Performs k-fold cross validation for a particular dataset.
 
@@ -68,19 +68,20 @@ def cross_validation(x, y, folds, epochs, learning_rate, activation):
     average_accuracy = 0
     average_loss = 0
 
-    for train_indices, test_indices in skf.split(x, y_labels):
+    for train_indices, test_indices in skf.split(xp, y_labels):
         print("Training on fold " + str(idx))
-        x_train, x_test = x[train_indices], x[test_indices]
+        xp_train, xe_train = xp[train_indices], xe[train_indices]
+        xp_test, xe_test = xp[test_indices], xe[test_indices]
         y_train, y_test = y[train_indices], y[test_indices]
 
         model = None
         model = build_model(learning_rate, activation)
-        model.fit(x_train, y_train, epochs=epochs, batch_size=5, validation_split=0.0, shuffle=True)
-        loss, accuracy = model.evaluate(x_test, y_test)
+        model.fit([xp_train, xe_train], y_train, epochs=epochs, batch_size=5, validation_split=0.0, shuffle=True)
+        loss, accuracy = model.evaluate([xp_test, xe_test], y_test)
         average_accuracy += accuracy
         average_loss += loss
-        idx += 1
         print("Accuracy for the " + str(idx) + "th fold: " + str(accuracy))
+        idx += 1
 
     average_accuracy /= folds
     average_loss /= folds
