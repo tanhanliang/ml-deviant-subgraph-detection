@@ -49,7 +49,10 @@ def build_groups_of_receptive_fields(graph):
 
     :param graph: A Graph object
     :return: A list of lists of tuples of lists of nodes, or a list of lists of tuples of
-    receptive fields for nodes and edges
+    receptive fields for nodes and edges.
+    Each tuple of lists corresponds to a receptive field, and contains all the nodes and edges in it.
+    Each list of tuples of lists corresponds to a group of receptive fields.
+    The list of lists of tuples of lists corresponds to all the groups of receptive fields found.
     """
 
     nodes_list = label_and_order_nodes(graph)
@@ -130,17 +133,19 @@ def build_tensor_naive_hashing(norm_fields_list):
     naively applies the same hash function to every string property, and is intended to just
     be a way to help me get the CNN pipeline running.
 
-    This method should be replaced in the near future.
-
-    :param norm_fields_list: The list of lists of nodes containing the receptive fields
+    :param norm_fields_list: The list of tuples of (list of nodes, list of edges) containing
+    the receptive fields.
     :return: A 3d NumPy array
     """
 
     field_count = len(norm_fields_list)
     tensor = np.zeros((field_count, MAX_FIELD_SIZE, CHANNEL_COUNT), dtype='int64')
 
+    # fields_idx iterates over the receptive fields
     for fields_idx in range(field_count):
-        field = norm_fields_list[fields_idx]
+        # The first element in the tuple is the list of nodes
+        field = norm_fields_list[fields_idx][0]
+        # field_idx iterates over the nodes in a receptive field
         for field_idx in range(len(field)):
             node = field[field_idx]
             node_prop = node.properties
