@@ -47,7 +47,7 @@ def format_all_training_data(training_graphs):
     the ndarray created by patchy_san for edges, and the third is the ndarray created by word
     embeddings. The last, y_target is also an ndarray.
 
-    x_patchy_nodes has shape (training_examples,field_count,max_field_size,CHANNELS)
+    x_patchy_nodes has shape (training_examples,field_count*max_field_size,CHANNELS, 1)
     x_patchy_edges has shape (training_examples,field_count*max_field_size*max_field_size,2)
     x_embedding_input (training_examples, max_nodes_in_input_graph*embedding_length*2)
     y_target has shape (training_examples, 1)
@@ -74,8 +74,8 @@ def format_all_training_data(training_graphs):
         y_target_list.append(label)
 
     training_examples = len(x_data_list)
-    x_patchy_nodes = np.ndarray((training_examples, FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT))
-    x_patchy_edges = np.ndarray((training_examples, MAX_NODES*MAX_NODES*FIELD_COUNT, 2))
+    x_patchy_nodes = np.ndarray((training_examples, FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1))
+    x_patchy_edges = np.ndarray((training_examples, MAX_NODES*MAX_NODES*FIELD_COUNT, 2, 1))
     x_embedding_input = np.ndarray((training_examples, MAX_NODES*EMBEDDING_LENGTH*2))
     y_target = np.asarray(y_target_list, dtype=np.int32)
 
@@ -95,7 +95,7 @@ def create_balanced_training_set(x_patchy_nodes, x_patchy_edges, x_embedding_inp
     """
     Ensure that training set contains equal numbers of training examples for each class.
 
-    :param x_patchy_nodes: A ndarray with shape (training_examples,field_count,max_field_size,channels)
+    :param x_patchy_nodes: A ndarray with shape (training_examples,field_count*max_field_size,channels,1)
     :param x_patchy_edges: A ndarray with shape (training_examples,field_count*max_field_size*max_field_size,2)
     :param x_embedding_input: A ndarray with shape (training_examples, max_field_size*embedding_length*2)
     :param y_target: A 1D NumPy ndarray (training_examples,)
@@ -104,8 +104,8 @@ def create_balanced_training_set(x_patchy_nodes, x_patchy_edges, x_embedding_inp
     """
 
     class_counts = [0 for _ in range(CLASS_COUNT)]
-    new_x_patchy_nodes = np.zeros((limit*CLASS_COUNT, FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT))
-    new_x_patchy_edges = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_NODES*MAX_NODES, 2))
+    new_x_patchy_nodes = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1))
+    new_x_patchy_edges = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_NODES*MAX_NODES, 2, 1))
     new_x_embedding_input = np.zeros((limit*CLASS_COUNT, EMBEDDING_LENGTH*MAX_NODES*2))
     new_y = np.ndarray((limit*CLASS_COUNT,))
     idx = 0
@@ -123,26 +123,11 @@ def create_balanced_training_set(x_patchy_nodes, x_patchy_edges, x_embedding_inp
     return new_x_patchy_nodes, new_x_patchy_edges, new_x_embedding_input, new_y
 
 
-def reshape_training_data(x_train):
-    """
-    Reshapes 3D tensors into a 2D tensor by combining the first two dimensions.
-    The final tensor has 4 dimensions specified, with the last dimension set as 1.
-
-    TODO: Fix the final dimension.
-
-    :param x_train: A ndarray with shape (s,field_count,max_field_size,n)
-    :return: A ndarray. It has shape (training examples,field_count*max_field_size,n, 1)
-    """
-
-    new_shape = (x_train.shape[0], FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
-    return x_train.reshape(new_shape)
-
-
 def shuffle_datasets(x_patchy_nodes, x_patchy_edges, x_embedding, y_train):
     """
     Shuffles the provided training datasets and labels together, along the first axis
 
-    :param x_patchy_nodes: A ndarray with shape (training_examples,field_count,max_field_size,channels)
+    :param x_patchy_nodes: A ndarray with shape (training_examples,field_count*max_field_size,channels,1)
     :param x_patchy_edges: A ndarray with shape (training_examples, field_count*max_field_size*max_field_size, 2)
     :param x_embedding: A ndarray with shape (training_examples, MAX_NODES*EMBEDDING_LENGTH*2)
     :param y_train: A ndarray
@@ -159,8 +144,10 @@ def process_training_examples(training_graphs):
 
     :param training_graphs:A list of tuples (label, graph). label is an integer,
     graph is a Graph object.
-    :return: A tuple of ndarrays (x_new, y_new). x_new has dimensions
-    (training_samples, field_cound*max_field_size, channel_count)
+    :return: A tuple of ndarrays (x_patchy_nodes, x_patchy_edges, x_embedding, y_new).
+    x_patchy_nodes has dimensions (training_samples, field_count*max_field_size, channel_count)
+    x_patchy_edges has dimensions (training_samples, field_count*max_field_size*max_field_size, 2)
+    x_embedding has dimensions (training_samples, 2*max_field_size*embedding_length)
     y_new has dimensions (training_samples, number_of_classes)
     """
 
@@ -177,7 +164,6 @@ def process_training_examples(training_graphs):
 
     from keras.utils import to_categorical
     y_new = to_categorical(y_train)
-    x_patchy_nodes = reshape_training_data(x_patchy_nodes)
 
     return shuffle_datasets(x_patchy_nodes, x_patchy_edges, x_embedding, y_new)
 

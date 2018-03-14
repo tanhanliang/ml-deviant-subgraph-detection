@@ -149,6 +149,9 @@ def build_tensor_naive_hashing(norm_fields_list):
     naively applies the same hash function to every string property, and is intended to just
     be a way to help me get the CNN pipeline running.
 
+    Also reshapes the tensor to 2 dimensions (technically there is a third dimension, but its
+    length is 1 because keras's 2dConv layers expect this).
+
     :param norm_fields_list: The list of tuples of (list of nodes, list of edges) containing
     the receptive fields.
     :return: A 3d NumPy array
@@ -181,8 +184,8 @@ def build_tensor_naive_hashing(norm_fields_list):
                 else:
                     val = DEFAULT_TENSOR_VAL
                 tensor[fields_idx][field_idx][property_idx] = val
-
-    return normalise_tensor(tensor)
+    norm_tensor = normalise_tensor(tensor)
+    return norm_tensor.reshape((FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1))
 
 
 def build_embedding(graph):
@@ -270,4 +273,4 @@ def build_edges_tensor(norm_fields_list):
             tensor[fields_idx][start_pos][end_pos][0] = EDGE_TYPE_HASH[edge.type]
             tensor[fields_idx][start_pos][end_pos][1] = EDGE_STATE_HASH[edge.properties["state"]]
 
-    return tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, 2))
+    return tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, 2, 1))
