@@ -16,6 +16,24 @@ from optimisable_functions.hashes import hash_simhash
 TENSOR_UPPER_LIMIT = 7e11
 TENSOR_LOWER_LIMIT = 0
 
+EDGE_TYPE_HASH = {
+    "GLOB_OBJ_PREV": 1,
+    "META_PREV": 2,
+    "PROC_OBJ": 4,
+    "PROC_OBJ_PREV": 8,
+    "PROC_PARENT": 16,
+    "COMM": 32,
+}
+
+EDGE_STATE_HASH = {
+    "RaW": 1,
+    "WRITE": 2,
+    "READ": 4,
+    "NONE": 8,
+    "CLIENT": 16,
+    "SERVER": 32,
+    "BIN": 64,
+}
 
 def iterate(iterator, n):
     """
@@ -48,7 +66,7 @@ def build_groups_of_receptive_fields(graph):
     constructed.
 
     :param graph: A Graph object
-    :return: A list of lists of tuples of lists of nodes, or a list of lists of tuples of
+    :return: A list of lists of tuples of (list of nodes, list of edges), or a list of lists of tuples of
     receptive fields for nodes and edges.
     Each tuple of lists corresponds to a receptive field, and contains all the nodes and edges in it.
     Each list of tuples of lists corresponds to a group of receptive fields.
@@ -210,3 +228,48 @@ def build_embedding(graph):
     padded_embedding = pad_sequences(embedding, maxlen=EMBEDDING_LENGTH)
     combined_embedding = [num for sublist in padded_embedding for num in sublist]
     return np.asarray(combined_embedding, dtype=np.int16)
+
+
+def build_edges_tensor(norm_fields_list):
+    """
+    Given a list of tuples of (list of nodes, list of edges), builds the input tensor for the
+    edges.
+
+    We iterate over all the receptive fields. For each receptive field, we build an adjacency
+    matrix corresponding to the edges between nodes in the receptive field. Since the list of nodes
+    given is normalised already, we can use this ordering for the adjacency matrix.
+
+    For each edge in a receptive field, we assign a number for the edge label and the edge state.
+    We thus produce a tensor with dimensions (FIELD_COUNT, MAX_NODES, MAX_NODES, 2).
+    We then reshape it to a 2D tensor: (FIELD_COUNT*MAX_NODES*MAX_NODES, 2)
+
+    :param norm_fields_list: A list of tuples of (list of nodes, list of edges).
+    Each tuple describes a receptive field, and contains all the nodes and edges in this field.
+    We may have multiple receptive fields, hence we have a list of tuples.
+    :return: A NumPy ndarray with dimensions (FIELD_COUNT*MAX_NODES*MAX_NODES, 2)
+    """
+
+    tensor = np.zeros((FIELD_COUNT, MAX_NODES, MAX_NODES, 2), dtype='int64')
+
+    # fields_idx iterates over the receptive fields
+    for fields_idx in range(FIELD_COUNT):
+        # The normalised list of nodes is the first item in the tuple
+        recept_field_nodes = norm_fields_list[fields_idx][0]
+
+        # The normalised list of edges is the second item in the tuple
+        recept_field_edges = norm_fields_list[fields_idx][1]
+
+        node_id_to_position = {}
+
+        # Record the position of each node in the adjacency matrix
+        for idx in range(len(recept_field_nodes)):
+            node_id = recept_field_nodes[idx].id
+            node_id_to_position[node_id] = idx
+
+        for edge in recept_field_edges:
+            start_pos = node_id_to_position[edge.start]
+            end_pos = node_id_to_position[edge.end]
+            tensor[fields_idx][start_pos][end_pos][0] = EDGE_TYPE_HASH[edge.type]
+            tensor[fields_idx][start_pos][end_pos][1] = EDGE_STATE_HASH[edge.properties["state"]]
+
+    tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, 2))
