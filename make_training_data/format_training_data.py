@@ -2,11 +2,10 @@
 Contains functions to format the training data into ndarrays that can be used to train the
 model.
 """
-from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing, build_edges_tensor
-from patchy_san.make_cnn_input import build_embedding
-from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT, EMBEDDING_LENGTH
-from patchy_san.parameters import MAX_NODES, EDGE_PROP_COUNT
-from data_processing.preprocessing import get_graphs_by_result
+import patchy_san.make_cnn_input as make_input
+import patchy_san.parameters as params
+import data_processing.preprocessing as preprocess
+
 import numpy as np
 
 
@@ -24,7 +23,7 @@ def label_and_process_data(results):
     label = 0
 
     for result in results:
-        graph_list = get_graphs_by_result(result)
+        graph_list = preprocess.get_graphs_by_result(result)
 
         for graph in graph_list:
             training_graphs.append((label, graph))
@@ -59,7 +58,7 @@ def format_all_training_data(training_graphs):
 
     print("Processing training graphs into tensors...")
     for (label, graph) in training_graphs:
-        receptive_fields_groups = build_groups_of_receptive_fields(graph)
+        receptive_fields_groups = make_input.build_groups_of_receptive_fields(graph)
 
         # For training data there will only be one receptive field group, so assume
         # that length of receptive_field_groups is 1
@@ -67,16 +66,28 @@ def format_all_training_data(training_graphs):
             msg = "More or less than one receptive field group exists in the training example."
             raise ValueError(msg)
 
-        nodes_tensor = build_tensor_naive_hashing(receptive_fields_groups[0])
-        edges_tensor = build_edges_tensor(receptive_fields_groups[0])
-        embedding = build_embedding(graph)
+        nodes_tensor = make_input.build_tensor_naive_hashing(receptive_fields_groups[0])
+        edges_tensor = make_input.build_edges_tensor(receptive_fields_groups[0])
+        embedding = make_input.build_embedding(graph)
         x_data_list.append((nodes_tensor, edges_tensor, embedding))
         y_target_list.append(label)
 
     training_examples = len(x_data_list)
-    x_patchy_nodes = np.ndarray((training_examples, FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1))
-    x_patchy_edges = np.ndarray((training_examples, MAX_NODES*MAX_NODES*FIELD_COUNT, EDGE_PROP_COUNT, 1))
-    x_embedding_input = np.ndarray((training_examples, MAX_NODES*EMBEDDING_LENGTH*2))
+    train_patchy_nodes_shape = (
+        training_examples,
+        params.FIELD_COUNT*params.MAX_FIELD_SIZE,
+        params.CHANNEL_COUNT, 1
+    )
+    train_patchy_edges_shape = (
+        training_examples,
+        params.MAX_NODES*params.MAX_NODES*params.FIELD_COUNT,
+        params.EDGE_PROP_COUNT, 1
+    )
+    train_embed_shape = (training_examples, params.MAX_NODES*params.EMBEDDING_LENGTH*2)
+
+    x_patchy_nodes = np.ndarray(train_patchy_nodes_shape)
+    x_patchy_edges = np.ndarray(train_patchy_edges_shape)
+    x_embedding_input = np.ndarray(train_embed_shape)
     y_target = np.asarray(y_target_list, dtype=np.int32)
 
     idx = 0
@@ -103,11 +114,25 @@ def create_balanced_training_set(x_patchy_nodes, x_patchy_edges, x_embedding_inp
     :return: A tuple of ndarrays
     """
 
-    class_counts = [0 for _ in range(CLASS_COUNT)]
-    new_x_patchy_nodes = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1))
-    new_x_patchy_edges = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_NODES*MAX_NODES, EDGE_PROP_COUNT, 1))
-    new_x_embedding_input = np.zeros((limit*CLASS_COUNT, EMBEDDING_LENGTH*MAX_NODES*2))
-    new_y = np.ndarray((limit*CLASS_COUNT,))
+    patchy_nodes_shape = (
+        limit*params.CLASS_COUNT,
+        params.FIELD_COUNT*params.MAX_FIELD_SIZE,
+        params.CHANNEL_COUNT,
+        1
+    )
+    patchy_edges_shape = (
+        limit*params.CLASS_COUNT,
+        params.FIELD_COUNT*params.MAX_NODES*params.MAX_NODES,
+        params.EDGE_PROP_COUNT,
+        1
+    )
+    embedding_shape = (limit*params.CLASS_COUNT, params.EMBEDDING_LENGTH*params.MAX_NODES*2)
+
+    class_counts = [0 for _ in range(params.CLASS_COUNT)]
+    new_x_patchy_nodes = np.zeros(patchy_nodes_shape)
+    new_x_patchy_edges = np.zeros(patchy_edges_shape)
+    new_x_embedding_input = np.zeros(embedding_shape)
+    new_y = np.ndarray((limit*params.CLASS_COUNT,))
     idx = 0
 
     for i in range(len(y_target)):
