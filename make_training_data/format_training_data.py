@@ -5,7 +5,7 @@ model.
 from patchy_san.make_cnn_input import build_groups_of_receptive_fields, build_tensor_naive_hashing, build_edges_tensor
 from patchy_san.make_cnn_input import build_embedding
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT, EMBEDDING_LENGTH
-from patchy_san.parameters import MAX_NODES
+from patchy_san.parameters import MAX_NODES, EDGE_PROP_COUNT
 from data_processing.preprocessing import get_graphs_by_result
 import numpy as np
 
@@ -75,7 +75,7 @@ def format_all_training_data(training_graphs):
 
     training_examples = len(x_data_list)
     x_patchy_nodes = np.ndarray((training_examples, FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1))
-    x_patchy_edges = np.ndarray((training_examples, MAX_NODES*MAX_NODES*FIELD_COUNT, 2, 1))
+    x_patchy_edges = np.ndarray((training_examples, MAX_NODES*MAX_NODES*FIELD_COUNT, EDGE_PROP_COUNT, 1))
     x_embedding_input = np.ndarray((training_examples, MAX_NODES*EMBEDDING_LENGTH*2))
     y_target = np.asarray(y_target_list, dtype=np.int32)
 
@@ -105,7 +105,7 @@ def create_balanced_training_set(x_patchy_nodes, x_patchy_edges, x_embedding_inp
 
     class_counts = [0 for _ in range(CLASS_COUNT)]
     new_x_patchy_nodes = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1))
-    new_x_patchy_edges = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_NODES*MAX_NODES, 2, 1))
+    new_x_patchy_edges = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_NODES*MAX_NODES, EDGE_PROP_COUNT, 1))
     new_x_embedding_input = np.zeros((limit*CLASS_COUNT, EMBEDDING_LENGTH*MAX_NODES*2))
     new_y = np.ndarray((limit*CLASS_COUNT,))
     idx = 0
@@ -128,7 +128,7 @@ def shuffle_datasets(x_patchy_nodes, x_patchy_edges, x_embedding, y_train):
     Shuffles the provided training datasets and labels together, along the first axis
 
     :param x_patchy_nodes: A ndarray with shape (training_examples,field_count*max_field_size,channels,1)
-    :param x_patchy_edges: A ndarray with shape (training_examples, field_count*max_field_size*max_field_size, 2)
+    :param x_patchy_edges: A ndarray with shape (training_examples, field_count*max_field_size*max_field_size, EDGE_PROP_COUNT)
     :param x_embedding: A ndarray with shape (training_examples, MAX_NODES*EMBEDDING_LENGTH*2)
     :param y_train: A ndarray
     :return: A tuple of shuffled ndarrays
@@ -146,7 +146,7 @@ def process_training_examples(training_graphs):
     graph is a Graph object.
     :return: A tuple of ndarrays (x_patchy_nodes, x_patchy_edges, x_embedding, y_new).
     x_patchy_nodes has dimensions (training_samples, field_count*max_field_size, channel_count)
-    x_patchy_edges has dimensions (training_samples, field_count*max_field_size*max_field_size, 2)
+    x_patchy_edges has dimensions (training_samples, field_count*max_field_size*max_field_size, EDGE_PROP_COUNT)
     x_embedding has dimensions (training_samples, 2*max_field_size*embedding_length)
     y_new has dimensions (training_samples, number_of_classes)
     """
@@ -176,7 +176,7 @@ def get_final_datasets(results):
     :param results: A list of BoltStatementResults
     :return: A tuple of ndarrays (x_patchy_nodes, x_patchy_edges, x_embedding, y_new).
     x_patchy_nodes has dimensions (training_samples, field_count*max_field_size, channel_count)
-    x_patchy_edges has dimensions (training_samples, field_count*max_field_size*max_field_size, 2)
+    x_patchy_edges has dimensions (training_samples, field_count*max_field_size*max_field_size, EDGE_PROP_COUNT)
     x_embedding has dimensions (training_samples, 2*max_field_size*embedding_length)
     y_new has dimensions (training_samples, number_of_classes)
     """

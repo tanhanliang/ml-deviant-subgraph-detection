@@ -66,3 +66,9 @@ VOCAB_SIZE = 1000
 
 # Max nodes in each input graph
 MAX_NODES = 4
+
+# The edge properties to consider
+EDGE_PROPERTIES = ['state']
+
+# The number of properties to be considered. Includes the node label as well.
+EDGE_PROP_COUNT = len(EDGE_PROPERTIES) + 1

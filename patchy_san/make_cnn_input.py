@@ -5,7 +5,7 @@ Contains functions to generate input in the form of NumPy arrays for the CNN.
 import numpy as np
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
 from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL, MAX_NODES, NODE_TYPE_HASH, VOCAB_SIZE
-from patchy_san.parameters import EMBEDDING_LENGTH
+from patchy_san.parameters import EMBEDDING_LENGTH, EDGE_PROPERTIES, EDGE_PROP_COUNT
 from patchy_san.neighborhood_assembly import label_and_order_nodes, get_receptive_field
 from patchy_san.graph_normalisation import normalise_receptive_field
 from optimisable_functions.hashes import hash_labels_only
@@ -241,16 +241,16 @@ def build_edges_tensor(norm_fields_list):
     given is normalised already, we can use this ordering for the adjacency matrix.
 
     For each edge in a receptive field, we assign a number for the edge label and the edge state.
-    We thus produce a tensor with dimensions (FIELD_COUNT, MAX_NODES, MAX_NODES, 2).
-    We then reshape it to a 2D tensor: (FIELD_COUNT*MAX_NODES*MAX_NODES, 2)
+    We thus produce a tensor with dimensions (FIELD_COUNT, MAX_NODES, MAX_NODES, EDGE_PROP_COUNT).
+    We then reshape it to a 2D tensor: (FIELD_COUNT*MAX_NODES*MAX_NODES, EDGE_PROP_COUNT)
 
     :param norm_fields_list: A list of tuples of (list of nodes, list of edges).
     Each tuple describes a receptive field, and contains all the nodes and edges in this field.
     We may have multiple receptive fields, hence we have a list of tuples.
-    :return: A NumPy ndarray with dimensions (FIELD_COUNT*MAX_NODES*MAX_NODES, 2)
+    :return: A NumPy ndarray with dimensions (FIELD_COUNT*MAX_NODES*MAX_NODES, EDGE_PROP_COUNT)
     """
 
-    tensor = np.zeros((FIELD_COUNT, MAX_NODES, MAX_NODES, 2), dtype='int64')
+    tensor = np.zeros((FIELD_COUNT, MAX_NODES, MAX_NODES, EDGE_PROP_COUNT), dtype='int64')
 
     # fields_idx iterates over the receptive fields
     for fields_idx in range(FIELD_COUNT):
@@ -271,6 +271,13 @@ def build_edges_tensor(norm_fields_list):
             start_pos = node_id_to_position[edge.start]
             end_pos = node_id_to_position[edge.end]
             tensor[fields_idx][start_pos][end_pos][0] = EDGE_TYPE_HASH[edge.type]
-            tensor[fields_idx][start_pos][end_pos][1] = EDGE_STATE_HASH[edge.properties["state"]]
 
-    return tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, 2, 1))
+            for idx in range(1, EDGE_PROP_COUNT):
+                prop = EDGE_PROPERTIES[idx]
+                if prop in edge.properties:
+                    val = EDGE_STATE_HASH[edge.properties[prop]]
+                else:
+                    val = 0
+                tensor[fields_idx][start_pos][end_pos][idx] = val
+
+    return tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, EDGE_PROP_COUNT, 1))
