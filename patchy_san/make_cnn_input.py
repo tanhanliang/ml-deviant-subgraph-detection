@@ -7,7 +7,7 @@ from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_C
 from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL, MAX_NODES, NODE_TYPE_HASH, VOCAB_SIZE
 from patchy_san.parameters import EMBEDDING_LENGTH
 from patchy_san.neighborhood_assembly import label_and_order_nodes, get_receptive_field
-from patchy_san.graph_normalisation import normalise_receptive_field, normalise_edge_list
+from patchy_san.graph_normalisation import normalise_receptive_field
 from optimisable_functions.hashes import hash_labels_only
 from keras.preprocessing.text import hashing_trick
 from keras.preprocessing.sequence import pad_sequences
@@ -34,6 +34,7 @@ EDGE_STATE_HASH = {
     "SERVER": 32,
     "BIN": 64,
 }
+
 
 def iterate(iterator, n):
     """
@@ -85,10 +86,9 @@ def build_groups_of_receptive_fields(graph):
         receptive_field_graph = get_receptive_field(root_node.id, graph)
         r_field_nodes_list = normalise_receptive_field(receptive_field_graph)
         edges_list = get_related_edges(r_field_nodes_list, graph)
-        normalised_edges = normalise_edge_list(edges_list)
 
         norm_field_nodes.append(r_field_nodes_list)
-        norm_field_edges.append(normalised_edges)
+        norm_field_edges.append(edges_list)
         root_node = iterate(nodes_iter, STRIDE)
         norm_fields_count += 1
 
@@ -223,7 +223,7 @@ def build_embedding(graph):
 
             embedding += [encoded_name, encoded_cmdline]
         else:
-            embedding += [[],[]]
+            embedding += [[], []]
 
     padded_embedding = pad_sequences(embedding, maxlen=EMBEDDING_LENGTH)
     combined_embedding = [num for sublist in padded_embedding for num in sublist]

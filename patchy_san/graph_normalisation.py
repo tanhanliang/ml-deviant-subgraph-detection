@@ -5,25 +5,6 @@ have nodes ordered similarly (relative ordering of nodes) after being normalised
 
 from patchy_san.parameters import HASH_PROPERTIES, NODE_TYPE_HASH, PROPERTY_CARDINALITY, RECEPTIVE_FIELD_HASH
 
-EDGE_TYPE_HASH = {
-    "GLOB_OBJ_PREV": 1,
-    "META_PREV": 2,
-    "PROC_OBJ": 4,
-    "PROC_OBJ_PREV": 8,
-    "PROC_PARENT": 16,
-    "COMM": 32,
-}
-
-EDGE_STATE_HASH = {
-    "RaW": 64,
-    "WRITE": 128,
-    "READ": 256,
-    "NONE": 512,
-    "CLIENT": 1024,
-    "SERVER": 2048,
-    "BIN": 4096,
-}
-
 
 def normalise_receptive_field(graph):
     """
@@ -36,34 +17,6 @@ def normalise_receptive_field(graph):
 
     node_list = list(graph.nodes.values())
     return sorted(node_list, key=lambda node: compute_hash(node))
-
-
-def normalise_edge_list(edges_list):
-    """
-    Sorts a list of edges using a number computed from the edge label and edge state.
-
-    :param edges_list: A list of edges
-    :return: A list of edges
-    """
-
-    return sorted(edges_list, key=lambda edge: compute_edge_hash(edge))
-
-
-def compute_edge_hash(edge):
-    """
-    Computes a value for an edge.
-
-    :param edge: An edge
-    :return: An integer
-    """
-
-    if "state" in edge.properties:
-        val = EDGE_STATE_HASH[edge.properties["state"]]
-
-    else:
-        val = 0
-
-    return val + EDGE_TYPE_HASH[edge.type]
 
 
 def compute_hash(node):
