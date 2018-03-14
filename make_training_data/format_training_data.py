@@ -105,7 +105,7 @@ def create_balanced_training_set(x_patchy_nodes, x_patchy_edges, x_embedding_inp
 
     class_counts = [0 for _ in range(CLASS_COUNT)]
     new_x_patchy_nodes = np.zeros((limit*CLASS_COUNT, FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT))
-    new_x_patchy_edges = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_NODES*MAX_NODES))
+    new_x_patchy_edges = np.zeros((limit*CLASS_COUNT, FIELD_COUNT*MAX_NODES*MAX_NODES, 2))
     new_x_embedding_input = np.zeros((limit*CLASS_COUNT, EMBEDDING_LENGTH*MAX_NODES*2))
     new_y = np.ndarray((limit*CLASS_COUNT,))
     idx = 0

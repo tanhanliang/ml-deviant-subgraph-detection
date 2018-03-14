@@ -270,4 +270,4 @@ def build_edges_tensor(norm_fields_list):
             tensor[fields_idx][start_pos][end_pos][0] = EDGE_TYPE_HASH[edge.type]
             tensor[fields_idx][start_pos][end_pos][1] = EDGE_STATE_HASH[edge.properties["state"]]
 
-    tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, 2))
+    return tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, 2))
