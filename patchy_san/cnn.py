@@ -19,20 +19,35 @@ def build_model(learning_rate=0.005, activations="sigmoid"):
 
     :return:
     """
-    patchy_san_input_shape = (FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
+    ps_nodes_input_shape = (FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
+    ps_edges_input_shape = (FIELD_COUNT*MAX_NODES*MAX_NODES, 2, 1)
 
-    # Patchy-san track
-    patchy_san_input = Input(shape=patchy_san_input_shape, name='ps_input')
-    ps_conv1 = Convolution2D(
+    # Patchy-san nodes track
+    ps_nodes_input = Input(shape=ps_nodes_input_shape, name='ps_nodes_input')
+    psn_conv1 = Convolution2D(
         activation='relu',
         filters=8,
         kernel_size=(1, 2),
-        input_shape=patchy_san_input_shape,
-        name='ps_conv1'
-    )(patchy_san_input)
-    ps_maxpool1 = MaxPooling2D(pool_size=(1, 2), name='ps_maxpool1')(ps_conv1)
-    ps_dropout1 = Dropout(0.1, name='ps_dropout1')(ps_maxpool1)
-    ps_flatten1 = Flatten(name='ps_flatten1')(ps_dropout1)
+        input_shape=ps_nodes_input_shape,
+        name='ps_nodes_conv1'
+    )(ps_nodes_input)
+    psn_maxpool1 = MaxPooling2D(pool_size=(1, 2), name='ps_nodes_maxpool1')(psn_conv1)
+    psn_dropout1 = Dropout(0.1, name='ps_nodes_dropout1')(psn_maxpool1)
+    psn_flatten1 = Flatten(name='ps_nodes_flatten1')(psn_dropout1)
+
+    # Patchy-san edges track
+    ps_edges_input = Input(shape=ps_edges_input_shape, name='ps_edges_input')
+    pse_conv1 = Convolution2D(
+        activation='relu',
+        filters=8,
+        kernel_size=(1, 2),
+        input_shape=ps_edges_input_shape,
+        name='ps_edges_conv1'
+    )(ps_edges_input)
+    # pse_maxpool1 = MaxPooling2D(pool_size=(1, 2), name='ps_edges_maxpool1')(pse_conv1)
+    # pse_dropout1 = Dropout(0.1, name='ps_edges_dropout1')(pse_maxpool1)
+    pse_dropout1 = Dropout(0.1, name='ps_edges_dropout1')(pse_conv1)
+    pse_flatten1 = Flatten(name='ps_edges_flatten1')(pse_dropout1)
 
     # Embedding track
     emb_input = Input(shape=(EMBEDDING_LENGTH*MAX_NODES*2,), name='emb_input')
@@ -44,12 +59,12 @@ def build_model(learning_rate=0.005, activations="sigmoid"):
     )(emb_input)
     emb_flatten = Flatten(name='emb_flatten')(emb_embedding)
 
-    merge = concatenate([ps_flatten1, emb_flatten], name='merge')
+    merge = concatenate([psn_flatten1, pse_flatten1, emb_flatten], name='merge')
     dense1 = Dense(8, activation='relu', name='dense1')(merge)
     dense2 = Dense(8, activation='relu', name='dense2')(dense1)
     dropout1 = Dropout(0.1, name='dropout1')(dense2)
     output = Dense(CLASS_COUNT, activation=activations, name='output')(dropout1)
-    model = Model(inputs=[patchy_san_input, emb_input], outputs=output)
+    model = Model(inputs=[ps_nodes_input, ps_edges_input, emb_input], outputs=output)
     optimiser = adam(lr=learning_rate)
     model.compile(loss='mean_squared_error',
                   optimizer=optimiser,
