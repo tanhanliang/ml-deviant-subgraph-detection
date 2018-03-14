@@ -76,26 +76,24 @@ def build_groups_of_receptive_fields(graph):
 
     nodes_list = label_and_order_nodes(graph)
     groups_of_receptive_fields = []
-    norm_field_nodes = []
-    norm_field_edges = []
+    receptive_field = []
     nodes_iter = iter(nodes_list)
     root_node = next(nodes_iter, None)
-    norm_fields_count = 0
+    receptive_field_count = 0
 
     while root_node is not None:
         receptive_field_graph = get_receptive_field(root_node.id, graph)
         r_field_nodes_list = normalise_receptive_field(receptive_field_graph)
         edges_list = get_related_edges(r_field_nodes_list, graph)
 
-        norm_field_nodes.append(r_field_nodes_list)
-        norm_field_edges.append(edges_list)
+        receptive_field.append((r_field_nodes_list, edges_list))
         root_node = iterate(nodes_iter, STRIDE)
-        norm_fields_count += 1
+        receptive_field_count += 1
 
-        if norm_fields_count == FIELD_COUNT:
-            groups_of_receptive_fields.append((norm_field_nodes, norm_field_edges))
-            norm_field_nodes = []
-            norm_fields_count = 0
+        if receptive_field_count == FIELD_COUNT:
+            groups_of_receptive_fields.append(receptive_field)
+            receptive_field = []
+            receptive_field_count = 0
     # only whole groups? or partial groups also
     # if norm_fields_list:
     #     groups_of_receptive_fields.append(norm_fields_list)
