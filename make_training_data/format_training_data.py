@@ -153,14 +153,15 @@ def shuffle_datasets(x_patchy_nodes, x_patchy_edges, x_embedding, y_train):
     Shuffles the provided training datasets and labels together, along the first axis
 
     :param x_patchy_nodes: A ndarray with shape (training_examples,field_count*max_field_size,channels,1)
-    :param x_patchy_edges: A ndarray with shape (training_examples, field_count*max_field_size*max_field_size, EDGE_PROP_COUNT)
+    :param x_patchy_edges: A ndarray with shape
+    (training_examples, field_count*max_field_size*max_field_size, EDGE_PROP_COUNT)
     :param x_embedding: A ndarray with shape (training_examples, MAX_NODES*EMBEDDING_LENGTH*2)
     :param y_train: A ndarray
     :return: A tuple of shuffled ndarrays
     """
 
     permutation = np.random.permutation(y_train.shape[0])
-    return x_patchy_nodes[permutation],x_patchy_edges, x_embedding[permutation], y_train[permutation]
+    return x_patchy_nodes[permutation], x_patchy_edges, x_embedding[permutation], y_train[permutation]
 
 
 def process_training_examples(training_graphs):
