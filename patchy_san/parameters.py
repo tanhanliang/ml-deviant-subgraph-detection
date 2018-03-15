@@ -8,10 +8,10 @@ from optimisable_functions.hashes import hash_simhash, hash_labels_prop
 FIELD_COUNT = 1
 
 # k
-MAX_FIELD_SIZE = 4
+MAX_FIELD_SIZE = 6
 
 # s
-STRIDE = 4
+STRIDE = 6
 
 # input channels
 HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
@@ -65,10 +65,10 @@ EMBEDDING_DIM = 10
 VOCAB_SIZE = 1000
 
 # Max nodes in each input graph
-MAX_NODES = 4
+MAX_NODES = 6
 
 # The edge properties to consider
 EDGE_PROPERTIES = ['state']
 
-# The number of properties to be considered. Includes the node label as well.
-EDGE_PROP_COUNT = len(EDGE_PROPERTIES) + 1
+# The number of edge properties
+EDGE_PROP_COUNT = len(EDGE_PROPERTIES)

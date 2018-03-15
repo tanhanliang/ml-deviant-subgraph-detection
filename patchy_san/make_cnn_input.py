@@ -272,7 +272,7 @@ def build_edges_tensor(norm_fields_list):
             end_pos = node_id_to_position[edge.end]
             tensor[fields_idx][start_pos][end_pos][0] = EDGE_TYPE_HASH[edge.type]
 
-            for idx in range(1, EDGE_PROP_COUNT):
+            for idx in range(0, EDGE_PROP_COUNT):
                 prop = EDGE_PROPERTIES[idx]
                 if prop in edge.properties:
                     val = EDGE_STATE_HASH[edge.properties[prop]]
