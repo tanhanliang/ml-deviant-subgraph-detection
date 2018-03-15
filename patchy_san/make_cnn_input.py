@@ -250,7 +250,7 @@ def build_edges_tensor(norm_fields_list):
     :return: A NumPy ndarray with dimensions (FIELD_COUNT*MAX_NODES*MAX_NODES, EDGE_PROP_COUNT)
     """
 
-    tensor = np.zeros((FIELD_COUNT, MAX_NODES, MAX_NODES, EDGE_PROP_COUNT), dtype='int64')
+    tensor = np.zeros((FIELD_COUNT, MAX_NODES, MAX_NODES, EDGE_PROP_COUNT ), dtype='int64')
 
     # fields_idx iterates over the receptive fields
     for fields_idx in range(FIELD_COUNT):
@@ -272,12 +272,13 @@ def build_edges_tensor(norm_fields_list):
             end_pos = node_id_to_position[edge.end]
             tensor[fields_idx][start_pos][end_pos][0] = EDGE_TYPE_HASH[edge.type]
 
-            for idx in range(0, EDGE_PROP_COUNT):
-                prop = EDGE_PROPERTIES[idx]
+            edge_prop_idx = 1
+            for prop in EDGE_PROPERTIES:
                 if prop in edge.properties:
                     val = EDGE_STATE_HASH[edge.properties[prop]]
                 else:
                     val = 0
-                tensor[fields_idx][start_pos][end_pos][idx] = val
+                tensor[fields_idx][start_pos][end_pos][edge_prop_idx] = val
+                edge_prop_idx += 1
 
     return tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, EDGE_PROP_COUNT, 1))

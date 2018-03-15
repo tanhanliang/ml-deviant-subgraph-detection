@@ -70,5 +70,5 @@ MAX_NODES = 6
 # The edge properties to consider
 EDGE_PROPERTIES = ['state']
 
-# The number of edge properties
-EDGE_PROP_COUNT = len(EDGE_PROPERTIES)
+# The number of edge properties, including the edge type
+EDGE_PROP_COUNT = len(EDGE_PROPERTIES)+1
