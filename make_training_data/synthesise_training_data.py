@@ -82,8 +82,10 @@ def get_graphs_test_negative_data():
                 incoming_edge_count = 0
 
             node = graph.nodes[node_id]
-            if incoming_edge_count == 3 or incoming_edge_count == 2:
+            if incoming_edge_count == 3:
                 node.labels = {"Process"}
+            elif incoming_edge_count == 2:
+                node.labels = {"Pipe"}
             else:
                 node.labels = {"File", "Global"}
 
@@ -96,7 +98,7 @@ def get_graphs_test_negative_data():
             start_node = graph.nodes[edge.start]
             end_node = graph.nodes[edge.end]
 
-            if "Process" in start_node.labels and "Process" in end_node.labels:
+            if "Pipe" in start_node.labels and "Process" in end_node.labels:
                 edge.type = "PROC_PARENT"
                 edge.properties["state"] = "NONE"
             else:
