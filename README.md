@@ -75,11 +75,45 @@ field count, number of classes, see `patchy_san/parameters.py`.
 `xpn` is the Patchy-San input for nodes, `xpe` is the Patchy-San input for edges, `xe` is the embedding
 input for node properties and `y` is the target output values.
 ```
-from patchy_san.cnn import build_model()
+from patchy_san.cnn import build_model
 model = build_model()
-model.fit([xpn,xpe,xe], y, validation_split=0.20, epochs=10, batch_size=10)
+history = model.fit([xpn,xpe,xe], y, validation_split=0.20, epochs=10, batch_size=10)
 ```
 Yay!
+
+### Utility Functions
+
+###### Visualisation of accuracy metrics
+See how training accuracy, training loss, test accuracy and test loss change for each epoch.
+```
+from utility.troubleshoot_cnn import plot_eval_metrics
+plot_eval_metrics(history)
+```
+
+###### Cross-validation
+A solid way to evaluate the performance of the model.
+```
+from utility.hyperparam_opt import cross_validation
+cross_validation([xpn,xpe,xe], y, 10, 10, 0.005, "sigmoid")
+```
+
+###### Intermediate layer values
+See what the model is doing under the hood.
+```
+from utility.troubleshoot_cnn import get_nth_layer_output_model
+# See patchy_san/cnn.py for all the layer names
+partial_model = get_nth_layer_output_model(model, "ps_nodes_conv1")
+
+# The first dimension of the input shape is the number of training examples.
+# I use this method of indexing to get training data for the first example and avoid reshaping
+xpn_test = xpn[:1]
+xpe_test = xpe[:1]
+xe_test = xe[:1]
+
+intermediate_vals = model.predict([xpn_test, xpe_test, xe_test])
+print(intermediate_vals)
+```
+
 
 The project dependencies may be found in requirements.txt.
 
