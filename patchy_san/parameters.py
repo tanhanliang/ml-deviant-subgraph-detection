@@ -65,7 +65,7 @@ EMBEDDING_DIM = 10
 VOCAB_SIZE = 1000
 
 # Max nodes in each input graph
-MAX_NODES = 6
+MAX_NODES = FIELD_COUNT*MAX_FIELD_SIZE
 
 # The edge properties to consider
 EDGE_PROPERTIES = ['state']
