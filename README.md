@@ -14,27 +14,27 @@ This is how to load some stored data manually. The training data shapes can be f
 make_training_data/about_training_data.txt.
 ```
 import numpy as np
-xpn = np.fromfile("training_data/x_patchy_nodes6.txt")
-xpe = np.fromfile("training_data/x_patchy_edges6.txt")
-xe = np.fromfile("training_data/x_embed6.txt")
+x_patchy_nodes = np.fromfile("training_data/x_patchy_nodes6.txt")
+x_patchy_edges = np.fromfile("training_data/x_patchy_edges6.txt")
+x_embed = np.fromfile("training_data/x_embed6.txt")
 y = np.fromfile("training_data/y_train6.txt")
 
-xpn = xpn.reshape((2000, 6, 5, 1))
-xpe = xpe.reshape((2000, 36, 2, 1))
-xe = xe.reshape((2000, 120))
+x_patchy_nodes = x_patchy_nodes.reshape((2000, 6, 5, 1))
+x_patchy_edges = xpe.reshape((2000, 36, 2, 1))
+x_embed = xe.reshape((2000, 120))
 y = y.reshape((2000, 2))
 ```
 
 If you do have a Neo4j database of provenance data, you can build some training data as follows:
 ```
 from make_training_data.format_training_data import get_final_datasets
-from make_training_data.fetch_training_data import get_train_4_node_test_cmdline
+from make_training_data.fetch_training_data import get_train_6_node_general
 
-results = get_train_4_node_test_cmdline()
-x_patchy, x_embed, y = get_final_datasets(results)
+results = get_train_6_node_general()
+x_patchy_nodes, x_patchy_edges, x_embed, y = get_final_datasets(results)
 ```
 
-This is how to synthesis some training data:
+This is how to synthesise some training data:
 ```
 from make_training_data.synthesise_training_data import get_graphs_test_negative_data
 from make_training_data.format_training_data import get_graphs_test_negative_data
