@@ -11,7 +11,7 @@ from utility.load_data import load_data
 inputs, y = load_data()
 ```
 This is how to load some stored data manually. The training data shapes can be found in
-make_training_data/about_training_data.txt.
+`make_training_data/about_training_data.txt`.
 ```
 import numpy as np
 x_patchy_nodes = np.fromfile("training_data/x_patchy_nodes6.txt")
@@ -69,7 +69,7 @@ xpn,xpe,xe,y = process_training_examples(training_graphs)
 ```
 
 If you want to change the parameters of the model, such as receptive field size, receptive
-field count, number of classes, see patchy_san/parameters.py.
+field count, number of classes, see `patchy_san/parameters.py`.
 
 ### Training the model
 `xpn` is the Patchy-San input for nodes, `xpe` is the Patchy-San input for edges, `xe` is the embedding
