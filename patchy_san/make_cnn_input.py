@@ -16,6 +16,9 @@ from optimisable_functions.hashes import hash_simhash
 TENSOR_UPPER_LIMIT = 7e11
 TENSOR_LOWER_LIMIT = 0
 
+EDGE_TENSOR_UPPER_LIMIT = 64
+EDGE_TENSOR_LOWER_LIMIT = 0
+
 EDGE_TYPE_HASH = {
     "GLOB_OBJ_PREV": 1,
     "META_PREV": 2,
@@ -125,7 +128,7 @@ def get_related_edges(nodes_list, graph):
     return edges
 
 
-def normalise_tensor(tensor):
+def normalise_tensor(tensor, upper, lower):
     """
     Normalises the tensor by applying computing the following for every element val in
     the tensor:
@@ -135,10 +138,12 @@ def normalise_tensor(tensor):
     where minimum_value and maximum_value are the minimum and maximum values in the tensor.
 
     :param tensor: A 3d NumPy array
+    :param upper: The upper limit. An integer
+    :param lower: The lower limit. An integer
     :return: A 3d NumPy array
     """
 
-    normalised_tensor = (tensor-TENSOR_LOWER_LIMIT)/(TENSOR_UPPER_LIMIT-TENSOR_LOWER_LIMIT)
+    normalised_tensor = (tensor-lower)/(upper-lower)
     return normalised_tensor
 
 
@@ -184,7 +189,7 @@ def build_tensor_naive_hashing(norm_fields_list):
                 else:
                     val = DEFAULT_TENSOR_VAL
                 tensor[fields_idx][field_idx][property_idx] = val
-    norm_tensor = normalise_tensor(tensor)
+    norm_tensor = normalise_tensor(tensor, TENSOR_UPPER_LIMIT, TENSOR_LOWER_LIMIT)
     return norm_tensor.reshape((FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1))
 
 
@@ -281,4 +286,6 @@ def build_edges_tensor(norm_fields_list):
                 tensor[fields_idx][start_pos][end_pos][edge_prop_idx] = val
                 edge_prop_idx += 1
 
-    return tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, EDGE_PROP_COUNT, 1))
+    tensor = tensor.reshape((FIELD_COUNT*MAX_NODES*MAX_NODES, EDGE_PROP_COUNT, 1))
+    # return normalise_tensor(tensor, EDGE_TENSOR_UPPER_LIMIT, EDGE_TENSOR_LOWER_LIMIT)
+    return tensor
