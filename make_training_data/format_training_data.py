@@ -161,7 +161,7 @@ def shuffle_datasets(x_patchy_nodes, x_patchy_edges, x_embedding, y_train):
     """
 
     permutation = np.random.permutation(y_train.shape[0])
-    return x_patchy_nodes[permutation], x_patchy_edges, x_embedding[permutation], y_train[permutation]
+    return x_patchy_nodes[permutation], x_patchy_edges[permutation], x_embedding[permutation], y_train[permutation]
 
 
 def process_training_examples(training_graphs):
