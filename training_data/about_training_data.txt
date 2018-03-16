@@ -1,6 +1,14 @@
 Each dataset will have at least 2 classes, including 1 'negative' class which consists of
 data that does not match any pattern.
 
+To import this data, use the NumPy.fromfile(<filename>) function. Then reshape the data.
+For example, to import dataset 1:
+
+x = np.fromfile("x_train1.txt")
+x = x.reshape((378, 3, 5, 1))
+y = np.fromfile("y_train1.txt")
+y = y.reshape((378, 2))
+
 Dataset 1: Process connects to a socket, then writes to a file.
 
 Field count = 1
@@ -110,3 +118,31 @@ x_embed5.shape = (2000, 80)
 y_train5.shape = (2000, 2)
 
 #######################################################
+
+Dataset 6: A 6-node pattern. 2 files have have an edge to a process. 2 other files have an edge
+to a pipe. The pipe has an edge to the process. The edge states, edge labels, node labels and
+node properties are set to some custom value.
+
+In the negative data, either a random edge, a random node's labels or a random node's cmdline is
+changed, with equal probability.
+
+FIELD_COUNT = 1
+MAX_FIELD_SIZE = 6
+STRIDE = 6
+HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
+HASH_FN = hash_labels_prop
+RECEPTIVE_FIELD_HASH = hash_simhash
+LABELING_FN = get_ts
+CLASS_COUNT = 2
+DEFAULT_TENSOR_VAL = 0
+CLEAN_TRAIN_DATA = False
+EMBEDDING_LENGTH = 10
+EMBEDDING_DIM = 10
+VOCAB_SIZE = 1000
+MAX_NODES = 6
+EDGE_PROPERTIES = ['state']
+EDGE_PROP_COUNT = 2
+x_patchy_nodes6.shape = (2000, 6, 5, 1)
+x_patchy_edges6.shape = (2000, 36, 2, 1)
+x_embed6.shape = (2000, 120)
+y_train6.shape = (2000, 2)

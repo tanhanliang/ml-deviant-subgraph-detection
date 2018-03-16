@@ -130,3 +130,22 @@ def get_train_4_node_simple():
     """
 
     return [execute_query(pattern), execute_query(pattern)]
+
+
+def get_train_6_node_general():
+    """
+    Queries the database for a particular 6-node pattern.
+
+    :return: A list of BoltStatementResult objects.
+    """
+
+    pattern = """
+    MATCH path1=(node1)<-[r1]-(node2),
+    path2=(node1)<-[r2]-(node3),
+    path3=(node1)<-[r3]-(node4),
+    path4=(node3)<-[r4]-(node5),
+    path5=(node3)<-[r5]-(node6)
+    RETURN path1,path2,path3,path4,path5 LIMIT 1000
+    """
+
+    return [execute_query(pattern), execute_query(pattern)]

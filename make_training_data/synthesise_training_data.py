@@ -52,3 +52,80 @@ def get_graphs_altered_cmdlines(cmdline_len):
                 node.properties["cmdline"] = get_rand_string(cmdline_len)
 
     return training_graphs
+
+
+def get_graphs_test_negative_data():
+    """
+    This builds data which tests if the model can use all 3 inputs on their own to make a
+    classification.
+
+    First, a general graph pattern is queried for. Each graph is then edited to a set pattern,
+    to create the first class. The negative data is built by using a copy of this data, then making
+    a slight change either to an edge, a node label, a cmdline on a node, or a name of a node.
+
+    :return: A list of tuples (label, graph). label is an integer, graph is a Graph object.
+    """
+
+    results = fetch.get_train_6_node_general()
+    training_graphs = fmt.label_and_process_data(results)
+
+    pattern_cmdline = "/My/name/is/Homer/Simpson/"
+    pattern_name = "/super/secret/password/database/pwd.db"
+
+    for (label, graph) in training_graphs:
+        # Set data for both classes to be the same first. Don't check label yet.
+        # Set the node labels and node properties
+        for node_id in graph.nodes:
+            if node_id in graph.incoming_edges:
+                incoming_edge_count = len(graph.incoming_edges[node_id])
+            else:
+                incoming_edge_count = 0
+
+            node = graph.nodes[node_id]
+            if incoming_edge_count == 3:
+                node.labels = {"Process"}
+            elif incoming_edge_count == 2:
+                node.labels = {"Pipe"}
+            else:
+                node.labels = {"File", "Global"}
+
+            node.properties["cmdline"] = pattern_cmdline
+            node.properties["name"] = pattern_name
+
+        # Set the edges
+        for edge_id in graph.edges:
+            edge = graph.edges[edge_id]
+            start_node = graph.nodes[edge.start]
+            end_node = graph.nodes[edge.end]
+
+            if "Pipe" in start_node.labels and "Process" in end_node.labels:
+                edge.type = "PROC_PARENT"
+                edge.properties["state"] = "NONE"
+            else:
+                edge.type = "PROC_OBJ"
+                edge.properties["state"] = "RaW"
+
+        # Now we tweak things if label is 1 (the negative data)
+        if label == 1:
+            choice = r.randint(1,3)
+
+            # Get a random node
+            nodes_list = list(graph.nodes.values())
+            tweak_node_idx = r.randint(0, len(nodes_list) - 1)
+            tweaked_node = nodes_list[tweak_node_idx]
+
+            # Get a random edge
+            edges_list = list(graph.edges.values())
+            tweak_edge_idx = r.randint(0, len(edges_list) - 1)
+            tweaked_edge = edges_list[tweak_edge_idx]
+
+            if choice == 1:
+                tweaked_node.labels = {'Socket'}
+
+            elif choice == 2:
+                tweaked_node.properties["cmdline"] = "/My/name/is/Homer/Thompson/"
+
+            else:
+                tweaked_edge.properties["state"] = "SERVER"
+
+    return training_graphs

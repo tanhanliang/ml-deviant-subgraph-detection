@@ -3,8 +3,8 @@ This module contains functions to pre-process(clean) graph data from Neo4j into 
 """
 
 import sys
-from patchy_san.parameters import CLEAN_TRAIN_DATA
-from data_processing.graphs import Graph
+import patchy_san.parameters as params
+import data_processing.graphs as graphs
 
 VERSION_TYPES = ['GLOB_OBJ_PREV', 'META_PREV', 'PROC_OBJ_PREV']
 
@@ -29,7 +29,7 @@ def get_graph(results):
                 edges[edge.id] = edge
 
     incoming_edges, outgoing_edges = build_in_out_edges(edges)
-    return Graph(nodes, edges, incoming_edges, outgoing_edges)
+    return graphs.Graph(nodes, edges, incoming_edges, outgoing_edges)
 
 
 def get_graphs_by_result(results):
@@ -56,9 +56,9 @@ def get_graphs_by_result(results):
 
         node_count = len(nodes)
         incoming_edges, outgoing_edges = build_in_out_edges(edges)
-        graph = Graph(nodes, edges, incoming_edges, outgoing_edges)
+        graph = graphs.Graph(nodes, edges, incoming_edges, outgoing_edges)
 
-        if CLEAN_TRAIN_DATA:
+        if params.CLEAN_TRAIN_DATA:
             clean_data(graph)
 
         if node_count == len(nodes):
