@@ -2,7 +2,7 @@
 The neural network is built here, using Keras with a TensorFlow backend.
 """
 
-from keras.optimizers import adam
+from keras.optimizers import adam, RMSprop
 from keras.models import Model, Sequential
 from keras.layers import Dense, MaxPooling2D, Convolution2D, Flatten, Dropout, Input, Embedding
 from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
@@ -60,8 +60,8 @@ def build_model(learning_rate=0.005, activations="sigmoid"):
     emb_flatten = Flatten(name='emb_flatten')(emb_embedding)
 
     merge = concatenate([psn_flatten1, pse_flatten1, emb_flatten], name='merge')
-    dense1 = Dense(8, activation='relu', name='dense1')(merge)
-    dense2 = Dense(8, activation='relu', name='dense2')(dense1)
+    dense1 = Dense(24, activation='relu', name='dense1')(merge)
+    dense2 = Dense(24, activation='relu', name='dense2')(dense1)
     dropout1 = Dropout(0.1, name='dropout1')(dense2)
     output = Dense(CLASS_COUNT, activation=activations, name='output')(dropout1)
     model = Model(inputs=[ps_nodes_input, ps_edges_input, emb_input], outputs=output)
