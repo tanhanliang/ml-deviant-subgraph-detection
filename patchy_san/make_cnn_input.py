@@ -4,7 +4,7 @@ Contains functions to generate input in the form of NumPy arrays for the CNN.
 
 import numpy as np
 from patchy_san.parameters import MAX_FIELD_SIZE, STRIDE, FIELD_COUNT, CHANNEL_COUNT, HASH_PROPERTIES
-from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL, MAX_NODES, NODE_TYPE_HASH, VOCAB_SIZE
+from patchy_san.parameters import HASH_FN, DEFAULT_TENSOR_VAL, MAX_NODES, NODE_TYPE_HASH, VOCAB_SIZE, NO_PROP
 from patchy_san.parameters import EMBEDDING_LENGTH, EDGE_PROPERTIES, EDGE_PROP_COUNT
 from patchy_san.neighborhood_assembly import label_and_order_nodes, get_receptive_field
 from patchy_san.graph_normalisation import normalise_receptive_field
@@ -163,7 +163,10 @@ def build_tensor_naive_hashing(norm_fields_list):
     """
 
     field_count = len(norm_fields_list)
-    tensor = np.zeros((field_count, MAX_FIELD_SIZE, CHANNEL_COUNT), dtype='int64')
+    if NO_PROP:
+        tensor = np.zeros((field_count, MAX_FIELD_SIZE, 1), dtype='int64')
+    else:
+        tensor = np.zeros((field_count, MAX_FIELD_SIZE, CHANNEL_COUNT), dtype='int64')
 
     # fields_idx iterates over the receptive fields
     for fields_idx in range(field_count):
@@ -172,6 +175,11 @@ def build_tensor_naive_hashing(norm_fields_list):
         # field_idx iterates over the nodes in a receptive field
         for field_idx in range(len(field)):
             node = field[field_idx]
+
+            if NO_PROP:
+                tensor[fields_idx][field_idx][0] = HASH_FN(labels=node.labels, node_label_hash=NODE_TYPE_HASH)
+                continue
+
             node_prop = node.properties
             for property_idx in range(CHANNEL_COUNT):
                 prop = HASH_PROPERTIES[property_idx]
@@ -190,6 +198,10 @@ def build_tensor_naive_hashing(norm_fields_list):
                     val = DEFAULT_TENSOR_VAL
                 tensor[fields_idx][field_idx][property_idx] = val
     norm_tensor = normalise_tensor(tensor, TENSOR_UPPER_LIMIT, TENSOR_LOWER_LIMIT)
+
+    if NO_PROP:
+        return norm_tensor
+
     return norm_tensor.reshape((FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1))
 
 

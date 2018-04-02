@@ -2,7 +2,7 @@
 This file contains all optimisable parameters for the convolutional neural network.
 """
 from optimisable_functions.labeling_fns import get_ts
-from optimisable_functions.hashes import hash_simhash, hash_labels_prop
+from optimisable_functions.hashes import hash_simhash, hash_labels_prop, hash_labels_only
 
 # w
 FIELD_COUNT = 1
@@ -33,7 +33,11 @@ PROPERTY_CARDINALITY = {'cmdline': int(1e19), 'name': int(1e19), 'ips': int(1e10
 # A hash function used to canonicalise the graph (ie. represent the graph in such a way that
 # isomorphic graphs have the same representation)
 # HASH_FN = hash_simhash
-HASH_FN = hash_labels_prop
+# HASH_FN = hash_labels_prop
+HASH_FN = hash_labels_only
+
+# Don't consider node properties when creating nodes tensor
+NO_PROP = True
 
 # A hash function used to order the receptive fields
 RECEPTIVE_FIELD_HASH = hash_simhash
