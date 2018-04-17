@@ -73,17 +73,24 @@ def format_all_training_data(training_graphs):
         y_target_list.append(label)
 
     training_examples = len(x_data_list)
-    train_patchy_nodes_shape = (
-        training_examples,
-        params.FIELD_COUNT*params.MAX_FIELD_SIZE,
-        params.CHANNEL_COUNT, 1
-    )
-    train_patchy_edges_shape = (
-        training_examples,
-        params.MAX_NODES*params.MAX_NODES*params.FIELD_COUNT,
-        params.EDGE_PROP_COUNT, 1
-    )
-    train_embed_shape = (training_examples, params.MAX_NODES*params.EMBEDDING_LENGTH*2)
+
+    assert(training_examples > 0)
+
+    train_patchy_nodes_shape = (training_examples,) + x_data_list[0][0].shape
+    train_patchy_edges_shape = (training_examples,) + x_data_list[0][1].shape
+    train_embed_shape = (training_examples,) + x_data_list[0][2].shape
+
+    # train_patchy_nodes_shape = (
+    #     training_examples,
+    #     params.FIELD_COUNT*params.MAX_FIELD_SIZE,
+    #     params.CHANNEL_COUNT, 1
+    # )
+    # train_patchy_edges_shape = (
+    #     training_examples,
+    #     params.MAX_NODES*params.MAX_NODES*params.FIELD_COUNT,
+    #     params.EDGE_PROP_COUNT, 1
+    # )
+    # train_embed_shape = (training_examples, params.MAX_NODES*params.EMBEDDING_LENGTH*2)
 
     x_patchy_nodes = np.ndarray(train_patchy_nodes_shape)
     x_patchy_edges = np.ndarray(train_patchy_edges_shape)
@@ -113,20 +120,23 @@ def create_balanced_training_set(x_patchy_nodes, x_patchy_edges, x_embedding_inp
     :param limit: An integer which represents the max training examples for each class.
     :return: A tuple of ndarrays
     """
+    patchy_nodes_shape = (limit*params.CLASS_COUNT,) + x_patchy_nodes[0].shape
+    patchy_edges_shape = (limit*params.CLASS_COUNT,) + x_patchy_edges[0].shape
+    embedding_shape = (limit*params.CLASS_COUNT,) + x_embedding_input[0].shape
 
-    patchy_nodes_shape = (
-        limit*params.CLASS_COUNT,
-        params.FIELD_COUNT*params.MAX_FIELD_SIZE,
-        params.CHANNEL_COUNT,
-        1
-    )
-    patchy_edges_shape = (
-        limit*params.CLASS_COUNT,
-        params.FIELD_COUNT*params.MAX_NODES*params.MAX_NODES,
-        params.EDGE_PROP_COUNT,
-        1
-    )
-    embedding_shape = (limit*params.CLASS_COUNT, params.EMBEDDING_LENGTH*params.MAX_NODES*2)
+    # patchy_nodes_shape = (
+    #     limit*params.CLASS_COUNT,
+    #     params.FIELD_COUNT*params.MAX_FIELD_SIZE,
+    #     params.CHANNEL_COUNT,
+    #     1
+    # )
+    # patchy_edges_shape = (
+    #     limit*params.CLASS_COUNT,
+    #     params.FIELD_COUNT*params.MAX_NODES*params.MAX_NODES,
+    #     params.EDGE_PROP_COUNT,
+    #     1
+    # )
+    # embedding_shape = (limit*params.CLASS_COUNT, params.EMBEDDING_LENGTH*params.MAX_NODES*2)
 
     class_counts = [0 for _ in range(params.CLASS_COUNT)]
     new_x_patchy_nodes = np.zeros(patchy_nodes_shape)

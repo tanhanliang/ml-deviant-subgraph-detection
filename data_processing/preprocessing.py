@@ -167,27 +167,41 @@ def remove_anomalous_nodes_edges(graph):
         node_prop = graph.nodes[node_id].properties
         if node_prop.__contains__('anomalous') and node_prop['anomalous'] or \
                 'timestamp' not in node_prop:
-            pop_related_edges(graph.incoming_edges, graph.edges, node_id)
-            pop_related_edges(graph.outgoing_edges, graph.edges, node_id)
+            pop_related_edges(graph, node_id, True)
+            pop_related_edges(graph, node_id, False)
             graph.nodes.pop(node_id)
 
 
-def pop_related_edges(node_edge_dict, edges, node_id):
+def pop_related_edges(graph, node_id, is_incoming):
     """
     Pops every edge_id -> edge mapping in a Dictionary where either the start or the
     end of the edge has node_id. Also removes mapping from node_id -> edge from the given
     node_edge_dict if it exists.
 
-    :param node_edge_dict: A Dictionary of node_id -> edge (incoming or outgoing edges from that node)
-    :param edges: A Dictionary of edge_id -> edge
+    :param graph: A Graph object
     :param node_id: An Integer id number of a node of which all related edges will be deleted
     :return: nothing
     """
 
-    if node_edge_dict.__contains__(node_id):
+    if is_incoming:
+        node_edge_dict = graph.incoming_edges
+    else:
+        node_edge_dict = graph.outgoing_edges
+
+    if node_id in node_edge_dict:
         for edge in node_edge_dict[node_id]:
-            if edges.__contains__(edge.id):
-                edges.pop(edge.id)
+            if is_incoming:
+                other_id = edge.start
+                new_outgoing_edges = [edg for edg in graph.outgoing_edges[other_id] if edge.id != edg.id]
+                graph.outgoing_edges[other_id] = new_outgoing_edges
+
+            else:
+                other_id = edge.end
+                new_incoming_edges = [edg for edg in graph.incoming_edges[other_id] if edge.id != edg.id]
+                graph.incoming_edges[other_id] = new_incoming_edges
+
+            if edge.id in node_edge_dict:
+                graph.edges.pop(edge.id)
         node_edge_dict.pop(node_id)
 
 

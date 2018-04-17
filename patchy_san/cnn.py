@@ -5,7 +5,7 @@ The neural network is built here, using Keras with a TensorFlow backend.
 from keras.optimizers import adam, RMSprop
 from keras.models import Model, Sequential
 from keras.layers import Dense, MaxPooling2D, Convolution2D, Flatten, Dropout, Input, Embedding
-from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT
+from patchy_san.parameters import FIELD_COUNT, MAX_FIELD_SIZE, CHANNEL_COUNT, CLASS_COUNT, NO_PROP
 from patchy_san.parameters import EMBEDDING_LENGTH, EMBEDDING_DIM, MAX_NODES, VOCAB_SIZE
 from keras.layers.merge import concatenate
 
@@ -19,7 +19,11 @@ def build_model(learning_rate=0.005, activations="sigmoid"):
 
     :return: A keras Model
     """
-    ps_nodes_input_shape = (FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
+    if NO_PROP:
+        ps_nodes_input_shape = (FIELD_COUNT, MAX_FIELD_SIZE, 1)
+    else:
+        ps_nodes_input_shape = (FIELD_COUNT*MAX_FIELD_SIZE, CHANNEL_COUNT, 1)
+
     ps_edges_input_shape = (FIELD_COUNT*MAX_NODES*MAX_NODES, 2, 1)
 
     # Patchy-san nodes track
