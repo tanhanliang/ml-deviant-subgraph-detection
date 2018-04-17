@@ -93,3 +93,6 @@ Phases of the project:
 4) Evaluation of methods used.
 
 Currently, this project is in phase 4.
+
+# Licence
+The code has been licensed under ALv2. Do what you want with it. 
