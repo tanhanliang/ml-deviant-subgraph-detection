@@ -122,10 +122,9 @@ def get_train_4_node_simple():
     """
 
     pattern = """
-    MATCH path1=(node1)-[]-(node2)
-    MATCH path2=(node1)-[]-(node3)
-    MATCH path3=(node1)-[]-(node4)
-    WHERE node2 <> node3 AND node3 <> node4 AND node2 <> node4
+    MATCH path1=(node1)<-[]-(node2),
+    path2=(node1)<-[]-(node3),
+    path3=(node1)<-[]-(node4)
     RETURN path1,path2,path3 LIMIT 1000
     """
 
