@@ -3,6 +3,7 @@ Contains functions to compute error metrics.
 """
 import numpy as np
 from math import sqrt, pow
+from sklearn.metrics import classification_report
 
 Z_95 = 1.96
 
@@ -36,16 +37,32 @@ def std_dev(x, y, model):
     return std
 
 
-def compute_error_bound(x, y, model):
+def print_error_bound(x, y, model):
     """
-    Computes the error bound within a certain confidence interval for the accuracy of the model.
+    Computes and prints the error bound within a certain confidence interval for the accuracy of the model.
 
     :param x: A list of inputs to the model.
     :param y: The target labels. A ndarray.
     :param model: The model in question.
-    :return: A float, the error bound.
+    :return: Nothing
     """
 
     std = std_dev(x, y, model)
     training_examples = len(y)
-    return Z_95*sqrt(pow(std, 2)/training_examples)
+    print(Z_95*sqrt(pow(std, 2)/training_examples))
+
+
+def print_precision_recall(x, y, model):
+    """
+    Prints the classification report.
+
+    :param x: A list of inputs to the model.
+    :param y: The target labels. A ndarray.
+    :param model: The model in question.
+    :return: nothing
+    """
+
+    pred = model.predict(x)
+    predicted = np.argmax(pred, axis=-1)
+    report = classification_report(np.argmax(y, axis=-1), predicted, digits=4)
+    print(report)
