@@ -64,6 +64,8 @@ def format_all_training_data(training_graphs):
         # that length of receptive_field_groups is 1
         if len(receptive_fields_groups) != 1:
             msg = "More or less than one receptive field group exists in the training example."
+            msg += " %s groups exist" % len(receptive_fields_groups)
+            print("Field count " + str(params.FIELD_COUNT))
             raise ValueError(msg)
 
         nodes_tensor = make_input.build_tensor_naive_hashing(receptive_fields_groups[0])

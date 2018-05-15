@@ -8,10 +8,10 @@ from optimisable_functions.hashes import hash_simhash, hash_labels_prop, hash_la
 FIELD_COUNT = 1
 
 # k
-MAX_FIELD_SIZE = 6
+MAX_FIELD_SIZE = 4
 
 # s
-STRIDE = 6
+STRIDE = 4
 
 # input channels
 HASH_PROPERTIES = ['cmdline', 'name', 'ips', 'client_port', 'meta_login']
@@ -33,11 +33,13 @@ PROPERTY_CARDINALITY = {'cmdline': int(1e19), 'name': int(1e19), 'ips': int(1e10
 # A hash function used to canonicalise the graph (ie. represent the graph in such a way that
 # isomorphic graphs have the same representation)
 # HASH_FN = hash_simhash
-# HASH_FN = hash_labels_prop
-HASH_FN = hash_labels_only
+HASH_FN = hash_labels_prop
+# HASH_FN = hash_labels_only
 
 # Don't consider node properties when creating nodes tensor
-NO_PROP = True
+# IF THIS IS SET TO TRUE, ALSO SET HASH_FN = hash_labels_only AND CHANGE THE KERNEL SIZES
+# FOR THE CONVOLUTIONAL AND POOLING LAYERS IN THE NODES INPUT TRACK IN cnn.py
+NO_PROP = False
 
 # A hash function used to order the receptive fields
 RECEPTIVE_FIELD_HASH = hash_simhash
@@ -60,7 +62,7 @@ DEFAULT_TENSOR_VAL = 0
 CLEAN_TRAIN_DATA = False
 
 # The length of embedding for each name
-EMBEDDING_LENGTH = 10
+EMBEDDING_LENGTH = 20
 
 # The number of dimensions to map each word into
 EMBEDDING_DIM = 10

@@ -59,7 +59,7 @@ def cross_validation(inputs, y, folds, epochs, learning_rate, activation):
     :param folds: An integer
     :param learning_rate: A float
     :param activation: A string
-    :return:
+    :return: average accuracy and loss as a tuple
     """
 
     y_labels = np.argmax(y, axis=1)
@@ -91,3 +91,4 @@ def cross_validation(inputs, y, folds, epochs, learning_rate, activation):
     average_loss /= folds
     print("Average accuracy: " + str(average_accuracy))
     print("Average loss: " + str(average_loss))
+    return average_accuracy, average_loss

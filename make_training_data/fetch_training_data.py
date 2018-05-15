@@ -122,10 +122,9 @@ def get_train_4_node_simple():
     """
 
     pattern = """
-    MATCH path1=(node1)-[]-(node2)
-    MATCH path2=(node1)-[]-(node3)
-    MATCH path3=(node1)-[]-(node4)
-    WHERE node2 <> node3 AND node3 <> node4 AND node2 <> node4
+    MATCH path1=(node1)<-[]-(node2),
+    path2=(node1)<-[]-(node3),
+    path3=(node1)<-[]-(node4)
     RETURN path1,path2,path3 LIMIT 1000
     """
 
@@ -146,6 +145,82 @@ def get_train_6_node_general():
     path4=(node3)<-[r4]-(node5),
     path5=(node3)<-[r5]-(node6)
     RETURN path1,path2,path3,path4,path5 LIMIT 1000
+    """
+
+    return [execute_query(pattern), execute_query(pattern)]
+
+
+def get_train_8_nodes_general():
+
+    pattern = """
+    MATCH path1=(node1)<-[]-(node2),
+    path2=(node1)<-[]-(node3),
+    path3=(node1)<-[]-(node4),
+    path4=(node3)<-[]-(node5),
+    path5=(node3)<-[]-(node6),
+    path6=(node5)<-[]-(node7),
+    path7=(node6)<-[]-(node8)
+    RETURN path1,path2,path3,path4,path5,path6,path7 LIMIT 1000
+    """
+
+    return [execute_query(pattern), execute_query(pattern)]
+
+
+def get_train_10_nodes_general():
+
+    pattern = """
+    MATCH path1=(node1)<-[]-(node2),
+    path2=(node1)<-[]-(node3),
+    path3=(node1)<-[]-(node4),
+    path4=(node3)<-[]-(node5),
+    path5=(node3)<-[]-(node6),
+    path6=(node5)<-[]-(node7),
+    path7=(node6)<-[]-(node8),
+    path8=(node9)<-[]-(node6),
+    path9=(node10)<-[]-(node9)
+    RETURN path1,path2,path3,path4,path5,path6,path7,path8,path9 LIMIT 1000
+    """
+
+    return [execute_query(pattern), execute_query(pattern)]
+
+
+def get_train_12_nodes_general():
+
+    pattern = """
+    MATCH path1=(node1)<-[]-(node2),
+    path2=(node1)<-[]-(node3),
+    path3=(node1)<-[]-(node4),
+    path4=(node3)<-[]-(node5),
+    path5=(node3)<-[]-(node6),
+    path6=(node5)<-[]-(node7),
+    path7=(node6)<-[]-(node8),
+    path8=(node9)<-[]-(node6),
+    path9=(node10)<-[]-(node9),
+    path10=(node11)<-[]-(node2),
+    path11=(node12)<-[]-(node4)
+    RETURN path1,path2,path3,path4,path5,path6,path7,path8,path9,path10,path11 LIMIT 1000
+    """
+
+    return [execute_query(pattern), execute_query(pattern)]
+
+
+def get_train_16_nodes_general():
+
+    pattern = """
+    MATCH path1=(node1)<-[]-(node2),
+    path2=(node1)<-[]-(node3),
+    path3=(node1)<-[]-(node4),
+    path4=(node3)<-[]-(node5),
+    path5=(node3)<-[]-(node6),
+    path6=(node5)<-[]-(node7),
+    path7=(node6)<-[]-(node8),
+    path8=(node9)<-[]-(node6),
+    path9=(node10)<-[]-(node9),
+    path10=(node6)<-[]-(node11),
+    path11=(node6)<-[]-(node12),
+    path12=(node6)<-[]-(node13),
+    path13=(node6)<-[]-(node14)
+    RETURN path1,path2,path3,path4,path5,path6,path7,path8,path9,path10,path11,path12,path13 LIMIT 1000
     """
 
     return [execute_query(pattern), execute_query(pattern)]
